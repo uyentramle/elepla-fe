@@ -35,15 +35,15 @@ Elepla là một nền tảng hỗ trợ lập kế hoạch giảng dạy linh h
   - Yarn hoặc npm
 
 - **Installation**:
-Clone dự án về máy:
+  - Clone dự án về máy:
 ```sh
 git clone https://github.com/your-username/elepla-frontend.git
 ```
-Truy cập vào thư mục dự án: 
+  - Truy cập vào thư mục dự án: 
 ```sh
 cd elepla-frontend
 ```
-Cài đặt dependencies: 
+  - Cài đặt dependencies: 
 ```sh
 yarn install
 ```
@@ -53,15 +53,15 @@ npm install
 ```
 
 - **Running the App**:
-Chạy ứng dụng ở chế độ phát triển:
+  - Chạy ứng dụng ở chế độ phát triển:
 ```sh
 yarn start
-hoặc
 ```
+hoặc
 ```sh
 npm start
 ```
-Mở trình duyệt và truy cập vào http://localhost:5173 để xem ứng dụng.
+  - Mở trình duyệt và truy cập vào http://localhost:5173 để xem ứng dụng.
 
 ---
 
