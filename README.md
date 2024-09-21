@@ -39,10 +39,12 @@ Elepla là một nền tảng hỗ trợ lập kế hoạch giảng dạy linh h
 ```sh
 git clone https://github.com/your-username/elepla-frontend.git
 ```
+-
   - Truy cập vào thư mục dự án: 
 ```sh
 cd elepla-frontend
 ```
+-
   - Cài đặt dependencies: 
 ```sh
 yarn install
@@ -61,6 +63,7 @@ hoặc
 ```sh
 npm start
 ```
+-
   - Mở trình duyệt và truy cập vào http://localhost:5173 để xem ứng dụng.
 
 ---
