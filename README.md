@@ -30,11 +30,11 @@ Elepla là một nền tảng hỗ trợ lập kế hoạch giảng dạy linh h
 
 ### 📖 How to Start (Frontend)
 
-- **Prerequisites**
-Node.js (>= 14.x)
-Yarn hoặc npm
+- **Prerequisites**:
+  - Node.js (>= 14.x)
+  - Yarn hoặc npm
 
-- **Installation**
+- **Installation**:
 Clone dự án về máy:
 ```sh
 git clone https://github.com/your-username/elepla-frontend.git
@@ -45,10 +45,14 @@ cd elepla-frontend
 ```
 Cài đặt dependencies: 
 ```sh
-yarn install hoặc npm install
+yarn install
+```
+ hoặc 
+```sh 
+npm install
 ```
 
-- **Running the App**
+- **Running the App**:
 Chạy ứng dụng ở chế độ phát triển:
 ```sh
 yarn start
