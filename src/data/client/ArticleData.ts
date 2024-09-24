@@ -18,7 +18,7 @@ interface DataType {
     desc?: string;
 }[];
 
-const blog_data: DataType[] = [
+const article_data: DataType[] = [
     {
         id: 1,
         page: "home_1",
@@ -217,4 +217,4 @@ const blog_data: DataType[] = [
     },
 ];
 
-export default blog_data;
+export default article_data;

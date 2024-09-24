@@ -1,13 +1,12 @@
-import { MenuOutlined } from '@ant-design/icons';
+import { MenuOutlined, FormOutlined, } from '@ant-design/icons';
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
 import AnalyticsOutlinedIcon from '@mui/icons-material/AnalyticsOutlined';
-import AppsOutlinedIcon from '@mui/icons-material/AppsOutlined';
 import { Menu, MenuProps } from 'antd';
 import Sider from 'antd/es/layout/Sider';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// import img from '/assets/img/logo.jpg';
+import img from '/assets/img/logo.png';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -45,14 +44,14 @@ export default function MySider() {
     const getConditionalItems = (): MenuItem[] => {
         return [
             getItem('Bảng thống kê', '1', <AnalyticsOutlinedIcon />),
-            getItem('Quản lý dịch vụ', '2', <AppsOutlinedIcon />),
+            getItem('Quản lý bài viết', '2', <FormOutlined />),
             getItem('Quản lý tài khoản', '3', <ManageAccountsOutlinedIcon />),
         ];
     };
     const navUrl = new Map<string, string>();
     navUrl
         .set('1', '/admin/')
-        .set('2', '/admin/#')
+        .set('2', '/admin/articles')
         .set('3', '/admin/#');
 
     return (
@@ -70,9 +69,9 @@ export default function MySider() {
                 }
                 width={256}
             >
-                <div className="demo-logo-vertical border-r-[1px] border-gray-200">
+                <div className="demo-logo-vertical border-r-[1px] border-gray-200 pt-2 pb-4 flex justify-center">
                     <a href='/'>
-                        <img src="/assets/img/logo.jpg" alt="Logo" className="h-16 w-16" />
+                        <img src={img} alt="Logo" className="w-18" />
                     </a>
                 </div>
                 <Menu
