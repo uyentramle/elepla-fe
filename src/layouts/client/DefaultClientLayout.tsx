@@ -7,7 +7,7 @@ const DefaultClientLayout = ({ children }: DefaultLayoutProps) => {
     return (
         <div>
             <Layout className="min-h-screen flex">
-                <Layout className="bg-white flex flex-col w-full">
+                <Layout className="bg-white flex flex-col w-full min-h-screen">
                     <Header />
                     <div className="">{children}</div>
                     <Footer />
