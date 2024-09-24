@@ -6,6 +6,8 @@ import HomePage from '../pages/client/Home/HomePage';
 import ComingSoonPage from '../pages/client/ComingSoon/ComingSoonPage';
 import { DefaultLayoutProps } from '../types/layout.type';
 
+import ArticleManagementPage from '@/pages/admin/ArticleManagement/ArticleManagementPage';
+
 interface RouteProps {
     path: string;
     component: FC<{}>;
@@ -21,6 +23,7 @@ const privateRoutes: RouteProps[] = [];
 
 const adminRoutes: RouteProps[] = [
     { path: '/admin/', component: DashBoardPage, layout: DefaultAdminLayout },
+    { path: '/admin/articles', component: ArticleManagementPage, layout: DefaultAdminLayout },
 ];
 
 export { publicRoutes, privateRoutes, adminRoutes };
