@@ -1,4 +1,4 @@
-import { MenuOutlined, FormOutlined, } from '@ant-design/icons';
+import { MenuOutlined, FormOutlined, SnippetsOutlined, } from '@ant-design/icons';
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
 import AnalyticsOutlinedIcon from '@mui/icons-material/AnalyticsOutlined';
 import { Menu, MenuProps } from 'antd';
@@ -45,14 +45,16 @@ export default function MySider() {
         return [
             getItem('Bảng thống kê', '1', <AnalyticsOutlinedIcon />),
             getItem('Quản lý bài viết', '2', <FormOutlined />),
-            getItem('Quản lý tài khoản', '3', <ManageAccountsOutlinedIcon />),
+            getItem('Quản lý danh mục bài viết', '3', <SnippetsOutlined />),
+            getItem('Quản lý tài khoản', '4', <ManageAccountsOutlinedIcon />),
         ];
     };
     const navUrl = new Map<string, string>();
     navUrl
         .set('1', '/admin/')
         .set('2', '/admin/articles')
-        .set('3', '/admin/#');
+        .set('3', '/admin/categories')
+        .set('4', '/admin/#');
 
     return (
         <>

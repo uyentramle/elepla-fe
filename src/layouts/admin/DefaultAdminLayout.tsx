@@ -10,7 +10,7 @@ const DefaultAdminLayout = ({ children }: DefaultLayoutProps) => {
         <>
             <Layout className="flex">
                 <MySider />
-                <Layout className="flex flex-col w-full">
+                <Layout className="flex flex-col w-full min-h-screen">
                     <MyHeader />
                     <MyContent children={children} />
                     <MyFooter />
