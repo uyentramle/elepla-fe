@@ -1,6 +1,10 @@
 import { FC } from 'react';
 import DefaultAdminLayout from '../layouts/admin/DefaultAdminLayout';
 import DefaultClientLayout from '../layouts/client/DefaultClientLayout';
+import DefaultAuthenLayout from '../layouts/authen/DefaultAuthenLayout';
+
+import SignInPage from '../pages/authen/SignIn/SignInPage';
+
 import DashBoardPage from '../pages/admin/DashBoard/DashBoardPage';
 import HomePage from '../pages/client/Home/HomePage';
 import ComingSoonPage from '../pages/client/ComingSoon/ComingSoonPage';
@@ -17,6 +21,7 @@ interface RouteProps {
 
 const publicRoutes: RouteProps[] = [
     { path: '/', component: HomePage, layout: DefaultClientLayout },
+    { path: '/sign-in', component: SignInPage, layout: DefaultAuthenLayout },
     { path: '/coming-soon', component: ComingSoonPage, layout: DefaultClientLayout },
 ];
 
