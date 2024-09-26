@@ -5,6 +5,7 @@ import DefaultAuthenLayout from '../layouts/authen/DefaultAuthenLayout';
 
 import SignInPage from '../pages/authen/SignIn/SignInPage';
 import SignUpPage from '../pages/authen/SignUp/SignUpPage';
+import ForgotPasswordPage from '@/pages/authen/ForgotPassword/ForgotPasswordPage';
 
 import DashBoardPage from '../pages/admin/DashBoard/DashBoardPage';
 import HomePage from '../pages/client/Home/HomePage';
@@ -24,6 +25,7 @@ const publicRoutes: RouteProps[] = [
     { path: '/', component: HomePage, layout: DefaultClientLayout },
     { path: '/sign-in', component: SignInPage, layout: DefaultAuthenLayout },
     { path: '/sign-up', component: SignUpPage, layout: DefaultAuthenLayout },
+    { path: '/forgot-password', component: ForgotPasswordPage, layout: DefaultAuthenLayout},
     { path: '/coming-soon', component: ComingSoonPage, layout: DefaultClientLayout },
 ];
 
