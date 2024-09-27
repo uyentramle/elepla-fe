@@ -4,7 +4,11 @@ import DefaultClientLayout from '../layouts/client/DefaultClientLayout';
 import DashBoardPage from '../pages/admin/DashBoard/DashBoardPage';
 import HomePage from '../pages/client/Home/HomePage';
 import ComingSoonPage from '../pages/client/ComingSoon/ComingSoonPage';
+import PlanbookLibraryPage from '../pages/client/PlanbookLibrary/PlanbookLibraryPage';
+import PlanbookDetailPage from '../pages/client/PlanBookDetail/PlanBookDetailPage'; 
 import { DefaultLayoutProps } from '../types/layout.type';
+
+
 
 interface RouteProps {
     path: string;
@@ -15,6 +19,10 @@ interface RouteProps {
 const publicRoutes: RouteProps[] = [
     { path: '/', component: HomePage, layout: DefaultClientLayout },
     { path: '/coming-soon', component: ComingSoonPage, layout: DefaultClientLayout },
+    { path: '/PlanbookLibrary', component: PlanbookLibraryPage, layout: DefaultClientLayout },
+    { path: '/PlanbookDetail', component: PlanbookDetailPage, layout: DefaultClientLayout },
+
+
 ];
 
 const privateRoutes: RouteProps[] = [];

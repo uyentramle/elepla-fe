@@ -1,4 +1,6 @@
 
+// FeedbackData.ts
+
 interface DataType {
     id: number;
     page: string;
@@ -6,6 +8,7 @@ interface DataType {
     author_img: string;
     author_name: string;
     designation: string;
+    rating: number;
 }[];
 
 const feedback_data: DataType[] = [
@@ -16,6 +19,7 @@ const feedback_data: DataType[] = [
         author_img: "/assets/img/1.png",
         author_name: "Eugene Freeman",
         designation: "Tincidunt",
+        rating:5,
     },
     {
         id: 2,
@@ -24,6 +28,8 @@ const feedback_data: DataType[] = [
         author_img: "/assets/img/1.png",
         author_name: "Jaction Freeman",
         designation: "Tincidunt",
+        rating:4,
+
     },
     {
         id: 3,
@@ -32,6 +38,8 @@ const feedback_data: DataType[] = [
         author_img: "/assets/img/1.png",
         author_name: "Eugene Freeman",
         designation: "Tincidunt",
+        rating:3,
+
      },
      {
         id: 4,
@@ -40,6 +48,7 @@ const feedback_data: DataType[] = [
         author_img: "/assets/img/1.png",
         author_name: "Kelly Coleman",
         designation: "Nulla nec",
+        rating:2,
      },
 ];
 
