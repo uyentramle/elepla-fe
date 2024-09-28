@@ -3,21 +3,29 @@ import DefaultAdminLayout from '../layouts/admin/DefaultAdminLayout';
 import DefaultClientLayout from '../layouts/client/DefaultClientLayout';
 import DefaultAuthenLayout from '../layouts/authen/DefaultAuthenLayout';
 import DefaultManagerLayout from '@/layouts/manager/DefaultManagerLayout';
+import DefaultStaffLayout from '@/layouts/academy-staff/DefaultStaffLayout';
 import DefaultTeacherLayout from '@/layouts/teacher/DefaultTeacherLayout';
 
+// Client
+import HomePage from '../pages/client/Home/HomePage';
+import ComingSoonPage from '../pages/client/ComingSoon/ComingSoonPage';
+import { DefaultLayoutProps } from '../types/layout.type';
 import SignInPage from '../pages/authen/SignIn/SignInPage';
 import SignUpPage from '../pages/authen/SignUp/SignUpPage';
 import ForgotPasswordPage from '@/pages/authen/ForgotPassword/ForgotPasswordPage';
 
+// Admin
 import DashBoardPage from '../pages/admin/DashBoard/DashBoardPage';
-import HomePage from '../pages/client/Home/HomePage';
-import ComingSoonPage from '../pages/client/ComingSoon/ComingSoonPage';
-import { DefaultLayoutProps } from '../types/layout.type';
-
 import ArticleManagementPage from '@/pages/admin/ArticleManagement/ArticleManagementPage';
 import CategoryManagementPage from '@/pages/admin/CategoryManagement/CategoryManagementPage';
 
+// Manager
 import DashBoardManagerPage from '@/pages/manager/DashBoard/DashBoardPage';
+
+// Academy Staff
+import DashBoardStaffPage from '@/pages/academy-staff/DashBoard/DashBoardPage';
+
+// Teacher
 
 interface RouteProps {
     path: string;
@@ -45,7 +53,11 @@ const managerRoutes: RouteProps[] = [
     { path: '/manager/', component: DashBoardManagerPage, layout: DefaultManagerLayout },
 ];
 
+const academyStaffRoutes: RouteProps[] = [
+    { path: '/academy-staff/', component: DashBoardStaffPage, layout: DefaultStaffLayout },
+];
+
 const teacherRoutes: RouteProps[] = [
 ];
 
-export { publicRoutes, privateRoutes, adminRoutes, managerRoutes, teacherRoutes };
+export { publicRoutes, privateRoutes, adminRoutes, managerRoutes, academyStaffRoutes, teacherRoutes };
