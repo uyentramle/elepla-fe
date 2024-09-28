@@ -2,6 +2,7 @@ import { FC } from 'react';
 import DefaultAdminLayout from '../layouts/admin/DefaultAdminLayout';
 import DefaultClientLayout from '../layouts/client/DefaultClientLayout';
 import DefaultAuthenLayout from '../layouts/authen/DefaultAuthenLayout';
+import DefaultTeacherLayout from '@/layouts/teacher/DefaultTeacherLayout';
 
 import SignInPage from '../pages/authen/SignIn/SignInPage';
 import SignUpPage from '../pages/authen/SignUp/SignUpPage';
@@ -25,7 +26,7 @@ const publicRoutes: RouteProps[] = [
     { path: '/', component: HomePage, layout: DefaultClientLayout },
     { path: '/sign-in', component: SignInPage, layout: DefaultAuthenLayout },
     { path: '/sign-up', component: SignUpPage, layout: DefaultAuthenLayout },
-    { path: '/forgot-password', component: ForgotPasswordPage, layout: DefaultAuthenLayout},
+    { path: '/forgot-password', component: ForgotPasswordPage, layout: DefaultAuthenLayout },
     { path: '/coming-soon', component: ComingSoonPage, layout: DefaultClientLayout },
 ];
 
@@ -37,4 +38,8 @@ const adminRoutes: RouteProps[] = [
     { path: '/admin/categories', component: CategoryManagementPage, layout: DefaultAdminLayout },
 ];
 
-export { publicRoutes, privateRoutes, adminRoutes };
+const teacherRoutes: RouteProps[] = [
+    { path: '/teacher/', component: DashBoardPage, layout: DefaultTeacherLayout },
+];
+
+export { publicRoutes, privateRoutes, adminRoutes, teacherRoutes };
