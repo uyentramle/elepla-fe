@@ -2,6 +2,7 @@ import { FC } from 'react';
 import DefaultAdminLayout from '../layouts/admin/DefaultAdminLayout';
 import DefaultClientLayout from '../layouts/client/DefaultClientLayout';
 import DefaultAuthenLayout from '../layouts/authen/DefaultAuthenLayout';
+import DefaultManagerLayout from '@/layouts/manager/DefaultManagerLayout';
 import DefaultTeacherLayout from '@/layouts/teacher/DefaultTeacherLayout';
 
 import SignInPage from '../pages/authen/SignIn/SignInPage';
@@ -15,6 +16,8 @@ import { DefaultLayoutProps } from '../types/layout.type';
 
 import ArticleManagementPage from '@/pages/admin/ArticleManagement/ArticleManagementPage';
 import CategoryManagementPage from '@/pages/admin/CategoryManagement/CategoryManagementPage';
+
+import DashBoardManagerPage from '@/pages/manager/DashBoard/DashBoardPage';
 
 interface RouteProps {
     path: string;
@@ -38,8 +41,11 @@ const adminRoutes: RouteProps[] = [
     { path: '/admin/categories', component: CategoryManagementPage, layout: DefaultAdminLayout },
 ];
 
-const teacherRoutes: RouteProps[] = [
-    { path: '/teacher/', component: DashBoardPage, layout: DefaultTeacherLayout },
+const managerRoutes: RouteProps[] = [
+    { path: '/manager/', component: DashBoardManagerPage, layout: DefaultManagerLayout },
 ];
 
-export { publicRoutes, privateRoutes, adminRoutes, teacherRoutes };
+const teacherRoutes: RouteProps[] = [
+];
+
+export { publicRoutes, privateRoutes, adminRoutes, managerRoutes, teacherRoutes };
