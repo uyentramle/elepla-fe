@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
-import { adminRoutes, privateRoutes, publicRoutes } from './routes';
+import { adminRoutes, privateRoutes, publicRoutes, managerRoutes, academyStaffRoutes, teacherRoutes } from './routes';
 
 function App() {
     return (
@@ -29,6 +29,39 @@ function App() {
                     );
                 })}
                 {adminRoutes.map(({ layout, component, path }, index) => {
+                    const Layout = layout;
+                    const Component = component;
+                    return (
+                        <Route
+                            key={index}
+                            path={path}
+                            element={<Layout children={<Component />} />}
+                        />
+                    );
+                })}
+                {managerRoutes.map(({ layout, component, path }, index) => {
+                    const Layout = layout;
+                    const Component = component;
+                    return (
+                        <Route
+                            key={index}
+                            path={path}
+                            element={<Layout children={<Component />} />}
+                        />
+                    );
+                })}
+                {academyStaffRoutes.map(({ layout, component, path }, index) => {
+                    const Layout = layout;
+                    const Component = component;
+                    return (
+                        <Route
+                            key={index}
+                            path={path}
+                            element={<Layout children={<Component />} />}
+                        />
+                    );
+                })}
+                {teacherRoutes.map(({ layout, component, path }, index) => {
                     const Layout = layout;
                     const Component = component;
                     return (
