@@ -28,6 +28,7 @@ import DashBoardStaffPage from '@/pages/academy-staff/DashBoard/DashBoardPage';
 // Teacher
 import ProfilePage from '@/pages/teacher/User/ProfilePage';
 import ChangePasswordPage from '@/pages/teacher/User/ChangePasswordPage';
+import AccountSettingsPage from '@/pages/teacher/User/AccountSettingsPage';
 
 interface RouteProps {
     path: string;
@@ -62,6 +63,7 @@ const academyStaffRoutes: RouteProps[] = [
 const teacherRoutes: RouteProps[] = [
     { path: '/teacher/profile', component: ProfilePage, layout: DefaultClientLayout },
     { path: '/teacher/change-password', component: ChangePasswordPage, layout: DefaultClientLayout },
+    { path: '/teacher/account-settings', component: AccountSettingsPage, layout: DefaultClientLayout },
 ];
 
 export { publicRoutes, privateRoutes, adminRoutes, managerRoutes, academyStaffRoutes, teacherRoutes };
