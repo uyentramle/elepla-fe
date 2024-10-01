@@ -26,6 +26,7 @@ import DashBoardManagerPage from '@/pages/manager/DashBoard/DashBoardPage';
 import DashBoardStaffPage from '@/pages/academy-staff/DashBoard/DashBoardPage';
 
 // Teacher
+import ProfilePage from '@/pages/teacher/User/ProfilePage';
 
 interface RouteProps {
     path: string;
@@ -58,6 +59,7 @@ const academyStaffRoutes: RouteProps[] = [
 ];
 
 const teacherRoutes: RouteProps[] = [
+    { path: '/teacher/profile', component: ProfilePage, layout: DefaultClientLayout },
 ];
 
 export { publicRoutes, privateRoutes, adminRoutes, managerRoutes, academyStaffRoutes, teacherRoutes };
