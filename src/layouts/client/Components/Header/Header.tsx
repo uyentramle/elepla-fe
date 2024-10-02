@@ -62,11 +62,11 @@ const Header: React.FC = () => {
                         </div>
                         {/* Right Side - Sign In / Sign Up / Search */}
                         <div className="flex items-center space-x-4">
-                            <Link href="#">
-                                <Button type="default" className="mb-3">Sign In</Button>
+                            <Link href="/sign-in">
+                                <Button type="default" className="mb-3">Đăng nhập</Button>
                             </Link>
-                            <Link href="#">
-                                <Button type="primary" className="mb-3">Sign Up</Button>
+                            <Link href="/sign-up">
+                                <Button type="primary" className="mb-3">Đăng ký</Button>
                             </Link>
                         </div>
                     </div>
