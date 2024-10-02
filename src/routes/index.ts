@@ -4,7 +4,7 @@ import DefaultClientLayout from '../layouts/client/DefaultClientLayout';
 import DefaultAuthenLayout from '../layouts/authen/DefaultAuthenLayout';
 import DefaultManagerLayout from '@/layouts/manager/DefaultManagerLayout';
 import DefaultStaffLayout from '@/layouts/academy-staff/DefaultStaffLayout';
-import DefaultTeacherLayout from '@/layouts/teacher/DefaultTeacherLayout';
+// import DefaultTeacherLayout from '@/layouts/teacher/DefaultTeacherLayout';
 
 // Client
 import HomePage from '../pages/client/Home/HomePage';
@@ -17,7 +17,9 @@ import ForgotPasswordPage from '@/pages/authen/ForgotPassword/ForgotPasswordPage
 // Admin
 import DashBoardPage from '../pages/admin/DashBoard/DashBoardPage';
 import ArticleManagementPage from '@/pages/admin/ArticleManagement/ArticleManagementPage';
+import ArticleFormPage from '@/pages/admin/ArticleManagement/ArticleFormPage';
 import CategoryManagementPage from '@/pages/admin/CategoryManagement/CategoryManagementPage';
+import CategoryFormPage from '@/pages/admin/CategoryManagement/CategoryFormPage';
 
 // Manager
 import DashBoardManagerPage from '@/pages/manager/DashBoard/DashBoardPage';
@@ -49,7 +51,11 @@ const privateRoutes: RouteProps[] = [];
 const adminRoutes: RouteProps[] = [
     { path: '/admin/', component: DashBoardPage, layout: DefaultAdminLayout },
     { path: '/admin/articles', component: ArticleManagementPage, layout: DefaultAdminLayout },
+    { path: '/admin/articles/add-new', component: ArticleFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/articles/edit/:id', component: ArticleFormPage, layout: DefaultAdminLayout },
     { path: '/admin/categories', component: CategoryManagementPage, layout: DefaultAdminLayout },
+    { path: '/admin/categories/add-new', component: CategoryFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/categories/edit/:id', component: CategoryFormPage, layout: DefaultAdminLayout },
 ];
 
 const managerRoutes: RouteProps[] = [

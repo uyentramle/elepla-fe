@@ -3,8 +3,8 @@ import blog2Thumb_2 from "/assets/img/blog/5.png";
 import blog2Thumb_3 from "/assets/img/blog/6.png";
 import blog2Thumb_4 from "/assets/img/blog/7.png";
 
-export interface Article {
-    id: number;
+export interface IArticle {
+    id: string;
     title: string;
     url: string;
     content: string;
@@ -20,11 +20,11 @@ export interface Article {
     isDelete: boolean;
 }
 
-const article_data: Article[] = [
+const article_data: IArticle[] = [
     {
-        id: 1,
+        id: "1",
         title: "Flock by when MTV ax quiz prog quiz graced",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
         thumb: blog2Thumb_1,
@@ -37,9 +37,9 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 2,
+        id: "2",
         title: "Quisque suscipit ipsum est, eu venen leo",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
         thumb: blog2Thumb_2,
@@ -52,9 +52,9 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 3,
+        id: "3",
         title: "When MTV ax quiz prog Flock by graced",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
         thumb: blog2Thumb_3,
@@ -67,11 +67,11 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 4,
+        id: "4",
         title: "Flock by when MTV ax quiz prog quiz graced",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
-        status: "Inactive",
+        status: "Private",
         thumb: blog2Thumb_4,
         createdAt: new Date("2020-01-28"),
         createdBy: "admin",
@@ -82,9 +82,9 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 5,
+        id: "5",
         title: "Quisque suscipit ipsum est, eu venen leo",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Draft",
         thumb: blog2Thumb_1,
@@ -97,9 +97,9 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 6,
+        id: "6",
         title: "When MTV ax quiz prog Flock by graced",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Trash",
         thumb: blog2Thumb_2,
@@ -112,9 +112,9 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 7,
+        id: "7",
         title: "Flock by when MTV ax quiz prog quiz graced",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
         thumb: blog2Thumb_3,
@@ -127,9 +127,9 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 8,
+        id: "8",
         title: "Quisque suscipit ipsum est, eu venen leo",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
         thumb: blog2Thumb_4,
@@ -142,9 +142,9 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 9,
+        id: "9",
         title: "When MTV ax quiz prog Flock by graced",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
         thumb: blog2Thumb_1,
@@ -157,9 +157,9 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 10,
+        id: "10",
         title: "Flock by when MTV ax quiz prog quiz graced",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
         thumb: blog2Thumb_2,
@@ -172,9 +172,9 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 11,
+        id: "11",
         title: "Quisque suscipit ipsum est, eu venen leo",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
         thumb: blog2Thumb_3,
@@ -187,9 +187,9 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 12,
+        id: "12",
         title: "When MTV ax quiz prog Flock by graced",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
         thumb: blog2Thumb_3,
@@ -202,9 +202,9 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 13,
+        id: "13",
         title: "Flock by when MTV ax quiz prog quiz graced",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
         thumb: blog2Thumb_4,
@@ -217,9 +217,9 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 14,
+        id: "14",
         title: "Quisque suscipit ipsum est, eu venen leo",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
         thumb: blog2Thumb_1,
@@ -232,9 +232,9 @@ const article_data: Article[] = [
         isDelete: false,
     },
     {
-        id: 15,
+        id: "15",
         title: "When MTV ax quiz prog Flock by graced",
-        url: "inner_blog_2",
+        url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
         thumb: blog2Thumb_2,

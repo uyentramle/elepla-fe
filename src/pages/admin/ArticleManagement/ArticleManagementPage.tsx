@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Button, Input, Table, Select, Modal, message, Typography } from 'antd';
-import article_data, { Article } from '@/data/admin/ArticleData';
+import article_data, { IArticle } from '@/data/admin/ArticleData';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -10,9 +10,9 @@ const { Title } = Typography;
 const ArticleManagementPage: React.FC = () => {
     const [articles, setArticles] = useState(article_data);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterStatus, setFilterStatus] = useState<'Draft' | 'Public' | 'Inactive' | 'Trash' | 'All'>('All');
+    const [filterStatus, setFilterStatus] = useState<'Draft' | 'Public' | 'Private' | 'Trash' | 'All'>('All');
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-    const [articleToDelete, setArticleToDelete] = useState<Article | null>(null);
+    const [articleToDelete, setArticleToDelete] = useState<IArticle | null>(null);
 
     const filteredArticles = articles.filter((b) => {
         const matchesSearch = `${b.title}`.toLowerCase().includes(searchTerm.toLowerCase());
@@ -20,12 +20,12 @@ const ArticleManagementPage: React.FC = () => {
             filterStatus === 'All' ||
             (filterStatus === 'Draft' && b.status === 'Draft') ||
             (filterStatus === 'Public' && b.status === 'Public') ||
-            (filterStatus === 'Inactive' && b.status === 'Inactive') ||
+            (filterStatus === 'Private' && b.status === 'Private') ||
             (filterStatus === 'Trash' && b.isDelete);
         return matchesSearch && matchesStatus;
     });
 
-    const handleDeleteModal = (article: Article) => {
+    const handleDeleteModal = (article: IArticle) => {
         setArticleToDelete(article);
         setDeleteModalVisible(true);
     };
@@ -33,8 +33,8 @@ const ArticleManagementPage: React.FC = () => {
     const columns = [
         {
             title: 'No.',
-            dataIndex: 'id',
-            key: 'id',
+            dataIndex: '1',
+            // key: 'id',
             render: (_text: any, _record: any, index: number) => index + 1,
         },
         {
@@ -61,18 +61,18 @@ const ArticleManagementPage: React.FC = () => {
             key: 'status',
             render: (text: string) => <span>
                 {text === 'Public' && 'Công khai'}
-                {text === 'Inactive' && 'Không công khai'}
-                {text === 'Draft' && 'Nháp'}
+                {text === 'Private' && 'Không công khai'}
+                {text === 'Draft' && <><EditOutlined /> Nháp</>}
                 {text === 'Trash' && 'Thùng rác'}
             </span>,
         },
         {
             title: 'Cập nhật',
             key: 'update',
-            render: (_text: any, _record: Article) => (
-                <Link to={`#`}>
+            render: (_text: any, _record: IArticle) => (
+                <Link to={`/admin/articles/edit/${_record.id}`}>
                     <Button type="primary" icon={<EditOutlined />} className="bg-blue-500">
-                        Edit
+                        Cập nhật
                     </Button>
                 </Link>
             ),
@@ -80,7 +80,7 @@ const ArticleManagementPage: React.FC = () => {
         {
             title: 'Xóa',
             key: 'delete',
-            render: (_text: any, record: Article) => (
+            render: (_text: any, record: IArticle) => (
                 <Button
                     type="primary"
                     danger
@@ -88,7 +88,7 @@ const ArticleManagementPage: React.FC = () => {
                     className="bg-red-500"
                     onClick={() => handleDeleteModal(record)}
                 >
-                    Delete
+                    Xóa
                 </Button>
             ),
         },
@@ -138,11 +138,11 @@ const ArticleManagementPage: React.FC = () => {
                             id="status-filter"
                             className="w-48"
                             value={filterStatus}
-                            onChange={(value) => setFilterStatus(value as 'Public' | 'Inactive' | 'Draft' | 'Trash' | 'All')}
+                            onChange={(value) => setFilterStatus(value as 'Public' | 'Private' | 'Draft' | 'Trash' | 'All')}
                         >
                             <Option value="All">Tất cả</Option>
                             <Option value="Public">Công khai</Option>
-                            <Option value="Inactive">Không công khai</Option>
+                            <Option value="Private">Không công khai</Option>
                             <Option value="Draft">Nháp</Option>
                             <Option value="Trash">Thùng rác</Option>
                         </Select>
@@ -151,11 +151,11 @@ const ArticleManagementPage: React.FC = () => {
                 <div>
                     <Button type="primary" className="mr-4">
                         <Link
-                            to="#"
+                            to="/admin/articles/add-new"
                             className="flex items-center"
                         >
                             <PlusOutlined className="mr-2" />
-                            New
+                            Thêm mới
                         </Link>
                     </Button>
                 </div>

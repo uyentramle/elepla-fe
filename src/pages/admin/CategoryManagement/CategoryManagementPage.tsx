@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Button, Input, Table, Select, Modal, message, Typography } from 'antd';
-import category_data, { Category } from "@/data/admin/CategoryData";
+import category_data, { ICategory } from "@/data/admin/CategoryData";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -12,18 +12,18 @@ const CategoryManagementPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<'Active' | 'Inactive' | 'All'>('All');
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-    const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+    const [categoryToDelete, setCategoryToDelete] = useState<ICategory | null>(null);
 
     const filteredCategorys = categories.filter((c) => {
-        const matchesSearch = `${c.category_name}`.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = `${c.name}`.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus =
             filterStatus === 'All' ||
-            (filterStatus === 'Active' && c.is_active) ||
-            (filterStatus === 'Inactive' && !c.is_active);
+            (filterStatus === 'Active' && c.status) ||
+            (filterStatus === 'Inactive' && !c.status);
         return matchesSearch && matchesStatus;
     });
 
-    const handleDeleteModal = (category: Category) => {
+    const handleDeleteModal = (category: ICategory) => {
         setCategoryToDelete(category);
         setDeleteModalVisible(true);
     };
@@ -31,8 +31,8 @@ const CategoryManagementPage: React.FC = () => {
     const columns = [
         {
             title: 'No.',
-            dataIndex: 'id',
-            key: 'id',
+            dataIndex: '1',
+            // key: 'id',
             render: (_text: any, _record: any, index: number) => index + 1,
         },
         {
@@ -43,8 +43,8 @@ const CategoryManagementPage: React.FC = () => {
         },
         {
             title: 'Tiêu đề',
-            dataIndex: 'category_name',
-            key: 'category_name',
+            dataIndex: 'name',
+            key: 'name',
             render: (text: string) => <span className="font-semibold">{text}</span>,
         },
         {
@@ -55,17 +55,17 @@ const CategoryManagementPage: React.FC = () => {
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'is_active',
-            key: 'is_active',
+            dataIndex: 'status',
+            key: 'status',
             render: (text: boolean) => (text ? 'Công khai' : 'Nháp'),
         },
         {
             title: 'Cập nhật',
             key: 'update',
-            render: (_text: any, _record: Category) => (
-                <Link to={`#`}>
+            render: (_text: any, _record: ICategory) => (
+                <Link to={`/admin/categories/edit/${_record.id}`}>
                     <Button type="primary" icon={<EditOutlined />} className="bg-blue-500">
-                        Edit
+                        Cập nhật
                     </Button>
                 </Link>
             ),
@@ -73,7 +73,7 @@ const CategoryManagementPage: React.FC = () => {
         {
             title: 'Xóa',
             key: 'delete',
-            render: (_text: any, record: Category) => (
+            render: (_text: any, record: ICategory) => (
                 <Button
                     type="primary"
                     danger
@@ -81,7 +81,7 @@ const CategoryManagementPage: React.FC = () => {
                     className="bg-red-500"
                     onClick={() => handleDeleteModal(record)}
                 >
-                    Delete
+                    Xóa
                 </Button>
             ),
         },
@@ -142,11 +142,11 @@ const CategoryManagementPage: React.FC = () => {
                 <div>
                     <Button type="primary" className="mr-4">
                         <Link
-                            to="#"
+                            to="/admin/categories/add-new"
                             className="flex items-center"
                         >
                             <PlusOutlined className="mr-2" />
-                            New
+                            Thêm mới
                         </Link>
                     </Button>
                 </div>
