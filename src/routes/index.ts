@@ -17,6 +17,7 @@ import ForgotPasswordPage from '@/pages/authen/ForgotPassword/ForgotPasswordPage
 // Admin
 import DashBoardPage from '../pages/admin/DashBoard/DashBoardPage';
 import ArticleManagementPage from '@/pages/admin/ArticleManagement/ArticleManagementPage';
+import ArticleFormPage from '@/pages/admin/ArticleManagement/ArticleFormPage';
 import CategoryManagementPage from '@/pages/admin/CategoryManagement/CategoryManagementPage';
 import CategoryFormPage from '@/pages/admin/CategoryManagement/CategoryFormPage';
 
@@ -47,6 +48,8 @@ const privateRoutes: RouteProps[] = [];
 const adminRoutes: RouteProps[] = [
     { path: '/admin/', component: DashBoardPage, layout: DefaultAdminLayout },
     { path: '/admin/articles', component: ArticleManagementPage, layout: DefaultAdminLayout },
+    { path: '/admin/articles/add-new', component: ArticleFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/articles/edit/:id', component: ArticleFormPage, layout: DefaultAdminLayout },
     { path: '/admin/categories', component: CategoryManagementPage, layout: DefaultAdminLayout },
     { path: '/admin/categories/add-new', component: CategoryFormPage, layout: DefaultAdminLayout },
     { path: '/admin/categories/edit/:id', component: CategoryFormPage, layout: DefaultAdminLayout },
