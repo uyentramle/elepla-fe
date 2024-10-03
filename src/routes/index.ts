@@ -19,8 +19,8 @@ interface RouteProps {
 const publicRoutes: RouteProps[] = [
     { path: '/', component: HomePage, layout: DefaultClientLayout },
     { path: '/coming-soon', component: ComingSoonPage, layout: DefaultClientLayout },
-    { path: '/PlanbookLibrary', component: PlanbookLibraryPage, layout: DefaultClientLayout },
-    { path: '/PlanbookDetail', component: PlanbookDetailPage, layout: DefaultClientLayout },
+    { path: '/planbook-library', component: PlanbookLibraryPage, layout: DefaultClientLayout },
+    { path: '/planbook-detail/{id}', component: PlanbookDetailPage, layout: DefaultClientLayout },
 
 
 ];
