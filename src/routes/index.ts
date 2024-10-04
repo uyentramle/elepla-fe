@@ -9,6 +9,8 @@ import DefaultStaffLayout from '@/layouts/academy-staff/DefaultStaffLayout';
 // Client
 import HomePage from '../pages/client/Home/HomePage';
 import ComingSoonPage from '../pages/client/ComingSoon/ComingSoonPage';
+import PlanbookLibraryPage from '../pages/client/PlanbookLibrary/PlanbookLibraryPage';
+import PlanbookDetailPage from '../pages/client/PlanBookDetail/PlanBookDetailPage'; 
 import { DefaultLayoutProps } from '../types/layout.type';
 import SignInPage from '../pages/authen/SignIn/SignInPage';
 import SignUpPage from '../pages/authen/SignUp/SignUpPage';
@@ -33,6 +35,8 @@ import ChangePasswordPage from '@/pages/teacher/User/ChangePasswordPage';
 import AccountSettingsPage from '@/pages/teacher/User/AccountSettingsPage';
 import WeeklySchedulePage from '@/pages/teacher/Schedule/WeeklySchedulePage';
 
+
+
 interface RouteProps {
     path: string;
     component: FC<{}>;
@@ -45,6 +49,10 @@ const publicRoutes: RouteProps[] = [
     { path: '/sign-up', component: SignUpPage, layout: DefaultAuthenLayout },
     { path: '/forgot-password', component: ForgotPasswordPage, layout: DefaultAuthenLayout },
     { path: '/coming-soon', component: ComingSoonPage, layout: DefaultClientLayout },
+    { path: '/planbook-library', component: PlanbookLibraryPage, layout: DefaultClientLayout },
+    { path: '/planbook-detail/{id}', component: PlanbookDetailPage, layout: DefaultClientLayout },
+
+
 ];
 
 const privateRoutes: RouteProps[] = [];
