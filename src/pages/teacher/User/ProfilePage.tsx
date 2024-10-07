@@ -21,17 +21,17 @@ const handleLogout = () => {
 };
 
     return (
-        <div className="container mx-auto w-4/5 p-4 pt-10">
+        <div className="container mx-auto p-4 pt-10">
             <div className="flex flex-col gap-10 lg:flex-row">
                 {' '}
                 <SidebarMenu onLogout={handleLogout} />
                 <div className="w-full lg:flex-1">
-                    <div className="rounded bg-white p-4 shadow">
+                    <div className="rounded bg-white p-6 shadow">
                         <div className="mb-4 flex flex-col gap-12 sm:flex-row">
                             {' '}
                             {/* items-center */}
                             {/* Phần Avatar và Change Photo */}
-                            <div className="mb-4 ml-16 mr-0 flex-shrink-0 sm:mb-0 sm:mr-4">
+                            <div className="mb-4 ml-6 mr-0 flex-shrink-0 sm:mb-0 sm:mr-4">
                                 <div className="flex h-44 w-44 items-center justify-center rounded-full bg-white">
                                     {/* {avatar || userData.avatar ? (
                                         <img src={avatar ?? userData.avatar} alt="Avatar" className="h-40 w-40 rounded-full object-cover" />

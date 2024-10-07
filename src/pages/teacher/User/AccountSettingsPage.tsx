@@ -129,12 +129,12 @@ const AccountSettingsPage: React.FC = () => {
     }, []);
 
     return (
-        <div className="container mx-auto w-4/5 p-4 pt-10">
+        <div className="container mx-auto p-4 pt-10">
             <div className="flex flex-col gap-10 lg:flex-row">
                 {' '}
                 <SidebarMenu onLogout={handleLogout} />
                 <div className="w-full lg:flex-1">
-                    <div className="rounded bg-white p-4 shadow">
+                    <div className="rounded bg-white p-6 shadow">
                         <nav className="mb-4 flex">
                             <b className="inline-flex items-center rounded-t border-l border-r border-t border-blue-500 px-4 py-2 pb-1.5 text-blue-500">
                                 <span className="mr-2">Thiết lập an toàn tài khoản</span>
