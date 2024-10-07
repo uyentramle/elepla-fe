@@ -34,6 +34,7 @@ import ProfilePage from '@/pages/teacher/User/ProfilePage';
 import ChangePasswordPage from '@/pages/teacher/User/ChangePasswordPage';
 import AccountSettingsPage from '@/pages/teacher/User/AccountSettingsPage';
 import PaymentHistoryPage from '@/pages/teacher/User/PaymentHistoryPage';
+import PackageInUsePage from '@/pages/teacher/User/PackageInUsePage';
 import WeeklySchedulePage from '@/pages/teacher/Schedule/WeeklySchedulePage';
 
 
@@ -81,6 +82,7 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/change-password', component: ChangePasswordPage, layout: DefaultClientLayout },
     { path: '/teacher/account-settings', component: AccountSettingsPage, layout: DefaultClientLayout },
     { path: '/teacher/payment-history', component: PaymentHistoryPage, layout: DefaultClientLayout },
+    { path: '/teacher/package', component: PackageInUsePage, layout: DefaultClientLayout },
     { path: '/teacher/schedule/weekly', component: WeeklySchedulePage, layout: DefaultClientLayout },
 ];
 
