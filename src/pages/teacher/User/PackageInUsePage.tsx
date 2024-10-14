@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import SidebarMenu from "./SidebarMenu";
 import { useNavigate } from "react-router-dom";
-import { Button } from "antd";
+import { Button, Modal } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
+import PackageDetailPage from "./PackageDetialPage"; // Import component Popup
 import package_in_use_data, { IUserPackage } from "@/data/client/PackageInUseData";
 import dayjs from 'dayjs';
 
@@ -15,6 +16,8 @@ const PackageInUsePage: React.FC = () => {
     const navigate = useNavigate();
     const [userPackage, setUserPackage] = useState<IUserPackage | null>(null);
     const [isExpired, setIsExpired] = useState<boolean>(false);
+    const [isModalVisible, setIsModalVisible] = useState(false); // State to control the popup
+
 
     const navigateToSignInPage = () => {
         navigate('/sign-in');
@@ -35,6 +38,19 @@ const PackageInUsePage: React.FC = () => {
         }
     }, []);
 
+            // Handle showing the modal popup
+        const showUpgradeModal = () => {
+            setIsModalVisible(true);
+        };
+
+        const handleOk = () => {
+            setIsModalVisible(false);
+        };
+
+        const handleCancel = () => {
+            setIsModalVisible(false);
+        };
+
     const renderPackageDetails = () => {
         if (!userPackage || userPackage.plan === FREE_PACKAGE) {
             return (
@@ -42,7 +58,7 @@ const PackageInUsePage: React.FC = () => {
                     <b className="text-gray-800">Kế hoạch hiện tại</b>
                     <div className="mt-2 text-lg text-gray-600">{FREE_PACKAGE}</div>
                     <div className="my-2 text-gray-600">Bạn đang dùng gói miễn phí, hãy nâng cấp để được trải nghiệm tốt hơn.</div>
-                    <Button type="primary" className="mt-4" onClick={() => navigate('#')}>
+                    <Button type="primary" className="mt-4" onClick={showUpgradeModal}>
                         Nâng cấp gói
                     </Button>
                 </div>
@@ -123,6 +139,18 @@ const PackageInUsePage: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+                  {/* Popup modal */}
+            <Modal
+                visible={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                footer={null}
+                width={800}
+            >
+                <PackageDetailPage />
+            </Modal>
+
         </div>
     );
 };

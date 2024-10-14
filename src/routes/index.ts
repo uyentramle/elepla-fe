@@ -4,7 +4,7 @@ import DefaultClientLayout from '../layouts/client/DefaultClientLayout';
 import DefaultAuthenLayout from '../layouts/authen/DefaultAuthenLayout';
 import DefaultManagerLayout from '@/layouts/manager/DefaultManagerLayout';
 import DefaultStaffLayout from '@/layouts/academy-staff/DefaultStaffLayout';
-// import DefaultTeacherLayout from '@/layouts/teacher/DefaultTeacherLayout';
+import DefaultTeacherLayout from '@/layouts/teacher/DefaultTeacherLayout';
 
 // Client
 import HomePage from '../pages/client/Home/HomePage';
@@ -15,6 +15,7 @@ import { DefaultLayoutProps } from '../types/layout.type';
 import SignInPage from '../pages/authen/SignIn/SignInPage';
 import SignUpPage from '../pages/authen/SignUp/SignUpPage';
 import ForgotPasswordPage from '@/pages/authen/ForgotPassword/ForgotPasswordPage';
+import ArticlePage from '@/pages/client/ArticlePage/ArticlePage';
 
 // Admin
 import DashBoardPage from '../pages/admin/DashBoard/DashBoardPage';
@@ -36,8 +37,8 @@ import AccountSettingsPage from '@/pages/teacher/User/AccountSettingsPage';
 import PaymentHistoryPage from '@/pages/teacher/User/PaymentHistoryPage';
 import PackageInUsePage from '@/pages/teacher/User/PackageInUsePage';
 import WeeklySchedulePage from '@/pages/teacher/Schedule/WeeklySchedulePage';
-
-
+import ListPlanbook from '@/pages/teacher/ListPlanbook/ListPlanbook';
+import PackageDetialPage from '@/pages/teacher/User/PackageDetialPage';
 
 interface RouteProps {
     path: string;
@@ -51,9 +52,11 @@ const publicRoutes: RouteProps[] = [
     { path: '/sign-up', component: SignUpPage, layout: DefaultAuthenLayout },
     { path: '/forgot-password', component: ForgotPasswordPage, layout: DefaultAuthenLayout },
     { path: '/coming-soon', component: ComingSoonPage, layout: DefaultClientLayout },
+    { path: '/article', component: ArticlePage, layout: DefaultClientLayout },
     { path: '/planbook-library', component: PlanbookLibraryPage, layout: DefaultClientLayout },
     { path: '/planbook-detail/{id}', component: PlanbookDetailPage, layout: DefaultClientLayout },
-
+    { path: '/planbook-detail/{id}', component: PlanbookDetailPage, layout: DefaultClientLayout },
+    { path: '/package-detail', component: PackageDetialPage, layout: DefaultClientLayout },
 
 ];
 
@@ -84,6 +87,8 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/payment-history', component: PaymentHistoryPage, layout: DefaultClientLayout },
     { path: '/teacher/package', component: PackageInUsePage, layout: DefaultClientLayout },
     { path: '/teacher/schedule/weekly', component: WeeklySchedulePage, layout: DefaultClientLayout },
+    { path: '/teacher/planbook', component: ListPlanbook, layout: DefaultTeacherLayout },
+
 ];
 
 export { publicRoutes, privateRoutes, adminRoutes, managerRoutes, academyStaffRoutes, teacherRoutes };
