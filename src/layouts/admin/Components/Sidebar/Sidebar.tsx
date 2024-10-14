@@ -1,4 +1,4 @@
-import { MenuOutlined, FormOutlined, SnippetsOutlined } from '@ant-design/icons';
+import { MenuOutlined, FormOutlined, SnippetsOutlined, CaretRightOutlined } from '@ant-design/icons';
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
 import AnalyticsOutlinedIcon from '@mui/icons-material/AnalyticsOutlined';
 import { Menu, MenuProps } from 'antd';
@@ -37,12 +37,12 @@ export default function MySider({
         return [
             getItem('Bảng thống kê', '1', <AnalyticsOutlinedIcon />),
             getItem('Quản lý bài viết', '2', <FormOutlined />, [
-                getItem('Xem tất cả', '2-1'),
-                getItem('Thêm mới bài viết', '2-2'),
+                getItem('Xem tất cả', '2-1', <CaretRightOutlined />),
+                getItem('Thêm mới bài viết', '2-2', <CaretRightOutlined />),
             ]),
             getItem('Quản lý danh mục bài viết', '3', <SnippetsOutlined />, [
-                getItem('Xem tất cả', '3-1'),
-                getItem('Thêm mới danh mục', '3-2'),
+                getItem('Xem tất cả', '3-1', <CaretRightOutlined />),
+                getItem('Thêm mới danh mục', '3-2', <CaretRightOutlined />),
             ]),
             getItem('Quản lý tài khoản', '4', <ManageAccountsOutlinedIcon />),
         ];

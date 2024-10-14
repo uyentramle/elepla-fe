@@ -25,6 +25,9 @@ import CategoryFormPage from '@/pages/admin/CategoryManagement/CategoryFormPage'
 
 // Manager
 import DashBoardManagerPage from '@/pages/manager/DashBoard/DashBoardPage';
+import ServicePackageManagementPage from '@/pages/manager/ServicePackageManagement/ServicePackageManagementPage';
+import ServicePackageFormPage from '@/pages/manager/ServicePackageManagement/ServicePackageFormPage';
+import UserServiceManagementPage from '@/pages/manager/UserServiceManagement/UserServiceManagementPage';
 
 // Academy Staff
 import DashBoardStaffPage from '@/pages/academy-staff/DashBoard/DashBoardPage';
@@ -71,6 +74,10 @@ const adminRoutes: RouteProps[] = [
 
 const managerRoutes: RouteProps[] = [
     { path: '/manager/', component: DashBoardManagerPage, layout: DefaultManagerLayout },
+    { path: '/manager/service-packages', component: ServicePackageManagementPage, layout: DefaultManagerLayout },
+    { path: '/manager/service-packages/add-new', component: ServicePackageFormPage, layout: DefaultManagerLayout },
+    { path: '/manager/service-packages/edit/:id', component: ServicePackageFormPage, layout: DefaultManagerLayout },
+    { path: '/manager/user-services', component: UserServiceManagementPage, layout: DefaultManagerLayout },
 ];
 
 const academyStaffRoutes: RouteProps[] = [
