@@ -13,14 +13,14 @@ const menu_data: MenuItem[] = [
    {
       id: 1,
       has_dropdown: false,
-      title: "Home",
-      link: "/",
+      title: "Gói dịch vụ",
+      link: "/package-detail",
    },
    {
       id: 2,
       has_dropdown: false,
-      title: "Course",
-      link: "#",
+      title: "Thư Viện",
+      link: "/planbook-library",
       sub_menus: [
          { link: "/course", title: "Course" },
          { link: "/course-details", title: "Course Single" },
@@ -29,7 +29,7 @@ const menu_data: MenuItem[] = [
    {
       id: 3,
       has_dropdown: false,
-      title: "Pages",
+      title: "Hướng Dẫn",
       link: "#",
       sub_menus: [
          { link: "/about", title: "About Us" },
@@ -47,7 +47,7 @@ const menu_data: MenuItem[] = [
       id: 4,
       has_dropdown: false,
       title: " Blog ",
-      link: "#",
+      link: "/article",
       sub_menus: [
          { link: "/blog", title: "Blog" },
          { link: "/blog-grid", title: "Blog Grid" },

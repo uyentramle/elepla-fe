@@ -8,7 +8,7 @@ export default function MyHeader() {
         {
             key: '1',
             icon: <UserOutlined></UserOutlined>,
-            label: <Link to={`#`}>Thông tin cá nhân</Link>,
+            label: <Link to={"/teacher/profile"}>Thông tin cá nhân</Link>,
         },
         {
             key: '2',
