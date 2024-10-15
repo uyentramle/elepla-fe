@@ -13,11 +13,17 @@ const menu_data: MenuItem[] = [
    {
       id: 1,
       has_dropdown: false,
+      title: "Trang chủ",
+      link: "/",
+   },
+   {
+      id: 2,
+      has_dropdown: false,
       title: "Gói dịch vụ",
       link: "/package-detail",
    },
    {
-      id: 2,
+      id: 3,
       has_dropdown: false,
       title: "Thư Viện",
       link: "/planbook-library",
@@ -27,7 +33,7 @@ const menu_data: MenuItem[] = [
       ],
    },
    {
-      id: 3,
+      id: 4,
       has_dropdown: false,
       title: "Hướng Dẫn",
       link: "#",

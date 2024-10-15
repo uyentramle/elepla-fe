@@ -77,7 +77,7 @@ const CategoryFormPage: React.FC = () => {
             // Add new category logic
             const newCategory: ICategory = {
                 ...formData,
-                id: `${Date.now()}`
+                // id: `${Date.now()}`
             };
             console.log("New Category:", newCategory);
             data_categories.push(newCategory);
@@ -166,7 +166,7 @@ const CategoryFormPage: React.FC = () => {
                                 </Button>
                                 <Button
                                     type="default"
-                                    onClick={() => navigate(-1)}
+                                    onClick={() => navigate('/admin/category')}
                                 >
                                     Quay lại
                                 </Button>

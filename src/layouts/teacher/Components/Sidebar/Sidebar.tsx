@@ -1,7 +1,7 @@
 import { MenuOutlined, FormOutlined, SnippetsOutlined, CalendarOutlined, DatabaseOutlined, StarOutlined } from '@ant-design/icons';
 import { Menu, MenuProps, Button } from 'antd';
 import Sider from 'antd/es/layout/Sider';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import img from '/assets/img/logo.png';
@@ -22,10 +22,16 @@ function getItem(
   } as MenuItem;
 }
 
-export default function MySider() {
+export default function MySider({
+  collapsed,
+  setCollapsed,
+}: {
+  collapsed: boolean;
+  setCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const navigate = useNavigate();
 
-  const [collapsed, setCollapsed] = useState(window.innerWidth < 1280);
+  // const [collapsed, setCollapsed] = useState(window.innerWidth < 1280);
 
   useEffect(() => {
     const handleResize = () => {
@@ -56,7 +62,7 @@ export default function MySider() {
     .set('4', '#'); // Link to 'Ngân hàng câu hỏi'
 
   return (
-    <>
+    <div className="fixed top-0 left-0 h-full bg-white z-50">
       <Sider
         theme="light"
         collapsible
@@ -79,26 +85,26 @@ export default function MySider() {
 
         {/* Action Buttons */}
         <div className="flex flex-col items-center justify-center px-4 mt-4 space-y-3">
-            <Button
-                type="default"
-                size="small"
-                className="border-blue-500 text-blue-500 flex items-center justify-center"
-                icon={<StarOutlined />}
-                onClick={() => navigate('/teacher/package')}
-            >
-                Nâng cấp tài khoản
-            </Button>
+          <Button
+            type="default"
+            size="small"
+            className="border-blue-500 text-blue-500 flex items-center justify-center"
+            icon={<StarOutlined />}
+            onClick={() => navigate('/teacher/package')}
+          >
+            Nâng cấp tài khoản
+          </Button>
 
-            <Button
-                type="primary"
-                block
-                size="large"
-                className="bg-blue-500 text-white w-full"  // Đảm bảo nút này rộng full chiều ngang
-                onClick={() => navigate('#')}
-            >
-                Tạo giáo án
-            </Button>
-         </div>
+          <Button
+            type="primary"
+            block
+            size="large"
+            className="bg-blue-500 text-white w-full"  // Đảm bảo nút này rộng full chiều ngang
+            onClick={() => navigate('#')}
+          >
+            Tạo giáo án
+          </Button>
+        </div>
 
         {/* Menu Items */}
         <Menu
@@ -113,6 +119,6 @@ export default function MySider() {
           }}
         />
       </Sider>
-    </>
+    </div>
   );
 }
