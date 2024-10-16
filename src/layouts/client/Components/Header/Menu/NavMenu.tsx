@@ -30,7 +30,7 @@ const NavMenu = () => {
                     <Link
                         href={menu.link}
                         onClick={() => openMobileMenu(menu.title)}
-                        className="block text-gray-700 hover:text-blue-600"
+                        className="block text-gray-700 hover:text-blue-600 text-xl px-2" 
                     >
                         {menu.title}
                     </Link>
@@ -43,7 +43,7 @@ const NavMenu = () => {
                                 <li
                                     key={i}
                                     className={`${isSubMenuItemActive(sub_m.link) ? "text-blue-600" : "text-gray-700"
-                                        } hover:text-blue-600`}
+                                        } hover:text-blue-600 text-lg`} 
                                 >
                                     <Link href={sub_m.link}>{sub_m.title}</Link>
                                 </li>
