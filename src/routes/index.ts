@@ -29,6 +29,7 @@ import DashBoardManagerPage from '@/pages/manager/DashBoard/DashBoardPage';
 import ServicePackageManagementPage from '@/pages/manager/ServicePackageManagement/ServicePackageManagementPage';
 import ServicePackageFormPage from '@/pages/manager/ServicePackageManagement/ServicePackageFormPage';
 import UserServiceManagementPage from '@/pages/manager/UserServiceManagement/UserServiceManagementPage';
+import PaymentManagementPage from '@/pages/manager/PaymentManagement/PaymentManagementPage';
 
 // Academy Staff
 import DashBoardStaffPage from '@/pages/academy-staff/DashBoard/DashBoardPage';
@@ -81,6 +82,7 @@ const managerRoutes: RouteProps[] = [
     { path: '/manager/service-packages/add-new', component: ServicePackageFormPage, layout: DefaultManagerLayout },
     { path: '/manager/service-packages/edit/:id', component: ServicePackageFormPage, layout: DefaultManagerLayout },
     { path: '/manager/user-services', component: UserServiceManagementPage, layout: DefaultManagerLayout },
+    { path: '/manager/payments', component: PaymentManagementPage, layout: DefaultManagerLayout },
 ];
 
 const academyStaffRoutes: RouteProps[] = [

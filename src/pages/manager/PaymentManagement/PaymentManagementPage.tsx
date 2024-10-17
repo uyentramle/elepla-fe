@@ -2,31 +2,26 @@ import React, { useState } from "react";
 import { SearchOutlined, } from '@ant-design/icons';
 import { Input, Table, Select, Typography } from 'antd';
 
-import user_services_data from "@/data/manager/UserPackageData";
+import payment_data from "@/data/manager/UserPaymentData";
 
 const { Option } = Select;
 const { Title } = Typography;
 
-const UserServiceManagementPage: React.FC = () => {
-    const [userServices] = useState(user_services_data);
+const PaymentManagementPage: React.FC = () => {
+    const [userPayments] = useState(payment_data);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterStatus, setFilterStatus] = useState<'Active' | 'Inactive' | 'All'>('All');
+    // const [filterStatus, setFilterStatus] = useState<'Active' | 'Inactive' | 'All'>('All');
     const [filterPackage, setFilterPackage] = useState<'All' | 'Free' | 'Basic' | 'Premium'>('All');
 
-    const filteredUserServices = userServices.filter((c) => {
+    const filteredUserPayments = userPayments.filter((c) => {
         const matchesSearch = `${c.username}`.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus =
-            filterStatus === 'All' ||
-            (filterStatus === 'Active' && c.isActivated) ||
-            (filterStatus === 'Inactive' && !c.isActivated);
-
         const matchesPackage =
             filterPackage === 'All' ||
             (filterPackage === 'Free' && c.packageName === 'Gói miễn phí') ||
             (filterPackage === 'Basic' && c.packageName === 'Gói cơ bản') ||
             // (filterPackage === 'Standard' && c.packageName === 'Gói tiêu chuẩn') ||
             (filterPackage === 'Premium' && c.packageName === 'Gói cao cấp');
-        return matchesSearch && matchesStatus && matchesPackage;
+        return matchesSearch && matchesPackage;
     });
 
     const columns = [
@@ -47,36 +42,36 @@ const UserServiceManagementPage: React.FC = () => {
             key: 'packageName',
         },
         {
-            title: 'Ngày bắt đầu',
-            dataIndex: 'startDate',
-            key: 'startDate',
-            render: (startDate: Date) => (
-                <span>{new Date(startDate).toLocaleDateString()}</span>
+            title: 'Tổng tiền',
+            dataIndex: 'totalAmount',
+            key: 'totalAmount',
+            render: (totalAmount: number) => (
+                <span>{totalAmount.toLocaleString()} đ</span>
             ),
         },
         {
-            title: 'Ngày kết thúc',
-            dataIndex: 'endDate',
-            key: 'endDate',
-            render: (endDate: Date) => (
-                <span>{new Date(endDate).toLocaleDateString()}</span>
+            title: 'Mã giao dịch',
+            dataIndex: 'transactionCode',
+            key: 'transactionCode',
+        },
+        {
+            title: 'Ngày thanh toán',
+            dataIndex: 'paymentDate',
+            key: 'paymentDate',
+            render: (paymentDate: Date) => (
+                <span>{new Date(paymentDate).toLocaleDateString()}</span>
             ),
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'isActivated',
-            key: 'isActivated',
-            render: (isActivated: boolean) => (
-                <span style={{ color: isActivated ? 'green' : 'red' }}>
-                    {isActivated ? 'Đang sử dụng' : 'Đã hủy'}
-                </span>
-            ),
+            dataIndex: 'status',
+            key: 'status',
         },
     ];
 
     return (
         <>
-            <Title level={2} className="my-4">Tất cả dịch vụ khách hàng mua</Title>
+            <Title level={2} className="my-4">Thống kê thanh toán</Title>
             <div className="my-4 flex justify-between">
                 <div className="flex">
                     <div className="relative mr-4">
@@ -101,31 +96,30 @@ const UserServiceManagementPage: React.FC = () => {
                             <Option value="Premium">Gói cao cấp</Option>
                         </Select>
                     </div>
-                    <div className="mr-4">
+                    {/* <div>
                         <Select
                             id="status-filter"
                             className="w-48"
                             value={filterStatus}
                             onChange={(value) => setFilterStatus(value as 'Active' | 'Inactive' | 'All')}
                         >
-                            <Option value="All">Tất cả trạng thái</Option>
+                            <Option value="All">Tất cả</Option>
                             <Option value="Active">Đang sử dụng</Option>
                             <Option value="Inactive">Đã hủy</Option>
                         </Select>
-                    </div>
+                    </div> */}
                 </div>
             </div>
 
             <div className="overflow-x-auto">
                 <Table
                     columns={columns}
-                    dataSource={filteredUserServices}
-                    rowKey={(record) => record.userId}
-                    pagination={{ pageSize: 10 }}
+                    dataSource={filteredUserPayments}
+                    rowKey={(record) => record.paymentId}
                 />
             </div>
         </>
     );
 };
 
-export default UserServiceManagementPage;
+export default PaymentManagementPage;
