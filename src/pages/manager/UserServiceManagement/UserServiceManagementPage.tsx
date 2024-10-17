@@ -1,14 +1,18 @@
 import React, { useState } from "react";
-import { SearchOutlined, } from '@ant-design/icons';
-import { Input, Table, Select, Typography } from 'antd';
+import { SearchOutlined, CaretRightOutlined, } from '@ant-design/icons';
+import { Input, Table, Select, Typography, Row, Col, Card, Statistic } from 'antd';
+import { Link } from "react-router-dom";
+import dayjs from 'dayjs';
 
 import user_services_data from "@/data/manager/UserPackageData";
+import payment_data from "@/data/manager/UserPaymentData";
 
 const { Option } = Select;
 const { Title } = Typography;
 
 const UserServiceManagementPage: React.FC = () => {
     const [userServices] = useState(user_services_data);
+    const [userPayments] = useState(payment_data);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<'Active' | 'Inactive' | 'All'>('All');
     const [filterPackage, setFilterPackage] = useState<'All' | 'Free' | 'Basic' | 'Premium'>('All');
@@ -77,6 +81,50 @@ const UserServiceManagementPage: React.FC = () => {
     return (
         <>
             <Title level={2} className="my-4">Tất cả dịch vụ khách hàng mua</Title>
+
+            <Row gutter={[16, 16]} className="mb-6 pt-2">
+                <Col span={8}>
+                    <Card className="shadow-md bg-green-100">
+                        <Statistic
+                            title="Dịch vụ khách hàng đang sử dụng"
+                            value={userServices.filter(service => service.isActivated).length} />
+                        <div className="mt-2 flex items-center justify-between">
+                            <Link to={"#userlist"} ><CaretRightOutlined /> Xem chi tiết</Link>
+                        </div>
+                    </Card>
+                </Col>
+                <Col span={8}>
+                    <Card className="shadow-md bg-purple-100">
+                        <Statistic
+                            title="Người dùng mua gói trong tháng"
+                            value={
+                                userPayments.filter(payment =>
+                                    dayjs(payment.paymentDate)
+                                        .isSame(dayjs(), 'month')).length
+                            } />
+                        <div className="mt-2 flex items-center justify-between">
+                            <span className="text-green-500">Tăng 1.3% so với tuần trước</span>
+                            <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link>
+                        </div>
+                    </Card>
+                </Col>
+                <Col span={8}>
+                    <Card className="shadow-md bg-red-100">
+                        <Statistic
+                            title="Gói sắp hết hạn trong tháng"
+                            value={
+                                userServices.filter(service =>
+                                    dayjs(service.endDate).isSame(dayjs(), 'month')
+                                    && service.isActivated).length
+                            } />
+                        <div className="mt-2 flex items-center justify-between">
+                            <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link>
+                        </div>
+                    </Card>
+                </Col>
+            </Row>
+
+            <Title level={4} id="userlist" className="pt-4">Dịch vụ khách hàng sử dụng</Title>
             <div className="my-4 flex justify-between">
                 <div className="flex">
                     <div className="relative mr-4">
