@@ -23,6 +23,7 @@ import ArticleManagementPage from '@/pages/admin/ArticleManagement/ArticleManage
 import ArticleFormPage from '@/pages/admin/ArticleManagement/ArticleFormPage';
 import CategoryManagementPage from '@/pages/admin/CategoryManagement/CategoryManagementPage';
 import CategoryFormPage from '@/pages/admin/CategoryManagement/CategoryFormPage';
+import UserManagementPage from '@/pages/admin/UserManagement/UserManagementPage';
 
 // Manager
 import DashBoardManagerPage from '@/pages/manager/DashBoard/DashBoardPage';
@@ -73,6 +74,7 @@ const adminRoutes: RouteProps[] = [
     { path: '/admin/categories', component: CategoryManagementPage, layout: DefaultAdminLayout },
     { path: '/admin/categories/add-new', component: CategoryFormPage, layout: DefaultAdminLayout },
     { path: '/admin/categories/edit/:id', component: CategoryFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/users', component: UserManagementPage, layout: DefaultAdminLayout },
 ];
 
 const managerRoutes: RouteProps[] = [
