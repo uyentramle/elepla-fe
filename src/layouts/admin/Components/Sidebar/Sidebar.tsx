@@ -57,7 +57,7 @@ export default function MySider({
         .set('3', '/admin/categories')
         .set('3-1', '/admin/categories')
         .set('3-2', '/admin/categories/add-new')
-        .set('4', '/admin/#');
+        .set('4', '/admin/users');
 
     return (
         <div className="fixed top-0 left-0 h-full bg-white z-50">
