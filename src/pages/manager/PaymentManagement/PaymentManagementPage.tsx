@@ -17,6 +17,7 @@ import {
 import dayjs from 'dayjs';
 import payment_data from "@/data/manager/UserPaymentData";
 import user_services_data from "@/data/manager/UserPackageData";
+import { Link } from "react-router-dom";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -79,7 +80,8 @@ const PaymentManagementPage: React.FC = () => {
             title: 'Tên khách hàng',
             dataIndex: 'username',
             key: 'username',
-            render: (text: string) => <span className="font-semibold">{text}</span>,
+            render: (text: string, record: any) =>
+                <Link to={`/manager/payments/detail/${record.paymentId}`}><b>{text}</b></Link>,
         },
         {
             title: 'Tên gói',
@@ -164,7 +166,7 @@ const PaymentManagementPage: React.FC = () => {
                     </Card>
                 </Col>
                 <Col span={8}>
-                    <Card title="Trạng thái dịch vụ trong tháng"> 
+                    <Card title="Trạng thái dịch vụ trong tháng">
                         <ResponsiveContainer width="100%" height={300}>
                             <PieChart>
                                 <Pie
@@ -181,7 +183,7 @@ const PaymentManagementPage: React.FC = () => {
                                     {serviceStatus.map((_, index) => (
                                         <Cell
                                             key={`cell-${index}`}
-                                            fill={COLORS[index % COLORS.length+3]}
+                                            fill={COLORS[index % COLORS.length + 3]}
                                         />
                                     ))}
                                 </Pie>
