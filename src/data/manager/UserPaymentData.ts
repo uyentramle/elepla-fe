@@ -43,6 +43,17 @@ const payment_data: IUserPayment[] = [
         transactionCode: "123458",
         paymentDate: new Date('2024-10-14'),
         status: "Thành công",
+    },
+    {
+        paymentId: "4",
+        userId: "4",
+        username: "Nguyen Van D",
+        packageId: "4",
+        packageName: "Gói cơ bản",
+        totalAmount: 100000,
+        transactionCode: "123459",
+        paymentDate: new Date('2024-10-15'),
+        status: "Thành công",
     }
 ];
 
