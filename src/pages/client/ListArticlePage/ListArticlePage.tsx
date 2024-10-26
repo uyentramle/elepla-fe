@@ -86,7 +86,7 @@ const ListArticlePage: React.FC = () => {
           <TabPane tab="Tất cả" key="all" />
           {category_data.map((category) => (
             // Sử dụng categoryId làm key cho TabPane
-            <TabPane tab={category.name} key={category.categoryId} />
+            <TabPane tab={category.name} key={category.id} />
           ))}
         </Tabs>
       </div>

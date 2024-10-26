@@ -185,7 +185,7 @@ const ArticleFormPage: React.FC = () => {
                                     onChange={handleCategoryChange}
                                 >
                                     {categoryData.map((category) => (
-                                        <Option key={category.categoryId} value={category.categoryId}>
+                                        <Option key={category.id} value={category.id}>
                                             {category.name}
                                         </Option>
                                     ))}
