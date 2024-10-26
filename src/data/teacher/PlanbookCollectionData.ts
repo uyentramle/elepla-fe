@@ -1,9 +1,9 @@
-interface CollectionItem{
+export interface CollectionItem{
 id: string,
 name: string
 createDay: Date;
 updateDay: Date;
-}[];
+}
 
 const collection_data: CollectionItem[] =[
     {
