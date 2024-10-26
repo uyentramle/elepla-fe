@@ -15,7 +15,9 @@ import features from '@/data/client/FeatureData';
 import packages from '@/data/client/PackageData';
 import work_data from '@/data/client/WorkAreaData';
 import feedback_data from '@/data/client/FeedbackData';
+// import article_data from '@/data/admin/ArticleData';
 import article_data from '@/data/client/ArticleData';
+
 
 const { Title, Text } = Typography;
 
@@ -70,19 +72,19 @@ const HomePage: React.FC = () => {
                         <div className="lg:w-6/12 order-first lg:order-1 flex items-center">
                             <div className="text-center lg:text-left mt-5 lg:mt-0">
                                 <Title level={4} className="text-xl font-semibold mb-2 animate-fadeIn">
-                                    DISCOVER RESEARCH
+                                    ELAPLA
                                 </Title>
                                 <div className="text-6xl font-bold mb-4 animate-fadeIn">
                                     <Title level={1}>
-                                        A better learning future starts here
+                                        Giáo án bậc THPT theo chuẩn Bộ Giáo Dục và Đào Tạo Việt Nam
                                     </Title>
                                 </div>
                                 <div className="space-x-4 animate-fadeIn">
                                     <Link href="#">
-                                        <Button type="primary" className="mb-3">Get A Quote</Button>
+                                        <Button type="primary" className="mb-3">Khám phá kho gióa án</Button>
                                     </Link>
                                     <Link href="#">
-                                        <Button type="default" className="mb-3">Read More</Button>
+                                        <Button type="default" className="mb-3">Soạn giáo án miễn phí </Button>
                                     </Link>
                                 </div>
                             </div>
@@ -106,14 +108,14 @@ const HomePage: React.FC = () => {
                             <div className="flex flex-wrap">
                                 <div className="w-full lg:w-1/3 text-center lg:text-left">
                                     <div className="intro-title p-8">
-                                        <Title level={3} style={{ color: '#fff' }}>Vivamus maximus</Title>
-                                        <p className="text-white mb-5">Lorem ipsum dolor sadipscing elitr, sed diam nonum</p>
+                                        <Title level={3} style={{ color: '#fff' }}>Nền tảng Giáo dục số</Title>
+                                        <p className="text-white mb-5">Soạn giáo cho tất cả các môn học trên một nền tảng duy nhât</p>
                                         <ul className="list-none p-0 m-0">
                                             <li className="text-white mb-2 flex items-center">
-                                                <CheckOutlined className="mr-2" /> Nullam est
+                                                <CheckOutlined className="mr-2" /> Đơn giản
                                             </li>
                                             <li className="text-white flex items-center">
-                                                <CheckOutlined className="mr-2" /> Mattis dictum nunc
+                                                <CheckOutlined className="mr-2" /> Tiện lợi
                                             </li>
                                         </ul>
                                     </div>
@@ -145,9 +147,9 @@ const HomePage: React.FC = () => {
             <div className="work-area py-10">
                 <section className="container mx-auto px-6">
                     <div className="section-title text-center">
-                        <Title level={2} className="title text-3xl">Elepla hoạt động như thế nào?</Title>
+                        <Title level={2} className="title text-3xl">Elepla hoạt động như thế nào để có một giáo án theo chuẩn Bộ Giáo Dục?</Title>
                         <Text className="mt-6 lg:mt-0 text-gray-600">
-                            The quick, brown fox jumps over a lazy dog. DJs flock by when MTV ax quiz prog. Junk MTV quiz graced by fox whelps. Bawds jog, flick quartz, vex nymphs when MTV ax quiz.
+                                        Công cụ số hóa tạo giáo án siêu đơn giản, chỉnh sửa nhanh chóng các mẫu giáo án từ kho bài giảng đa dạng, đảm bảo đúng theo khung kế hoạch giảng dạy theo quy định của Bộ Giáo Dục và Đào tạo
                         </Text>
                     </div>
                     <Row gutter={[16, 16]} className="mt-8">
@@ -162,10 +164,10 @@ const HomePage: React.FC = () => {
                                     </div>
                                     <div className="details mt-4">
                                         <h5 className="text-xl font-semibold">{item.title}</h5>
-                                        <p className="text-gray-500">{item.description}</p>
-                                        <Link href="#" className="text-blue-500 inline-flex items-center mt-2">
+                                        {/* <p className="text-gray-500">{item.description}</p> */}
+                                        {/* <Link href="#" className="text-blue-500 inline-flex items-center mt-2">
                                             Read More <RightOutlined className='mx-1' style={{ fontSize: '10px' }} />
-                                        </Link>
+                                        </Link> */}
                                     </div>
                                 </div>
                             </Col>

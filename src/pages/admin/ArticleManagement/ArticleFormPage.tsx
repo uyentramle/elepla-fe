@@ -27,6 +27,7 @@ const ArticleFormPage: React.FC = () => {
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "",
     });
     const [selectedCategories, setSelectedCategories] = React.useState<number[]>([]);
 
@@ -184,7 +185,7 @@ const ArticleFormPage: React.FC = () => {
                                     onChange={handleCategoryChange}
                                 >
                                     {categoryData.map((category) => (
-                                        <Option key={category.id} value={category.id}>
+                                        <Option key={category.categoryId} value={category.categoryId}>
                                             {category.name}
                                         </Option>
                                     ))}

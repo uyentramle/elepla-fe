@@ -1,6 +1,6 @@
 
 export interface ICategory {
-    id: string;
+    categoryId: string;
     name: string;
     url: string;
     description: string;
@@ -18,7 +18,7 @@ export interface ICategory {
 
 const category_data: ICategory[] = [
     {
-        id: "1",
+        categoryId: "1",
         name: 'React',
         url: 'react',
         description: 'ReactJS is a JavaScript library for building user interfaces.',
@@ -34,7 +34,7 @@ const category_data: ICategory[] = [
         isDelete: false,
     },
     {
-        id: "2",
+        categoryId: "2",
         name: 'NodeJS',
         url: 'nodejs',
         description: 'Node.js is an open-source, cross-platform, back-end JavaScript runtime environment that runs on the V8 engine and executes JavaScript code outside a web browser.',
@@ -50,7 +50,7 @@ const category_data: ICategory[] = [
         isDelete: false,
     },
     {
-        id: "3",
+        categoryId: "3",
         name: 'TypeScript',
         url: 'typescript',
         description: 'TypeScript is a strongly typed, object oriented, compiled language. It was designed by Anders Hejlsberg (designer of C#) at Microsoft.',

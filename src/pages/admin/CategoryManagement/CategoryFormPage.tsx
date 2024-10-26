@@ -11,7 +11,7 @@ const CategoryFormPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [form] = Form.useForm();
     const [formData, setFormData] = React.useState<ICategory>({
-        id: "",
+        categoryId: "",
         name: "",
         url: "",
         description: "",
@@ -31,7 +31,7 @@ const CategoryFormPage: React.FC = () => {
     // Fetch category data if editing
     useEffect(() => {
         if (id) {
-            const category = data_categories.find((cat) => cat.id === id);
+            const category = data_categories.find((cat) => cat.categoryId === id);
             if (category) {
                 setFormData(category);
                 form.setFieldsValue(category);
@@ -68,7 +68,7 @@ const CategoryFormPage: React.FC = () => {
         if (id) {
             // Edit category logic
             const updatedCategories = data_categories.map((category) =>
-                category.id === id
+                category.categoryId === id
                     ? { ...category, ...formData }
                     : category
             );
