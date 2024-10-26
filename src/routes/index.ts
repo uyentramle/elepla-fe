@@ -58,7 +58,7 @@ const publicRoutes: RouteProps[] = [
     { path: '/coming-soon', component: ComingSoonPage, layout: DefaultClientLayout },
     { path: '/list-article', component: ListArticlePage, layout: DefaultClientLayout },
     { path: '/planbook-library', component: PlanbookLibraryPage, layout: DefaultClientLayout },
-    { path: '/planbook-detail/{id}', component: PlanbookDetailPage, layout: DefaultClientLayout },
+    { path: '/planbook-detail/:id', component: PlanbookDetailPage, layout: DefaultClientLayout },
     { path: '/package-detail', component: PackageDetialPage, layout: DefaultClientLayout },
     { path: '/article-detail/:id', component: ArticleDetailPage, layout: DefaultClientLayout }
 
