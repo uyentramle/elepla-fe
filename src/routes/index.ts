@@ -38,6 +38,7 @@ import UserServiceDetailPage from '@/pages/manager/UserServiceManagement/UserSer
 import DashBoardStaffPage from '@/pages/academy-staff/DashBoard/DashBoardPage';
 import QuestionBankManagementPage from '@/pages/academy-staff/QuestionBankManagement/QuestionBankManagementPage';
 import QuestionBankFormPage from '@/pages/academy-staff/QuestionBankManagement/QuestionBankFormPage';
+import FeedbackManagementPage from '@/pages/academy-staff/FeedbackManagement/FeedbackManagementPage';
 
 // Teacher
 import ProfilePage from '@/pages/teacher/User/ProfilePage';
@@ -98,6 +99,7 @@ const academyStaffRoutes: RouteProps[] = [
     { path: '/academy-staff/question-banks', component: QuestionBankManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/question-banks/add-new', component: QuestionBankFormPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/question-banks/edit/:id', component: QuestionBankFormPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/feedbacks/', component: FeedbackManagementPage, layout: DefaultStaffLayout },
 ];
 
 const teacherRoutes: RouteProps[] = [
