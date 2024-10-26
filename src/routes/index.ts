@@ -36,6 +36,7 @@ import UserServiceDetailPage from '@/pages/manager/UserServiceManagement/UserSer
 
 // Academy Staff
 import DashBoardStaffPage from '@/pages/academy-staff/DashBoard/DashBoardPage';
+import FeedbackManagementPage from '@/pages/academy-staff/FeedbackManagement/FeedbackManagementPage';
 
 // Teacher
 import ProfilePage from '@/pages/teacher/User/ProfilePage';
@@ -93,6 +94,7 @@ const managerRoutes: RouteProps[] = [
 
 const academyStaffRoutes: RouteProps[] = [
     { path: '/academy-staff/', component: DashBoardStaffPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/feedbacks/', component: FeedbackManagementPage, layout: DefaultStaffLayout },
 ];
 
 const teacherRoutes: RouteProps[] = [
