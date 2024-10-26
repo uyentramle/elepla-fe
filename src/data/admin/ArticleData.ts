@@ -1,4 +1,4 @@
-import blog2Thumb_1 from "/assets/img/blog/4.jpg";
+import blog2Thumb_1 from "/assets/img/blog/4.png";
 import blog2Thumb_2 from "/assets/img/blog/5.png";
 import blog2Thumb_3 from "/assets/img/blog/6.png";
 import blog2Thumb_4 from "/assets/img/blog/7.png";
