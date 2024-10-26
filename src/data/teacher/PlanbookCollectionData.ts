@@ -40,4 +40,4 @@ const collection_data: CollectionItem[] =[
 
 
 ];
-export default collection_data
+export default collection_data;
