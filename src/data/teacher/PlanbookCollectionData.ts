@@ -1,17 +1,16 @@
-export interface CollectionItem{
-id: string,
-name: string
-createDay: Date;
-updateDay: Date;
+export interface CollectionItem {
+    id: string;
+    name: string;
+    createDay: Date;
+    updateDay: Date;
 }
 
-const collection_data: CollectionItem[] =[
+const collection_data: CollectionItem[] = [
     {
         id: "1",
         name: "Giáo án môn toán",
         createDay: new Date("2024-09-01"),
         updateDay: new Date("2024-10-04")
-
     },
     {
         id: "2",
@@ -37,7 +36,6 @@ const collection_data: CollectionItem[] =[
         createDay: new Date("2024-05-04"),
         updateDay: new Date("2024-02-04")
     }
-
-
 ];
+
 export default collection_data;
