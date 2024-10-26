@@ -5,6 +5,7 @@ import {
     AuditOutlined,
     QuestionCircleOutlined,
     CommentOutlined,
+    CaretRightOutlined,
 } from '@ant-design/icons';
 import { Menu, MenuProps } from 'antd';
 import Sider from 'antd/es/layout/Sider';
@@ -52,8 +53,10 @@ export default function MySider() {
             getItem('Quản lý nội dung bài học', '2', <FileTextOutlined />),
             getItem('Quản lý kế hoạch giảng dạy', '3', <AuditOutlined />),
             getItem('Quản lý ngân hàng câu hỏi', '4', <QuestionCircleOutlined />),
-            getItem('Quản lý đánh giá - phản hồi', '5', <CommentOutlined />),
-
+            getItem('Đánh giá - phản hồi', '5', <CommentOutlined />, [
+                getItem('Kế hoạch giảng dạy', '5-1', <CaretRightOutlined />),
+                getItem('Hệ thống', '5-2', <CaretRightOutlined />),
+            ]),
         ];
     };
     const navUrl = new Map<string, string>();
@@ -62,7 +65,9 @@ export default function MySider() {
         .set('2', '#')
         .set('3', '#')
         .set('4', '/academy-staff/question-banks/')
-        .set('5', '#');
+        .set('5', '#')
+        .set('5-1', '/academy-staff/feedbacks/planbook/')
+        .set('5-2', '/academy-staff/feedbacks/system/');
 
     return (
         <>

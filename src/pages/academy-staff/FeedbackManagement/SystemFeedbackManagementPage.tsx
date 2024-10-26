@@ -4,19 +4,13 @@ import { SearchOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
-const FeedbackManagementPage: React.FC = () => {
+const SystemFeedbackManagementPage: React.FC = () => {
 
     const columns = [
         {
             title: 'No.',
             dataIndex: '1',
             render: (_text: any, _record: any, index: number) => index + 1,
-        },
-        {
-            title: 'Tên kế hoạch giảng dạy',
-            dataIndex: 'planbookName',
-            key: 'planbookName',
-            render: (text: string) => <span className="font-semibold">{text}</span>,
         },
         {
             title: 'Tên người dùng',
@@ -46,7 +40,7 @@ const FeedbackManagementPage: React.FC = () => {
 
     return (
         <>
-            <Title level={2} className="my-4">Quản lý đánh giá - phản hồi</Title>
+            <Title level={2} className="my-4">Đánh giá - phản hồi hệ thống</Title>
 
             <div className="mb-4 flex justify-between">
                 <div className="flex">
@@ -73,4 +67,4 @@ const FeedbackManagementPage: React.FC = () => {
     );
 };
 
-export default FeedbackManagementPage;
+export default SystemFeedbackManagementPage;
