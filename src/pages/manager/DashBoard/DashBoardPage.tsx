@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Row, Col, Card, Statistic, List, Typography, } from 'antd';
+import { Row, Col, Card, Statistic, List, Typography, Select, } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import {
     XAxis,
@@ -21,40 +21,80 @@ import user_services_data from "@/data/manager/UserPackageData";
 
 const { Title, Text } = Typography;
 const COLORS = ['#FFBB28', '#55bfc7', '#e8744c', '#00C49F', '#9e5493', '#FF6666'];
-
+const { Option } = Select;
 
 const DashBoardManagerPage: React.FC = () => {
     const [userPayments] = useState(payment_data);
     const [userServices] = useState(user_services_data);
+    const [timeFrame, setTimeFrame] = useState("month");
+
+    const handleTimeFrameChange = (value: string) => {
+        setTimeFrame(value);
+    };
 
     const packageDistribution = useMemo(() => {
         const counts = { Free: 0, Basic: 0, Premium: 0 };
         userServices.forEach(service => {
-            // if (service.packageName === 'Gói miễn phí') counts.Free++;
-            if (service.packageName === 'Gói cơ bản') counts.Basic++;
-            if (service.packageName === 'Gói cao cấp') counts.Premium++;
+            const serviceDate = dayjs(service.startDate);
+            if (
+                (timeFrame === "month" && serviceDate.isSame(dayjs(), "month")) ||
+                (timeFrame === "quarter" && serviceDate.isAfter(dayjs().subtract(3, "month"))) ||
+                (timeFrame === "6months" && serviceDate.isAfter(dayjs().subtract(6, "month")))
+            ) {
+                if (service.packageName === 'Gói miễn phí') counts.Free++;
+                if (service.packageName === 'Gói cơ bản') counts.Basic++;
+                if (service.packageName === 'Gói cao cấp') counts.Premium++;
+            }
         });
         const total = counts.Free + counts.Basic + counts.Premium;
         return [
-            // { name: 'Gói miễn phí', value: (counts.Free / total) * 100 },
+            { name: 'Gói miễn phí', value: (counts.Free / total) * 100 },
             { name: 'Gói cơ bản', value: (counts.Basic / total) * 100 },
             { name: 'Gói cao cấp', value: (counts.Premium / total) * 100 },
         ];
-    }, [userServices]);
+    }, [userServices, timeFrame]);
 
-    const lastThreeMonths = Array.from({ length: 3 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
-    const revenueData = lastThreeMonths.map((month) => {
-        const totalRevenue = userPayments
-            .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
-            .reduce((sum, payment) => sum + payment.totalAmount, 0);
-        return { month, revenue: totalRevenue };
-    });
+    const revenueData = useMemo(() => {
+        if (timeFrame === "month") {
+            const lastMonths = Array.from({ length: 1 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
+            return lastMonths.map(month => ({
+                month,
+                revenue: userPayments
+                    .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
+                    .reduce((sum, payment) => sum + payment.totalAmount, 0)
+            }));
+        } else if (timeFrame === "quarter") {
+            const lastThreeMonths = Array.from({ length: 3 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
+            return lastThreeMonths.map(month => ({
+                month,
+                revenue: userPayments
+                    .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
+                    .reduce((sum, payment) => sum + payment.totalAmount, 0)
+            }));
+        } else if (timeFrame === "6months") {
+            const lastSixMonths = Array.from({ length: 6 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
+            return lastSixMonths.map(month => ({
+                month,
+                revenue: userPayments
+                    .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
+                    .reduce((sum, payment) => sum + payment.totalAmount, 0)
+            }));
+        }
+    }, [userPayments, timeFrame]);
 
-    const serviceStatus = [
-        { name: 'Đang sử dụng', value: userServices.filter(service => service.isActivated).length },
-        { name: 'Đã hết hạn', value: userServices.filter(service => !service.isActivated && dayjs(service.endDate).isBefore(dayjs())).length },
-        { name: 'Đã hủy', value: 0 }  // Placeholder for canceled services
-    ];
+    const serviceStatus = useMemo(() => {
+        const activeServices = userServices.filter(
+            (service) =>
+            ((timeFrame === "month" && dayjs(service.startDate).isSame(dayjs(), "month")) ||
+                (timeFrame === "quarter" && dayjs(service.startDate).isAfter(dayjs().subtract(3, "month"))) ||
+                (timeFrame === "6months" && dayjs(service.startDate).isAfter(dayjs().subtract(6, "month"))))
+        );
+        return [
+            { name: "Đang sử dụng", value: activeServices.filter((service) => service.isActivated).length },
+            { name: "Đã hết hạn", value: activeServices.filter((service) => !service.isActivated && dayjs(service.endDate).isBefore(dayjs())).length },
+            { name: "Đã hủy", value: 0 },
+        ];
+    }, [userServices, timeFrame]);
 
     const packageStatistics = useMemo(() => {
         const packageCount: { [key: string]: { name: string; count: number; price: number } } = {};
@@ -123,8 +163,19 @@ const DashBoardManagerPage: React.FC = () => {
                     </Card>
                 </Col>
             </Row>
-
             <Row gutter={[16, 16]} className="mb-6">
+                <Col span={24} className="mt-2">
+                    <span className='mr-2'>Thống kê theo:</span>
+                    <Select
+                        defaultValue="month"
+                        onChange={handleTimeFrameChange}
+                        style={{ width: 200 }}
+                    >
+                        <Option value="month">1 tháng</Option>
+                        <Option value="quarter">3 tháng</Option>
+                        <Option value="6months">6 tháng</Option>
+                    </Select>
+                </Col>
                 <Col span={8}>
                     <Card title="Tỉ lệ gói dịch vụ">
                         <ResponsiveContainer width="100%" height={300}>
@@ -170,7 +221,7 @@ const DashBoardManagerPage: React.FC = () => {
                     </Card>
                 </Col>
                 <Col span={8}>
-                    <Card title="Trạng thái dịch vụ trong tháng">
+                    <Card title="Trạng thái dịch vụ">
                         <ResponsiveContainer width="100%" height={300}>
                             <PieChart>
                                 <Pie
