@@ -3,6 +3,11 @@ import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button, Checkbox, message } from 'antd';
 import { LineOutlined, FacebookFilled, GoogleOutlined } from '@ant-design/icons';
+import {
+    GoogleOAuthProvider,
+    useGoogleLogin,
+    // GoogleLogin
+} from '@react-oauth/google';
 
 interface ApiResponse {
     success: boolean;
@@ -100,7 +105,7 @@ const SignInPage: React.FC = () => {
                                     <h1 className="text-3xl mb-4">Xin chào!</h1>
                                     <p className="text-gray-200 font-normal leading-relaxed">Cung cấp thông tin của bạn và cùng chúng tôi khám phá cách đơn giản hóa việc tạo giáo án.</p>
                                     <div className="my-8">
-                                        <a href="signup-2.html" className="border text-white font-medium text-sm rounded-full transition-all duration-300 hover:bg-white hover:text-black focus:bg-white focus:text-black px-14 py-2.5">
+                                        <a href="/sign-up" className="border text-white font-medium text-sm rounded-full transition-all duration-300 hover:bg-white hover:text-black focus:bg-white focus:text-black px-14 py-2.5">
                                             Đăng ký
                                         </a>
                                     </div>
@@ -157,17 +162,13 @@ const SignInPage: React.FC = () => {
                                     <a href="#" className="border rounded-full flex items-center justify-center transition-all duration-300 focus:bg-sky-600 focus:text-white hover:bg-sky-600 hover:text-white h-10 w-10">
                                         <FacebookFilled />
                                     </a>
-                                    <a href="#" className="border rounded-full flex items-center justify-center transition-all duration-300 focus:bg-sky-600 focus:text-white hover:bg-sky-600 hover:text-white h-10 w-10">
+                                    {/* <a href="#" className="border rounded-full flex items-center justify-center transition-all duration-300 focus:bg-sky-600 focus:text-white hover:bg-sky-600 hover:text-white h-10 w-10">
                                         <GoogleOutlined />
-                                    </a>
-                                    {/* <CustomFacebookLoginButton />
-
-                       
-
-                        <GoogleOAuthProvider clientId="733494164563-3udejeeopbq2b1ognt9sn7vr3qr4atm8.apps.googleusercontent.com">
-                            
-                            <CustomLoginButton />
-                        </GoogleOAuthProvider> */}
+                                    </a> */}
+                                    {/* <CustomFacebookLoginButton /> */}
+                                    <GoogleOAuthProvider clientId="448683717226-p7kuea7e82t5l4g4ge8q3j1f2ok92r3q.apps.googleusercontent.com">
+                                        <CustomGoogleLoginButton />
+                                    </GoogleOAuthProvider>
                                 </div>
                             </div>
 
@@ -186,3 +187,59 @@ const SignInPage: React.FC = () => {
 
 export default SignInPage;
 
+export const CustomGoogleLoginButton = () => {
+    const navigate = useNavigate(); // Sử dụng useNavigate để điều hướng
+
+    const login = useGoogleLogin({
+        onSuccess: (credentialResponse) => {
+            console.log(credentialResponse);
+            // Handle successful login response here
+            callGoogleLoginApi(credentialResponse.code); // Gọi hàm để gửi tokenId đến server
+        },
+        flow: 'auth-code'
+    });
+
+    const callGoogleLoginApi = async (googleToken: string) => {
+        try {
+            const response = await fetch('https://localhost:44314/api/Auth/GoogleLogin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    googleToken: googleToken,
+                    isCredential: false
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Google Login failed');
+            }
+
+            const data = await response.json();
+            console.log('Google Login API Response:', data);
+            console.log('Login Success');
+            message.success('Đăng nhập thành công');
+
+            // Lưu trữ access token vào localStorage
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
+
+            navigate('/'); // Điều hướng đến trang chủ
+        } catch (error) {
+            console.error('Google Login API Error:', error);
+            message.error('Đăng nhập qua Google thất bại. Vui lòng thử lại sau.');
+        }
+    };
+
+    return (
+        <Button
+            onClick={() => login()}
+            type="default" // Chọn type là default để nó có màu nền trong suốt
+            shape="circle"
+            size="large"
+            className="border rounded-full flex items-center justify-center transition-all duration-300 hover:bg-sky-600 hover:text-white focus:bg-sky-600 focus:text-white" // Thêm class tùy chỉnh
+            icon={<GoogleOutlined />} // Sử dụng biểu tượng Google từ Ant Design
+        />
+    )
+}
