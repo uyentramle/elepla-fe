@@ -13,24 +13,10 @@ import {
 import { Link } from 'react-router-dom';
 import type { OTPProps } from 'antd/es/input/OTP';
 import CustomStep from "../Button/CustomStep";
+import { obfuscateContactInfo } from "@/utils/ObfuscateInfo";
+import { translateErrorToVietnamese } from "@/utils/TranslateError";
 
 // const { Step } = Steps;
-
-const obfuscateContactInfo = (phoneNumberOrEmail: string) => {
-    if (!phoneNumberOrEmail) return '';
-
-    if (phoneNumberOrEmail.includes('@')) {
-        // Nếu là email
-        const [name, domain] = phoneNumberOrEmail.split('@');
-        if (name.length <= 2) return phoneNumberOrEmail;
-        return name[0] + '*'.repeat(name.length - 3) + name.slice(-2) + '@' + domain;
-    } else {
-        // Nếu là số điện thoại
-        const countryCode = '+84'; // Giả sử mã quốc gia luôn là +84
-        const localNumber = phoneNumberOrEmail.slice(1); // Bỏ mã quốc gia từ chuỗi số điện thoại
-        return `(${countryCode})${localNumber.slice(0, 3)}****${localNumber.slice(-2)}`;
-    }
-};
 
 const ForgotPasswordPage: React.FC = () => {
     const [currentStep, setCurrentStep] = useState(0);
@@ -179,23 +165,6 @@ const ForgotPasswordPage: React.FC = () => {
                     message.error('Đã xảy ra lỗi, vui lòng thử lại sau.');
                     break;
             }
-        }
-    };
-
-    const translateErrorToVietnamese = (error: string) => {
-        switch (error) {
-            case 'Password must be at least 6 characters.':
-                return 'Mật khẩu phải có ít nhất 6 ký tự.';
-            case 'Password must have at least one non alphanumeric character.':
-                return 'Mật khẩu phải có ít nhất một ký tự đặc biệt.';
-            case 'Password must have at least one digit (\'0\'-\'9\').':
-                return 'Mật khẩu phải có ít nhất một chữ số (\'0\'-\'9\').';
-            case 'Password must have at least one uppercase (\'A\'-\'Z\').':
-                return 'Mật khẩu phải có ít nhất một ký tự viết hoa (\'A\'-\'Z\').';
-            case 'Password must have at least one lowercase (\'a\'-\'z\').':
-                return 'Mật khẩu phải có ít nhất một ký tự viết thường (\'a\'-\'z\').';
-            default:
-                return error; // Hoặc trả về lỗi gốc nếu không có bản dịch
         }
     };
 
