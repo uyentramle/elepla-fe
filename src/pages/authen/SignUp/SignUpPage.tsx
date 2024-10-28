@@ -1,15 +1,33 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Form, Input, Button, Checkbox, Steps, message } from 'antd';
+import { Form, Input, Button, Checkbox, /*Steps,*/ message, GetProp } from 'antd';
 import { LineOutlined, CheckCircleFilled, CheckOutlined, LoadingOutlined } from '@ant-design/icons';
+import type { OTPProps } from 'antd/es/input/OTP';
 import {
     GoogleOAuthProvider,
     // GoogleLogin
 } from '@react-oauth/google';
 import CustomGoogleLoginButton from '../Button/GoogleLoginButton';
 import CustomFacebookLoginButton from "../Button/FacebookLoginButton";
+import CustomStep from "../Button/CustomStep";
 
 // const { Step } = Steps;
+
+const obfuscateContactInfo = (phoneNumberOrEmail: string) => {
+    if (!phoneNumberOrEmail) return '';
+
+    if (phoneNumberOrEmail.includes('@')) {
+        // Nếu là email
+        const [name, domain] = phoneNumberOrEmail.split('@');
+        if (name.length <= 2) return phoneNumberOrEmail;
+        return name[0] + '*'.repeat(name.length - 3) + name.slice(-2) + '@' + domain;
+    } else {
+        // Nếu là số điện thoại
+        const countryCode = '+84'; // Giả sử mã quốc gia luôn là +84
+        const localNumber = phoneNumberOrEmail.slice(1); // Bỏ mã quốc gia từ chuỗi số điện thoại
+        return `(${countryCode})${localNumber.slice(0, 3)}****${localNumber.slice(-2)}`;
+    }
+};
 
 const SignUpPage: React.FC = () => {
     const [currentStep, setCurrentStep] = useState(0);
@@ -31,6 +49,14 @@ const SignUpPage: React.FC = () => {
             setCanResend(true); // Khi hết thời gian đếm ngược, cho phép gửi lại
         }
     }, [countdown]);
+
+    const onChange: GetProp<typeof Input.OTP, 'onChange'> = (text) => {
+        console.log('onChange:', text);
+    };
+
+    const sharedProps: OTPProps = {
+        onChange,
+    };
 
     const sendVerificationCode = async (phoneNumberOrEmail: any) => {
         try {
@@ -161,15 +187,15 @@ const SignUpPage: React.FC = () => {
 
     const translateErrorToVietnamese = (error: string) => {
         switch (error) {
-            case 'Passwords must be at least 6 characters.':
+            case 'Password must be at least 6 characters.':
                 return 'Mật khẩu phải có ít nhất 6 ký tự.';
-            case 'Passwords must have at least one non alphanumeric character.':
+            case 'Password must have at least one non alphanumeric character.':
                 return 'Mật khẩu phải có ít nhất một ký tự đặc biệt.';
-            case 'Passwords must have at least one digit (\'0\'-\'9\').':
+            case 'Password must have at least one digit (\'0\'-\'9\').':
                 return 'Mật khẩu phải có ít nhất một chữ số (\'0\'-\'9\').';
-            case 'Passwords must have at least one uppercase (\'A\'-\'Z\').':
+            case 'Password must have at least one uppercase (\'A\'-\'Z\').':
                 return 'Mật khẩu phải có ít nhất một ký tự viết hoa (\'A\'-\'Z\').';
-            case 'Passwords must have at least one lowercase (\'a\'-\'z\').':
+            case 'Password must have at least one lowercase (\'a\'-\'z\').':
                 return 'Mật khẩu phải có ít nhất một ký tự viết thường (\'a\'-\'z\').';
             default:
                 return error; // Hoặc trả về lỗi gốc nếu không có bản dịch
@@ -212,9 +238,8 @@ const SignUpPage: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-
                         <div className="xl:col-span-3 lg:col-span-2 lg:m-10 m-5 flex flex-col justify-center items-center">
-                            <h2 className="text-2xl font-bold mb-5 text-center text-blue-500">Đăng ký</h2>
+                            <h2 className="text-2xl font-bold mb-6 text-center text-blue-500">Đăng ký</h2>
 
                             {/* <div className="w-56">
                             <Steps current={currentStep} className="mb-8 custom-steps">
@@ -223,8 +248,13 @@ const SignUpPage: React.FC = () => {
                                 <Step title={currentStep === 2 ? " " : ""} />
                             </Steps>
                             </div> */}
-
-
+                            <div className="steps mb-8 custom-steps flex justify-between text-sm">
+                                <CustomStep icon={<span>1</span>} title="Nhập tài khoản" isActive={currentStep >= 0} />
+                                <LineOutlined className="text-blue-500" style={{ fontSize: '35px' }} />
+                                <CustomStep icon={<span>2</span>} title="Xác minh bảo mật" isActive={currentStep >= 1} />
+                                <LineOutlined className="text-blue-500" style={{ fontSize: '35px' }} />
+                                <CustomStep icon={<span>3</span>} title="Thiết lập thông tin" isActive={currentStep >= 2} />
+                            </div>
                             <Form
                                 form={form}
                                 name="sign_up"
@@ -261,7 +291,6 @@ const SignUpPage: React.FC = () => {
                                         <Form.Item
                                             style={{ display: 'inline-block', width: 'calc(15% - 8px)' }}>
                                             <Button type="primary" htmlType="submit" className="w-full"
-
                                             >
                                                 Gửi
                                             </Button>
@@ -271,9 +300,8 @@ const SignUpPage: React.FC = () => {
                                             valuePropName="checked"
                                             rules={[{ validator: (_, value) => value ? Promise.resolve() : Promise.reject('Bạn phải đồng ý với các điều khoản của Elepla') }]}
                                             style={{ marginBottom: '10px' }}
-
                                         >
-                                            <Checkbox>Tôi đã đọc và đồng ý với các <a href='#'>Điều khoản</a> của Elepla</Checkbox>
+                                            <Checkbox>Tôi đã đọc và đồng ý với các <a href='#'>Điều khoản</a> của Elepla.</Checkbox>
                                         </Form.Item>
                                         <Form.Item
                                             name="agreement"
@@ -281,7 +309,7 @@ const SignUpPage: React.FC = () => {
                                             rules={[{ validator: (_, value) => value ? Promise.resolve() : Promise.reject('Bạn phải đồng ý với chính sách bảo vệ thông tin cá nhân của Elepla') }]}
                                             style={{ marginBottom: '10px' }}
                                         >
-                                            <Checkbox>Tôi đã đọc và đồng ý với <a href='#'>Chính sách bảo vệ thông tin cá nhân</a> của Elepla</Checkbox>
+                                            <Checkbox>Tôi đã đọc và đồng ý với <a href='#'>Chính sách bảo vệ thông tin cá nhân</a> của Elepla.</Checkbox>
                                         </Form.Item>
                                         <div className="text-center mt-4">
                                             <LineOutlined className='mx-2' />
@@ -296,9 +324,9 @@ const SignUpPage: React.FC = () => {
                                                     <GoogleOutlined />
                                                 </a> */}
                                                 <CustomFacebookLoginButton />
-                                    <GoogleOAuthProvider clientId="448683717226-p7kuea7e82t5l4g4ge8q3j1f2ok92r3q.apps.googleusercontent.com">
-                                        <CustomGoogleLoginButton />
-                                    </GoogleOAuthProvider>
+                                                <GoogleOAuthProvider clientId="448683717226-p7kuea7e82t5l4g4ge8q3j1f2ok92r3q.apps.googleusercontent.com">
+                                                    <CustomGoogleLoginButton />
+                                                </GoogleOAuthProvider>
                                             </div>
                                         </div>
                                         <div className="text-center mt-4">
@@ -308,15 +336,16 @@ const SignUpPage: React.FC = () => {
                                 )}
                                 {currentStep === 1 && (
                                     <>
-                                        <p className="mb-4 text-center">Vui lòng nhập mã xác nhận số điện thoại hoặc email để xác minh danh tính</p>
+                                        <p className="mb-4 text-center">Vui lòng nhập mã xác nhận số điện thoại hoặc email để xác minh danh tính.</p>
                                         {/* <p className="mb-4">mi****02@gmail.com</p> */}
+                                        <p className="mb-4 text-center">{obfuscateContactInfo(phoneNumberOrEmail)}</p>
                                         <Form.Item
                                             name="verificationCode"
                                             className="mb-10"
                                             rules={[{ required: true, message: 'Mã xác nhận không được để trống' }]}
                                             style={{ display: 'inline-block', width: 'calc(68% - 8px)', marginRight: '10px' }}
                                         >
-                                            <Input
+                                            {/* <Input
                                                 placeholder="Mã Xác Nhận"
                                                 maxLength={6}
                                                 className=""
@@ -325,7 +354,8 @@ const SignUpPage: React.FC = () => {
                                                         e.preventDefault();
                                                     }
                                                 }}
-                                            />
+                                            /> */}
+                                            <Input.OTP length={6} {...sharedProps} className="" />
                                         </Form.Item>
                                         <Button type="text"
                                             className={`border border-gray-300 text-gray-500`}
@@ -400,9 +430,9 @@ const SignUpPage: React.FC = () => {
                                             />
                                         </Form.Item>
                                         <p className="text-sm mb-5">
-                                            - Mật khẩu bao gồm 6-30 số, chữ cái và ký tự đặc biệt<br />
-                                            - Tối thiểu gồm 2 loại ký tự<br />
-                                            - Đảm bảo hai lần nhập mật khẩu giống nhau
+                                            - Mật khẩu bao gồm 6-30 số, chữ cái và ký tự đặc biệt.<br />
+                                            - Tối thiểu gồm 2 loại ký tự.<br />
+                                            - Đảm bảo hai lần nhập mật khẩu giống nhau.
                                         </p>
                                         <Form.Item>
                                             <Button type="primary" htmlType="submit" className="w-full">
@@ -417,12 +447,10 @@ const SignUpPage: React.FC = () => {
                                         <p>Tài khoản của bạn đã được thiết lập thành công</p>
                                         <Button type="link" className="block mx-auto text-center" style={{ maxWidth: 'max-content' }} href="/sign-in">Trở về Đăng nhập</Button>
                                     </div>
-
                                 )}
                             </Form>
                         </div>
                     </div>
-
                 </div>
             </div>
         </section>
