@@ -1,0 +1,60 @@
+export interface IUserPayment {
+    paymentId: string;
+    userId: string;
+    username: string;
+    packageId: string;
+    packageName: string;
+    totalAmount: number;
+    transactionCode?: string;
+    paymentDate: Date;
+    status: string;
+}
+
+const payment_data: IUserPayment[] = [
+    {
+        paymentId: "1",
+        userId: "1",
+        username: "Nguyen Van A",
+        packageId: "1",
+        packageName: "Gói cao cấp",
+        totalAmount: 500000,
+        transactionCode: "123456",
+        paymentDate: new Date('2024-09-15'),
+        status: "Thành công",
+    },
+    {
+        paymentId: "2",
+        userId: "2",
+        username: "Nguyen Van B",
+        packageId: "2",
+        packageName: "Gói cơ bản",
+        totalAmount: 100000,
+        transactionCode: "123457",
+        paymentDate: new Date('2024-09-14'),
+        status: "Thành công",
+    },
+    {
+        paymentId: "3",
+        userId: "3",
+        username: "Nguyen Van C",
+        packageId: "3",
+        packageName: "Gói cao cấp",
+        totalAmount: 500000,
+        transactionCode: "123458",
+        paymentDate: new Date('2024-10-14'),
+        status: "Thành công",
+    },
+    {
+        paymentId: "4",
+        userId: "4",
+        username: "Nguyen Van D",
+        packageId: "4",
+        packageName: "Gói cơ bản",
+        totalAmount: 100000,
+        transactionCode: "123459",
+        paymentDate: new Date('2024-10-15'),
+        status: "Thành công",
+    }
+];
+
+export default payment_data;
