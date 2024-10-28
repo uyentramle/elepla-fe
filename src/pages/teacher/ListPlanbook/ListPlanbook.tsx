@@ -1,103 +1,95 @@
 import React, { useState } from 'react';
-import { Select, Card, Rate, Button, Avatar } from 'antd';
-import { HeartOutlined, HeartFilled } from '@ant-design/icons';
-import { lessonPlans } from '../../../data/client/LessonPlanData'; // Import from the new file
+import { Input, Select, Button, Card } from 'antd';
+import { FolderOpenOutlined, PlusCircleOutlined, UnorderedListOutlined, AppstoreOutlined } from '@ant-design/icons';
+import collection_data from "@/data/teacher/PlanbookCollectionData";
 
+const { Search } = Input;
 const { Option } = Select;
 
 const ListPlanbook: React.FC = () => {
+  const [isGridView, setIsGridView] = useState(true);
+  const [sortOrder, setSortOrder] = useState('newest'); 
+  const [filteredData, setFilteredData] = useState(collection_data);
 
-  const [selectedGrade, setSelectedGrade] = useState<string | undefined>(undefined);
-  const [selectedSubject, setSelectedSubject] = useState<string | undefined>(undefined);
-
-  const handleGradeChange = (value: string) => {
-    setSelectedGrade(value);
+  // Sort items based on selected order
+  const sortItems = () => {
+    const sortedData = [...filteredData].sort((a, b) => {
+      if (sortOrder === 'newest') {
+        return b.createDay.getTime() - a.createDay.getTime(); // Sort by createDay descending
+      } else if (sortOrder === 'updateNewest') {
+        return b.updateDay.getTime() - a.updateDay.getTime(); // Sort by updateDay descending
+      }
+      return 0; // No sorting
+    });
+    setFilteredData(sortedData);
   };
 
-  const handleSubjectChange = (value: string) => {
-    setSelectedSubject(value);
-  };
-
-  const toggleFavorite = (id: number) => {
-    const updatedPlans = lessonPlans.map((plan) =>
-      plan.id === id ? { ...plan, isFavorite: !plan.isFavorite } : plan
+  // Handle search input
+  const handleSearch = (value: string) => {
+    const searchData = collection_data.filter(item =>
+      item.name.toLowerCase().includes(value.toLowerCase())
     );
-    console.log('Updated lesson plans:', updatedPlans); 
+    setFilteredData(searchData);
   };
 
+  // Update sort order
+  const handleSortChange = (value: string) => {
+    setSortOrder(value);
+    sortItems();
+  };
+
+  // Toggle view
+  const toggleView = () => setIsGridView(!isGridView);
 
   return (
-    <div className="p-4">
-    {/* Bộ lọc khối lớp và môn học */}
-    <div className="flex space-x-4 mb-6">
-      <Select
-        placeholder="Chọn khối lớp"
-        onChange={handleGradeChange}
-        className="w-40"
-        value={selectedGrade}
-      >
-        <Option value="10">Lớp 10</Option>
-        <Option value="11">Lớp 11</Option>
-        <Option value="12">Lớp 12</Option>
-      </Select>
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-2xl font-semibold mb-4">Bộ sưu tập của tôi</h1>
 
-      <Select
-        placeholder="Chọn môn học"
-        onChange={handleSubjectChange}
-        className="w-40"
-        value={selectedSubject}
-      >
-        <Option value="Toán">Toán</Option>
-        <Option value="Ngữ Văn">Ngữ Văn</Option>
-        <Option value="Hóa Học">Hóa Học</Option>
-        <Option value="Vật Lý">Vật Lý</Option>
-        <Option value="Sinh Học">Sinh Học</Option>
-        <Option value="Địa Lý">Địa Lý</Option>
-      </Select>
-    </div>
-
-    {/* Danh sách giáo án */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {lessonPlans
-        .filter(
-          (plan) =>
-            (!selectedGrade || plan.grade === selectedGrade) &&
-            (!selectedSubject || plan.subject === selectedSubject)
-        )
-        .map((plan) => (
-          <Card
-            key={plan.id}
-            className="p-2 shadow-lg hover:shadow-2xl transition-shadow transform hover:scale-105 duration-300"
-            cover={<img alt={plan.title} src="https://chantroisangtao.vn/wp-content/uploads/2024/01/Toan-12-T1-BIT.png" className="h-32 object-cover" />}
+      {/* Search and Sort */}
+      <div className="flex justify-end mb-6">
+        <div className="flex items-center gap-4">
+          <Search
+            placeholder="Tìm kiếm bộ sưu tập..."
+            onSearch={handleSearch}
+            enterButton
+            className="w-full md:w-1/3"
+          />
+          <Select 
+            defaultValue="newest" 
+            onChange={handleSortChange} 
+            className="min-w-[180px] flex-grow-0"
           >
-            {/* Move the title below the image */}
-            <Card.Meta title={plan.title} className="mt-4" />
+            <Option value="newest">Ngày tạo mới nhất</Option>
+            <Option value="updateNewest">Ngày cập nhật mới nhất</Option>
+          </Select>
+          <Button icon={isGridView ? <UnorderedListOutlined /> : <AppstoreOutlined />} onClick={toggleView}>
+            {isGridView ? 'Danh sách' : 'Lưới'}
+          </Button>
+        </div>
+      </div>
 
-            {/* Rating below title */}
-            <Rate allowHalf disabled defaultValue={plan.rating} className="mt-2" />
+      {/* Collection Items */}
+      <div className={isGridView ? 'grid grid-cols-4 gap-6' : 'flex flex-col gap-4'}>
+        {/* Add Collection Item */}
+        <Card className="flex flex-col items-center justify-center text-lg font-semibold p-6 cursor-pointer border-dashed border-2 hover:bg-blue-50 transition-all h-32">
+          <div className="flex flex-col items-center justify-center h-full">
+            <PlusCircleOutlined style={{ fontSize: '64px', color: '#1890ff' }} />
+            <span className="mt-2 text-xs text-center">Thêm bộ sưu tập</span>
+          </div>
+        </Card>
 
-            {/* Author and Favorite button at the bottom */}
-            <div className="flex items-center justify-between mt-4">
-              {/* Author */}
-              <div className="flex items-center">
-                <Avatar src={plan.avatar} className="mr-2" />
-                <p className="text-gray-700">{plan.author}</p>
-              </div>
-
-              {/* Favorite Button */}
-              <Button
-                type="link"
-                icon={plan.isFavorite ? <HeartFilled /> : <HeartOutlined />}
-                onClick={() => toggleFavorite(plan.id)}
-                style={{ fontSize: '16px', color: plan.isFavorite ? 'red' : 'black' }}
-                title={plan.isFavorite ? "Bỏ yêu thích" : "Thêm yêu thích"}
-              />
+        {/* Collection Items */}
+        {filteredData.map(item => (
+          <Card key={item.id} className="flex flex-col items-center justify-center p-6 border rounded-md shadow-md hover:shadow-lg transition-all h-32">
+            <div className="flex flex-col items-center justify-center h-full">
+              <FolderOpenOutlined style={{ fontSize: '64px', color: '#1890ff' }} />
+              <h2 className="text-sm font-semibold mt-2 text-center">{item.name}</h2>
             </div>
           </Card>
         ))}
+      </div>
     </div>
-  </div>
-  );  
-}
+  );
+};
 
-export default ListPlanbook
+export default ListPlanbook;

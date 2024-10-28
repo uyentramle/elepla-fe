@@ -15,7 +15,8 @@ import { DefaultLayoutProps } from '../types/layout.type';
 import SignInPage from '../pages/authen/SignIn/SignInPage';
 import SignUpPage from '../pages/authen/SignUp/SignUpPage';
 import ForgotPasswordPage from '@/pages/authen/ForgotPassword/ForgotPasswordPage';
-import ArticlePage from '@/pages/client/ArticlePage/ArticlePage';
+import ListArticlePage from '@/pages/client/ListArticlePage/ListArticlePage';
+import ArticleDetailPage from'@/pages/client/ArticleDetailPage/ArticleDetailPage';
 
 // Admin
 import DashBoardPage from '../pages/admin/DashBoard/DashBoardPage';
@@ -60,12 +61,11 @@ const publicRoutes: RouteProps[] = [
     { path: '/sign-up', component: SignUpPage, layout: DefaultAuthenLayout },
     { path: '/forgot-password', component: ForgotPasswordPage, layout: DefaultAuthenLayout },
     { path: '/coming-soon', component: ComingSoonPage, layout: DefaultClientLayout },
-    { path: '/article', component: ArticlePage, layout: DefaultClientLayout },
+    { path: '/list-article', component: ListArticlePage, layout: DefaultClientLayout },
     { path: '/planbook-library', component: PlanbookLibraryPage, layout: DefaultClientLayout },
-    { path: '/planbook-detail/{id}', component: PlanbookDetailPage, layout: DefaultClientLayout },
-    { path: '/planbook-detail/{id}', component: PlanbookDetailPage, layout: DefaultClientLayout },
-    { path: '/package-detail', component: PackageDetailPage, layout: DefaultClientLayout },
-
+    { path: '/planbook-detail/:id', component: PlanbookDetailPage, layout: DefaultClientLayout },
+    { path: '/package-detail', component: PackageDetialPage, layout: DefaultClientLayout },
+    { path: '/article-detail/:id', component: ArticleDetailPage, layout: DefaultClientLayout }
 ];
 
 const privateRoutes: RouteProps[] = [];

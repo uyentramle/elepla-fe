@@ -53,7 +53,7 @@ const menu_data: MenuItem[] = [
       id: 4,
       has_dropdown: false,
       title: " Blog ",
-      link: "/article",
+      link: "/list-article",
       sub_menus: [
          { link: "/blog", title: "Blog" },
          { link: "/blog-grid", title: "Blog Grid" },
