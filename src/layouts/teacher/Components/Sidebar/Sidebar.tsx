@@ -1,4 +1,4 @@
-import { MenuOutlined, FormOutlined, SnippetsOutlined, CalendarOutlined, DatabaseOutlined, StarOutlined } from '@ant-design/icons';
+import { MenuOutlined, TeamOutlined, SnippetsOutlined, CalendarOutlined, DatabaseOutlined, StarOutlined } from '@ant-design/icons';
 import { Menu, MenuProps, Button } from 'antd';
 import Sider from 'antd/es/layout/Sider';
 import React, { useEffect } from 'react';
@@ -47,17 +47,18 @@ export default function MySider({
 
   const getConditionalItems = (): MenuItem[] => {
     return [
-      getItem('Giáo án của tôi', '1', <SnippetsOutlined />),
-      getItem('Danh sách lớp họp', '2', <FormOutlined />),
-      getItem('Thời khóa biểu hàng tuần', '3', <CalendarOutlined />),
-      getItem('Ngân hàng câu hỏi', '4', <DatabaseOutlined />),
+      getItem('Bộ Sưu tập của tôi', '1', <SnippetsOutlined />),
+      getItem('Thời khóa biểu hàng tuần', '2', <CalendarOutlined />),
+      getItem('Ngân hàng câu hỏi', '3', <DatabaseOutlined />),
+      getItem('Cộng đồng chia sẽ ', '4', <TeamOutlined />),
+
     ];
   };
 
   const navUrl = new Map<string, string>();
   navUrl
-    .set('1', '#') // Link to 'Giáo án của tôi'
-    .set('2', '#') // Link to 'Danh sách lớp họp'
+    .set('1', '/teacher/list-collection') // Link to 'Giáo án của tôi'
+    .set('2', '/teacher/schedule/weekly') // Link to 'Danh sách lớp họp'
     .set('3', '#') // Link to 'Thời khóa biểu hàng tuần'
     .set('4', '#'); // Link to 'Ngân hàng câu hỏi'
 
