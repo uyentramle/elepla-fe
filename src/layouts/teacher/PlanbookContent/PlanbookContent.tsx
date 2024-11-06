@@ -47,6 +47,12 @@ const PlanbookContent: React.FC = () => {
             <Input placeholder="Thời gian thực hiện" />
           </Form.Item>
         </Card>
+
+                {/* AI and Template Buttons */}
+        <div className="flex justify-end gap-4 mb-4">
+          <Button type="primary" className="bg-blue-600 text-white">Dùng AI</Button>
+          <Button type="primary" className="bg-blue-600 text-white">Sử dụng giáo án mẫu</Button>
+        </div>
         
         {/* Field 2: Objectives */}
         <Card className="mb-6" title="I. Mục tiêu">

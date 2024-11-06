@@ -3,6 +3,7 @@ import { Input, Select, Button, Card, Modal, Form } from 'antd';
 import { FileOutlined, PlusCircleOutlined, UnorderedListOutlined, AppstoreOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 import planbookData from "@/data/teacher/PlanbookData";
+import TeachingPlanForm from "@/layouts/teacher/PlanbookContent/PlanbookContent"; // Import your TeachingPlanForm component
 
 const { Search } = Input;
 const { Option } = Select;
@@ -16,6 +17,7 @@ const ListPlanbook: React.FC = () => {
   );
 
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isTeachingPlanFormVisible, setIsTeachingPlanFormVisible] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -59,10 +61,15 @@ const ListPlanbook: React.FC = () => {
     form.validateFields().then(values => {
       console.log("Planbook created with values:", values);
       setIsModalVisible(false);
+      setIsTeachingPlanFormVisible(true); // Show TeachingPlanForm modal
       form.resetFields();
     }).catch(info => {
       console.log("Validation failed:", info);
     });
+  };
+
+  const handleTeachingPlanFormCancel = () => {
+    setIsTeachingPlanFormVisible(false);
   };
 
   return (
@@ -88,10 +95,10 @@ const ListPlanbook: React.FC = () => {
         </div>
       </div>
 
-      {/* Planbook Items */}
+      {/* Planbook Items with Moving Effect */}
       <div className={isGridView ? 'grid grid-cols-4 gap-6' : 'flex flex-col gap-4'}>
         <Card
-          className="flex flex-col items-center justify-center text-lg font-semibold p-6 cursor-pointer border-dashed border-2 hover:bg-blue-50 transition-all h-32"
+          className="flex flex-col items-center justify-center text-lg font-semibold p-6 cursor-pointer border-dashed border-2 hover:bg-blue-50 transition-all h-32 transform hover:scale-105 hover:translate-y-[-0.5rem]"
           onClick={handleAddPlanbook}
         >
           <div className="flex flex-col items-center justify-center h-full">
@@ -103,7 +110,7 @@ const ListPlanbook: React.FC = () => {
         {filteredPlanbooks.map(planbook => (
           <Card
             key={planbook.planbookId}
-            className="flex flex-col items-center justify-center p-6 border rounded-md shadow-md hover:shadow-lg transition-all h-32"
+            className="flex flex-col items-center justify-center p-6 border rounded-md shadow-md hover:shadow-lg transition-all h-32 transform hover:scale-105 hover:translate-y-[-0.5rem]"
           >
             <div className="flex flex-col items-center justify-center h-full">
               <FileOutlined style={{ fontSize: '64px', color: '#1890ff' }} />
@@ -167,6 +174,17 @@ const ListPlanbook: React.FC = () => {
             </Select>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* Larger Modal for TeachingPlanForm */}
+      <Modal
+        title="Teaching Plan Form"
+        visible={isTeachingPlanFormVisible}
+        onCancel={handleTeachingPlanFormCancel}
+        footer={null}
+        width="80%" // Adjusts modal size to 80% of the viewport width
+      >
+        <TeachingPlanForm /> {/* Render your TeachingPlanForm component */}
       </Modal>
     </div>
   );
