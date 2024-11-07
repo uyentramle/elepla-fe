@@ -1,10 +1,26 @@
 import React from "react";
 import { Input, Table, Typography } from 'antd';
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, FlagFilled, FlagTwoTone, FlagOutlined } from "@ant-design/icons";
+import feedbackData, { IFeedbackData } from "@/data/academy-staff/FeedbackData";
 
 const { Title } = Typography;
 
 const SystemFeedbackManagementPage: React.FC = () => {
+    const [feedbacks, setFeedbacks] = React.useState<IFeedbackData[]>(feedbackData);
+    const [searchTerm, setSearchTerm] = React.useState('');
+    
+    const filteredFeedbacks = feedbacks.filter((f) => {
+        const matchesSearch = `${f.planbookName} ${f.username}`.toLowerCase().includes(searchTerm.toLowerCase());
+        return f.type === 'system' && matchesSearch; 
+    });    
+
+    const handleFlagToggle = (id: string) => {
+        setFeedbacks((prevFeedbacks) =>
+            prevFeedbacks.map((feedback) =>
+                feedback.id === id ? { ...feedback, isFlagged: !feedback.isFlagged } : feedback
+            )
+        );
+    };
 
     const columns = [
         {
@@ -28,13 +44,23 @@ const SystemFeedbackManagementPage: React.FC = () => {
             title: 'Điểm',
             dataIndex: 'rate',
             key: 'rate',
-            render: (text: number) => text,
+            render: (text: number) => text + "/5",
         },
         {
             title: 'Ngày',
             dataIndex: 'createdAt',
             key: 'createdAt',
             render: (text: Date) => new Date(text).toLocaleDateString(),
+        },
+        {
+            title: <FlagFilled />,
+            dataIndex: 'isFlagged',
+            key: 'isFlagged',
+            render: (text: boolean, record: IFeedbackData) => (
+                <span onClick={() => handleFlagToggle(record.id)}>
+                    {text ? <FlagTwoTone style={{ color: 'red' }} /> : <FlagOutlined />}
+                </span>
+            ),
         },
     ];
 
@@ -48,8 +74,8 @@ const SystemFeedbackManagementPage: React.FC = () => {
                         <Input
                             type="text"
                             placeholder="Tìm kiếm..."
-                            // value={searchTerm}
-                            // onChange={(e) => setSearchTerm(e.target.value)}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                             suffix={<SearchOutlined />}
                         />
                     </div>
@@ -59,7 +85,7 @@ const SystemFeedbackManagementPage: React.FC = () => {
             <div className="overflow-x-auto">
                 <Table
                     columns={columns}
-                    // dataSource={filteredCategorys} 
+                    dataSource={filteredFeedbacks} 
                     rowKey="id"
                 />
             </div>
