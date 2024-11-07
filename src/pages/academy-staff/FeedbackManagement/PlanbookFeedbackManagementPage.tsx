@@ -1,6 +1,6 @@
 import React from "react";
-import { Input, Table, Typography } from 'antd';
-import { SearchOutlined, FlagFilled, FlagTwoTone, FlagOutlined } from "@ant-design/icons";
+import { Button, Input, Modal, Table, Typography, message, } from 'antd';
+import { SearchOutlined, FlagFilled, FlagTwoTone, FlagOutlined, DeleteOutlined, } from "@ant-design/icons";
 import feedbackData, { IFeedbackData } from "@/data/academy-staff/FeedbackData";
 
 const { Title } = Typography;
@@ -8,6 +8,8 @@ const { Title } = Typography;
 const PlanbookFeedbackManagementPage: React.FC = () => {
     const [feedbacks, setFeedbacks] = React.useState<IFeedbackData[]>(feedbackData);
     const [searchTerm, setSearchTerm] = React.useState('');
+    const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
+    const [feedbackToDelete, setFeedbackToDelete] = React.useState<IFeedbackData | null>(null);
     
     const filteredFeedbacks = feedbacks.filter((f) => {
         const matchesSearch = `${f.planbookName} ${f.username}`.toLowerCase().includes(searchTerm.toLowerCase());
@@ -20,6 +22,35 @@ const PlanbookFeedbackManagementPage: React.FC = () => {
                 feedback.id === id ? { ...feedback, isFlagged: !feedback.isFlagged } : feedback
             )
         );
+    };
+
+    const handleDeleteFeedback = async () => {
+        try {
+            if (!feedbackToDelete) return;
+            setDeleteModalVisible(false);
+
+            const response = { data: { success: true } };
+            if (response.data.success) {
+                message.success('Đã xóa đánh giá thành công');
+                const updatedFeedbacks = feedbacks.filter((feedback) => feedback.id !== feedbackToDelete.id);
+                setFeedbacks(updatedFeedbacks);
+            } else {
+                message.error('Không xóa được đánh giá');
+            }
+        } catch (error) {
+            console.error('Lỗi khi xóa đánh giá:', error);
+            message.error('Không xóa được đánh giá');
+        }
+    };
+
+    const handleDeleteModal = (feedback: IFeedbackData) => {
+        setFeedbackToDelete(feedback);
+        setDeleteModalVisible(true);
+    };
+
+    const handleCancelDeleteModal = () => {
+        setDeleteModalVisible(false);
+        setFeedbackToDelete(null);
     };
 
     const columns = [
@@ -68,6 +99,21 @@ const PlanbookFeedbackManagementPage: React.FC = () => {
                 </span>
             ),
         },
+        {
+            title: 'Xóa',
+            key: 'delete',
+            render: (_text: any, record: IFeedbackData) => (
+                <Button
+                    type="primary"
+                    danger
+                    icon={<DeleteOutlined />}
+                    className="bg-red-500"
+                    onClick={() => handleDeleteModal(record)}
+                >
+                    Xóa
+                </Button>
+            ),
+        },
     ];
 
     return (
@@ -95,6 +141,18 @@ const PlanbookFeedbackManagementPage: React.FC = () => {
                     rowKey="id"
                 />
             </div>
+
+            <Modal
+                title="Xác nhận xóa đánh giá"
+                open={deleteModalVisible}
+                onOk={handleDeleteFeedback}
+                onCancel={handleCancelDeleteModal}
+                okText="Xóa"
+                cancelText="Hủy"
+                okButtonProps={{ danger: true }}
+            >
+                <p>Bạn có chắc chắn muốn xóa đánh giá này?</p>
+            </Modal>
         </>
     );
 };
