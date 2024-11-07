@@ -60,7 +60,7 @@ export default function MySider({
         .set('3', '/admin/categories')
         .set('3-1', '/admin/categories')
         .set('3-2', '/admin/categories/add-new')
-        .set('4', '/admin/curriculum-framework')
+        .set('4', '/admin/curriculum-frameworks')
         .set('5', '#')
         .set('6', '/admin/users');
 
