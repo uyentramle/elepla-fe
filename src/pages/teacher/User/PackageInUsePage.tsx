@@ -3,7 +3,7 @@ import SidebarMenu from "./SidebarMenu";
 import { useNavigate } from "react-router-dom";
 import { Button, Modal } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import PackageDetailPage from "./PackageDetialPage"; // Import component Popup
+import PackageDetailPage from "./PackageDetailPage"; // Import component Popup
 import package_in_use_data, { IUserPackage } from "@/data/client/PackageInUseData";
 import dayjs from 'dayjs';
 

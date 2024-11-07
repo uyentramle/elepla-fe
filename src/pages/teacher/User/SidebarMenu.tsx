@@ -35,9 +35,9 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({ onLogout }) => {
                         <span>Thiết lập tài khoản</span>
                     </Link>
                     <Link
-                        to="/teacher/planbook"
+                        to="/teacher/list-collection"
                         className={`flex items-center rounded p-2 ${
-                            isActive('/teacher/planbook') ? 'bg-blue-500 text-white font-bold' : 'text-gray-700 hover:bg-blue-400 hover:text-white'
+                            isActive('/teacher/list-collection') ? 'bg-blue-500 text-white font-bold' : 'text-gray-700 hover:bg-blue-400 hover:text-white'
                         }`}
                     >
                         <BookOutlined className="mr-2" />

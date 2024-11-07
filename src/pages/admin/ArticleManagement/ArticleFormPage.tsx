@@ -27,6 +27,7 @@ const ArticleFormPage: React.FC = () => {
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "",
     });
     const [selectedCategories, setSelectedCategories] = React.useState<number[]>([]);
 
