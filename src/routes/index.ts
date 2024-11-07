@@ -49,8 +49,10 @@ import AccountSettingsPage from '@/pages/teacher/User/AccountSettingsPage';
 import PaymentHistoryPage from '@/pages/teacher/User/PaymentHistoryPage';
 import PackageInUsePage from '@/pages/teacher/User/PackageInUsePage';
 import WeeklySchedulePage from '@/pages/teacher/Schedule/WeeklySchedulePage';
-import ListPlanbook from '@/pages/teacher/ListPlanbook/ListPlanbook';
+import ListCollection from '@/pages/teacher/ListPlanbook/ListCollection';
 import PackageDetailPage from '@/pages/teacher/User/PackageDetailPage';
+import ListPlanbook from '@/pages/teacher/ListPlanbook/ListPlanbook';
+import PlanbookContent from '@/layouts/teacher/PlanbookContent/PlanbookContent';
 
 interface RouteProps {
     path: string;
@@ -67,7 +69,7 @@ const publicRoutes: RouteProps[] = [
     { path: '/list-article', component: ListArticlePage, layout: DefaultClientLayout },
     { path: '/planbook-library', component: PlanbookLibraryPage, layout: DefaultClientLayout },
     { path: '/planbook-detail/:id', component: PlanbookDetailPage, layout: DefaultClientLayout },
-    { path: '/package-detail', component: PackageDetialPage, layout: DefaultClientLayout },
+    { path: '/package-detail', component: PackageDetailPage, layout: DefaultClientLayout },
     { path: '/article-detail/:id', component: ArticleDetailPage, layout: DefaultClientLayout }
 ];
 
@@ -110,8 +112,10 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/account-settings', component: AccountSettingsPage, layout: DefaultClientLayout },
     { path: '/teacher/payment-history', component: PaymentHistoryPage, layout: DefaultClientLayout },
     { path: '/teacher/package', component: PackageInUsePage, layout: DefaultClientLayout },
-    { path: '/teacher/schedule/weekly', component: WeeklySchedulePage, layout: DefaultClientLayout },
-    { path: '/teacher/planbook', component: ListPlanbook, layout: DefaultTeacherLayout },
+    { path: '/teacher/schedule/weekly', component: WeeklySchedulePage, layout: DefaultTeacherLayout },
+    { path: '/teacher/list-collection', component: ListCollection, layout: DefaultTeacherLayout },
+    { path: '/teacher/list-collection/list-planbook/:id', component: ListPlanbook, layout: DefaultTeacherLayout },
+    { path: '/teacher/list-collection/planbook-content', component: PlanbookContent, layout: DefaultClientLayout },
 
 ];
 
