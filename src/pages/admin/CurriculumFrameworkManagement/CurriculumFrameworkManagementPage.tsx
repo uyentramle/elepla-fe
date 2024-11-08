@@ -13,8 +13,7 @@ const CurriculumFrameworkManagementPage: React.FC = () => {
     const [curriculumToDelete, setCFToDelete] = React.useState<ICurriculumFramework | null>(null);
 
     const filteredCurriculums = curriculums.filter((curriculum) =>
-        curriculum.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        curriculum.subject.toLowerCase().includes(searchTerm.toLowerCase())
+        curriculum.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const handleDeleteModal = (curriculum: ICurriculumFramework) => {
@@ -59,20 +58,14 @@ const CurriculumFrameworkManagementPage: React.FC = () => {
             key: 'name',
         },
         {
-            title: 'Môn học',
-            dataIndex: 'subject',
-            key: 'subject',
-        },
-        {
-            title: 'Lớp',
-            dataIndex: 'grade',
-            key: 'grade',
-        },
-        {
-            title: 'Cập nhật lần cuối',
-            dataIndex: 'updatedAt',
-            key: 'updatedAt',
-            render: (text: string) => new Date(text).toLocaleDateString(),
+            title: 'Kiểm duyệt',
+            dataIndex: 'is_approved',
+            key: 'is_approved',
+            render: (isApproved: boolean) => (
+                <span className={`text-${isApproved ? 'green' : 'red'}-500`}>
+                    {isApproved ? 'Đã kiểm duyệt' : 'Chưa kiểm duyệt'}
+                </span>
+            ),
         },
         {
             title: 'Cập nhật',
