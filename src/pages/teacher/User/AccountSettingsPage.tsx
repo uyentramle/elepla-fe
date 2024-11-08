@@ -22,16 +22,16 @@ interface LinkedEmailProps {
     setEmail: (newEmail: string) => void; // Hàm để cập nhật email mới, dòng này có thể bỏ do dùng để test
 }
 
-interface NewEmailDTO {
-    userId: string;
-    newEmail: string;
-}
+// interface NewEmailDTO {
+//     userId: string;
+//     newEmail: string;
+// }
 
-interface VerifyEmailDTO {
-    userId: string;
-    newEmail: string;
-    code: string;
-}
+// interface VerifyEmailDTO {
+//     userId: string;
+//     newEmail: string;
+//     code: string;
+// }
 
 interface LinkedPhoneProps {
     phoneNumber: string;
@@ -57,16 +57,16 @@ const obfuscatePhoneNumber = (phoneNumber: string) => {
     return `(${countryCode})${localNumber.slice(0, 3)}****${localNumber.slice(-2)}`;
 };
 
-const getUserIdFromToken = () => {
-    // const accessToken = localStorage.getItem('accessToken');
+// const getUserIdFromToken = () => {
+// const accessToken = localStorage.getItem('accessToken');
 
-    // if (!accessToken) {
-    //     throw new Error('Access token not found.');
-    // }
+// if (!accessToken) {
+//     throw new Error('Access token not found.');
+// }
 
-    // const decodedToken: any = jwtDecode(accessToken);
-    // return decodedToken.userId;
-};
+// const decodedToken: any = jwtDecode(accessToken);
+// return decodedToken.userId;
+// };
 
 const getUserProfile = async (): Promise<any> => {
     // const accessToken = localStorage.getItem('accessToken');
@@ -242,7 +242,7 @@ const AccountSettingsPage: React.FC = () => {
 
 export default AccountSettingsPage;
 
-const LinkedAccount: React.FC<LinkedAccountProps> = ({ username, setUsername }) => {
+const LinkedAccount: React.FC<LinkedAccountProps> = ({ username, }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [newUsername, setNewUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -477,7 +477,7 @@ export const LinkedEmail: React.FC<LinkedEmailProps> = ({ email, setEmail }) => 
         return re.test(String(email).toLowerCase());
     };
 
-    const sendVerificationCodeEmail = async (newEmail: string) => {
+    const sendVerificationCodeEmail = async (_newEmail: string) => {
         // try {
         //     const accessToken = localStorage.getItem('accessToken');
         //     const userId = getUserIdFromToken();
@@ -514,7 +514,7 @@ export const LinkedEmail: React.FC<LinkedEmailProps> = ({ email, setEmail }) => 
         // }
     };
 
-    const verifyNewEmail = async (newEmail: string, code: string) => {
+    const verifyNewEmail = async (_newEmail: string, _code: string) => {
         // const accessToken = localStorage.getItem('accessToken');
 
         // const userId = getUserIdFromToken();
@@ -688,7 +688,7 @@ export const LinkedPhone: React.FC<LinkedPhoneProps> = ({ phoneNumber, setPhoneN
         return re.test(String(phoneNumber).trim());
     };
 
-    const sendVerificationCode = async (newPhoneNumber: string) => {
+    const sendVerificationCode = async (_newPhoneNumber: string) => {
         // try {
         //     const accessToken = localStorage.getItem('accessToken');
         //     const userId = getUserIdFromToken();
@@ -709,7 +709,7 @@ export const LinkedPhone: React.FC<LinkedPhoneProps> = ({ phoneNumber, setPhoneN
         // }
     };
 
-    const verifyNewPhoneNumber = async (newPhoneNumber: string, code: string) => {
+    const verifyNewPhoneNumber = async (_newPhoneNumber: string, _code: string) => {
         // try {
         //     const accessToken = localStorage.getItem('accessToken');
         //     const userId = getUserIdFromToken();

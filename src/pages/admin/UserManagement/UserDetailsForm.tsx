@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, Button, Avatar, message } from 'antd';
+import React, { useEffect } from 'react';
+import { Modal, Form, Input, Select, Button, Avatar, } from 'antd';
+import { Account } from 'src/pages/admin/UserManagement/UserManagementPage.tsx';
 import { UserOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
@@ -15,7 +16,7 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
     visible,
     onCancel,
     user,
-    onUpdate,
+    // onUpdate,
 }) => {
     const [form] = Form.useForm();
 
@@ -42,13 +43,13 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
     }, [user, form]);
 
     const handleUpdateUser = () => {
-        form.validateFields().then((values) => {
-            const updatedUser = {
-                userId: user.id || '',
-                roles: values.roles || [],
-                gender: values.gender,
-                status: values.status || '',
-            };
+        form.validateFields().then(() => {
+            // const updatedUser = {
+            //     userId: user.id || '',
+            //     roles: values.roles || [],
+            //     gender: values.gender,
+            //     status: values.status || '',
+            // };
             // onUpdate(updatedUser);
             // form.resetFields();
 
