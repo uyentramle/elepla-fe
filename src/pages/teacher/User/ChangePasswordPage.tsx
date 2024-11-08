@@ -5,8 +5,7 @@ import { useForm } from 'antd/es/form/Form';
 import {
     Form,
     Input,
-    Button, //Typography,
-    message
+    Button,
 } from 'antd';
 
 const ChangePasswordPage: React.FC = () => {
@@ -24,7 +23,7 @@ const ChangePasswordPage: React.FC = () => {
         navigate('/sign-in');
     };
 
-    const onFinish = async (values: any) => {
+    const onFinish = async (_values: any) => {
         // try {
         //     const accessToken = localStorage.getItem('accessToken');
         //     if (!accessToken) {

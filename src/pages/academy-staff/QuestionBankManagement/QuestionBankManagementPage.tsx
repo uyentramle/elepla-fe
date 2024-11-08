@@ -8,7 +8,7 @@ const { Title } = Typography;
 const { Option } = Select;
 
 const QuestionBankManagementPage: React.FC = () => {
-    const [questionBanks, setQuestionBanks] = useState<IQuestionBank[]>(question_bank_data);
+    const [questionBanks, ] = useState<IQuestionBank[]>(question_bank_data);
     const [searchTerm, setSearchTerm] = useState('');
     const [grade, setGrade] = useState<string | null>(null);
     const [bookSeries, setBookSeries] = useState<string | null>(null);

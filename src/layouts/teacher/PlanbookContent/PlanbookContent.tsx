@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Card, Input, Form, Divider } from 'antd';
+import { Button, Card, Input, Form, } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 
 const PlanbookContent: React.FC = () => {
@@ -25,7 +25,7 @@ const PlanbookContent: React.FC = () => {
       </p>
 
       <Form layout="vertical" className="max-w-4xl mx-auto bg-white p-6 rounded shadow-md">
-        
+
         {/* Field 1: General Information */}
         <Card className="mb-6" title="Thông tin chung">
           <Form.Item label="Trường">
@@ -48,12 +48,12 @@ const PlanbookContent: React.FC = () => {
           </Form.Item>
         </Card>
 
-                {/* AI and Template Buttons */}
+        {/* AI and Template Buttons */}
         <div className="flex justify-end gap-4 mb-4">
           <Button type="primary" className="bg-blue-600 text-white">Dùng AI</Button>
           <Button type="primary" className="bg-blue-600 text-white">Sử dụng giáo án mẫu</Button>
         </div>
-        
+
         {/* Field 2: Objectives */}
         <Card className="mb-6" title="I. Mục tiêu">
           <Form.Item label="Mục tiêu kiến thức">

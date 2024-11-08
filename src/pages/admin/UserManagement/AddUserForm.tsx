@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, Button, message } from 'antd';
+// import React, { useState, } from 'react';
+import React from 'react';
+import { Modal, Form, Input, Select, Button, } from 'antd';
+import { Account } from 'src/pages/admin/UserManagement/UserManagementPage.tsx';
 
 const { Option } = Select;
 
@@ -12,16 +14,17 @@ interface AddUserFormProps {
 const AddUserForm: React.FC<AddUserFormProps> = ({
     visible,
     onCancel,
-    onCreate
+    // onCreate
 }) => {
     const [form] = Form.useForm();
-    const [loading, setLoading] = useState(false);
+    // const [loading, setLoading] = useState(false);
 
     const handleCreateUser = () => {
-        form.validateFields().then(async (values) => {
-            const newUser = {
-                ...values,
-            };
+        form.validateFields().then(async () => {
+            // form.validateFields().then(async (values) => {
+            // const newUser = {
+            //     ...values,
+            // };
             // onCreate(newUser);
             // form.resetFields();
 
@@ -77,22 +80,22 @@ const AddUserForm: React.FC<AddUserFormProps> = ({
         });
     };
 
-    const translateErrorToVietnamese = (error: string) => {
-        switch (error) {
-            case 'Passwords must be at least 6 characters.':
-                return 'Mật khẩu phải có ít nhất 6 ký tự.';
-            case 'Passwords must have at least one non alphanumeric character.':
-                return 'Mật khẩu phải có ít nhất một ký tự đặc biệt.';
-            case 'Passwords must have at least one digit (\'0\'-\'9\').':
-                return 'Mật khẩu phải có ít nhất một chữ số (\'0\'-\'9\').';
-            case 'Passwords must have at least one uppercase (\'A\'-\'Z\').':
-                return 'Mật khẩu phải có ít nhất một ký tự viết hoa (\'A\'-\'Z\').';
-            case 'Passwords must have at least one lowercase (\'a\'-\'z\').':
-                return 'Mật khẩu phải có ít nhất một ký tự viết thường (\'a\'-\'z\').';
-            default:
-                return error; // Hoặc trả về lỗi gốc nếu không có bản dịch
-        }
-    };
+    // const translateErrorToVietnamese = (error: string) => {
+    //     switch (error) {
+    //         case 'Passwords must be at least 6 characters.':
+    //             return 'Mật khẩu phải có ít nhất 6 ký tự.';
+    //         case 'Passwords must have at least one non alphanumeric character.':
+    //             return 'Mật khẩu phải có ít nhất một ký tự đặc biệt.';
+    //         case 'Passwords must have at least one digit (\'0\'-\'9\').':
+    //             return 'Mật khẩu phải có ít nhất một chữ số (\'0\'-\'9\').';
+    //         case 'Passwords must have at least one uppercase (\'A\'-\'Z\').':
+    //             return 'Mật khẩu phải có ít nhất một ký tự viết hoa (\'A\'-\'Z\').';
+    //         case 'Passwords must have at least one lowercase (\'a\'-\'z\').':
+    //             return 'Mật khẩu phải có ít nhất một ký tự viết thường (\'a\'-\'z\').';
+    //         default:
+    //             return error; // Hoặc trả về lỗi gốc nếu không có bản dịch
+    //     }
+    // };
 
     return (
         <Modal

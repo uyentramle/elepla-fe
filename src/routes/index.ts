@@ -16,7 +16,7 @@ import SignInPage from '../pages/authen/SignIn/SignInPage';
 import SignUpPage from '../pages/authen/SignUp/SignUpPage';
 import ForgotPasswordPage from '@/pages/authen/ForgotPassword/ForgotPasswordPage';
 import ListArticlePage from '@/pages/client/ListArticlePage/ListArticlePage';
-import ArticleDetailPage from'@/pages/client/ArticleDetailPage/ArticleDetailPage';
+import ArticleDetailPage from '@/pages/client/ArticleDetailPage/ArticleDetailPage';
 
 // Admin
 import DashBoardPage from '../pages/admin/DashBoard/DashBoardPage';
@@ -25,6 +25,10 @@ import ArticleFormPage from '@/pages/admin/ArticleManagement/ArticleFormPage';
 import CategoryManagementPage from '@/pages/admin/CategoryManagement/CategoryManagementPage';
 import CategoryFormPage from '@/pages/admin/CategoryManagement/CategoryFormPage';
 import UserManagementPage from '@/pages/admin/UserManagement/UserManagementPage';
+import CurriculumFrameworkManagementPage from '@/pages/admin/CurriculumFrameworkManagement/CurriculumFrameworkManagementPage';
+import CurriculumFrameworkFormPage from '@/pages/admin/CurriculumFrameworkManagement/CurriculumFrameworkFormPage';
+import SubjectManagementPage from '@/pages/admin/SubjectManagement/SubjectManagementPage';
+import SubjectFormPage from '@/pages/admin/SubjectManagement/SubjectFormPage';
 
 // Manager
 import DashBoardManagerPage from '@/pages/manager/DashBoard/DashBoardPage';
@@ -84,6 +88,12 @@ const adminRoutes: RouteProps[] = [
     { path: '/admin/categories/add-new', component: CategoryFormPage, layout: DefaultAdminLayout },
     { path: '/admin/categories/edit/:id', component: CategoryFormPage, layout: DefaultAdminLayout },
     { path: '/admin/users', component: UserManagementPage, layout: DefaultAdminLayout },
+    { path: '/admin/curriculum-frameworks', component: CurriculumFrameworkManagementPage, layout: DefaultAdminLayout },
+    { path: '/admin/curriculum-frameworks/add-new', component: CurriculumFrameworkFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/curriculum-frameworks/edit/:id', component: CurriculumFrameworkFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/subjects', component: SubjectManagementPage, layout: DefaultAdminLayout },
+    { path: '/admin/subjects/add-new', component: SubjectFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/subjects/edit/:id', component: SubjectFormPage, layout: DefaultAdminLayout },
 ];
 
 const managerRoutes: RouteProps[] = [

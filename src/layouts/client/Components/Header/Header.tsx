@@ -9,7 +9,8 @@ import logo from '/assets/img/logo.png';
 const Header: React.FC = () => {
     const [isActive, setIsActive] = useState(false);
     const { sticky } = UseSticky();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    // const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [, setIsLoggedIn] = useState(false);
 
     const toggleMobileMenu = () => {
         setIsActive(!isActive);
