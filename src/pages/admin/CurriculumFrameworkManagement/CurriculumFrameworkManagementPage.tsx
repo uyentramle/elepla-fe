@@ -72,7 +72,7 @@ const CurriculumFrameworkManagementPage: React.FC = () => {
             dataIndex: 'actions',
             key: 'actions',
             render: (_text: any, _record: ICurriculumFramework) => (
-                <Link to={`#`}>
+                <Link to={`/admin/curriculum-frameworks/edit/${_record.id}`}>
                     <Button type="link"><EditOutlined /> Chỉnh sửa</Button>
                 </Link>
             ),
@@ -106,9 +106,11 @@ const CurriculumFrameworkManagementPage: React.FC = () => {
                     suffix={<SearchOutlined />}
                     className="w-1/3"
                 />
-                <Button type="primary" icon={<PlusOutlined />}>
-                    Thêm mới
-                </Button>
+                <Link to="/admin/curriculum-frameworks/add-new">
+                    <Button type="primary" icon={<PlusOutlined />}>
+                        Thêm mới
+                    </Button>
+                </Link>
             </div>
 
             <div className="overflow-x-auto">

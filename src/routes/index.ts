@@ -25,6 +25,7 @@ import CategoryManagementPage from '@/pages/admin/CategoryManagement/CategoryMan
 import CategoryFormPage from '@/pages/admin/CategoryManagement/CategoryFormPage';
 import UserManagementPage from '@/pages/admin/UserManagement/UserManagementPage';
 import CurriculumFrameworkManagementPage from '@/pages/admin/CurriculumFrameworkManagement/CurriculumFrameworkManagementPage';
+import CurriculumFrameworkFormPage from '@/pages/admin/CurriculumFrameworkManagement/CurriculumFrameworkFormPage';
 
 // Manager
 import DashBoardManagerPage from '@/pages/manager/DashBoard/DashBoardPage';
@@ -80,7 +81,9 @@ const adminRoutes: RouteProps[] = [
     { path: '/admin/categories/add-new', component: CategoryFormPage, layout: DefaultAdminLayout },
     { path: '/admin/categories/edit/:id', component: CategoryFormPage, layout: DefaultAdminLayout },
     { path: '/admin/users', component: UserManagementPage, layout: DefaultAdminLayout },
-    { path: '/admin/curriculum-frameworks', component: CurriculumFrameworkManagementPage, layout: DefaultAdminLayout }
+    { path: '/admin/curriculum-frameworks', component: CurriculumFrameworkManagementPage, layout: DefaultAdminLayout },
+    { path: '/admin/curriculum-frameworks/add-new', component: CurriculumFrameworkFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/curriculum-frameworks/edit/:id', component: CurriculumFrameworkFormPage, layout: DefaultAdminLayout },
 ];
 
 const managerRoutes: RouteProps[] = [

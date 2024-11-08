@@ -1,7 +1,7 @@
 export interface ICurriculumFramework {
     id: string;
     name: string;
-    description: string | null;
+    description: string | undefined;
     is_approved: boolean;
 }
 
