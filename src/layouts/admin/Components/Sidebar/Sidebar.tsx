@@ -7,7 +7,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import img from '/assets/img/logo.png';
-import { get } from 'http';
 
 type MenuItem = Required<MenuProps>['items'][number];
 

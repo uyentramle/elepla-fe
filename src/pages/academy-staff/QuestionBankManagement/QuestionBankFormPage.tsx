@@ -11,7 +11,7 @@ interface QuestionBankFormProps {
     onSubmit?: (formData: IQuestionBank) => void;
 }
 
-const QuestionBankFormPage: React.FC<QuestionBankFormProps> = ({ initialQuestionData, onSubmit }) => {
+const QuestionBankFormPage: React.FC<QuestionBankFormProps> = ({ onSubmit }) => {
     // State for attribute selectors (selected once per form)
     const [grade, setGrade] = useState<string | null>(null);
     const [bookSeries, setBookSeries] = useState<string | null>(null);

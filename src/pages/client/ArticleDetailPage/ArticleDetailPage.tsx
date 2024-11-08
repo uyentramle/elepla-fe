@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Tabs, Row, Col, Card, List } from "antd";
+import { Row, Col, Card, } from "antd";
 import article_data, { IArticle } from "@/data/admin/ArticleData";
 
-const { TabPane } = Tabs;
 const { Meta } = Card;
 
 const ArticleDetailPage: React.FC = () => {
@@ -34,21 +33,21 @@ const ArticleDetailPage: React.FC = () => {
     if (!article) return <div>Bài viết không tồn tại</div>;
 
     return (
-        <div className="container mx-auto py-10 px-8"> 
+        <div className="container mx-auto py-10 px-8">
             <Row gutter={16}>
                 <Col span={16}>
                     {/* Phần tiêu đề và thông tin bài viết */}
                     <div className="mb-8">
                         <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
                         <p className="text-gray-600 mb-4">{new Date(article.createdAt).toDateString()}</p>
-                        <img 
-                            src={article.thumb} 
-                            alt={article.title} 
-                            className="w-full h-auto max-w-lg mx-auto object-contain rounded" 
+                        <img
+                            src={article.thumb}
+                            alt={article.title}
+                            className="w-full h-auto max-w-lg mx-auto object-contain rounded"
                         />
                         <p className="mt-6 text-lg leading-relaxed">{article.content}</p>
                     </div>
-    
+
                     {/* Bài viết liên quan */}
                     {relatedArticles.length > 0 && (
                         <div className="mt-10">
@@ -63,16 +62,16 @@ const ArticleDetailPage: React.FC = () => {
                                     >
                                         <Row gutter={16}>
                                             <Col xs={6}>
-                                                <img 
-                                                    alt={relatedArticle.title} 
-                                                    src={relatedArticle.thumb} 
-                                                    className="object-cover w-full h-full rounded" 
+                                                <img
+                                                    alt={relatedArticle.title}
+                                                    src={relatedArticle.thumb}
+                                                    className="object-cover w-full h-full rounded"
                                                 />
                                             </Col>
                                             <Col xs={18}>
-                                                <Meta 
-                                                    title={relatedArticle.title} 
-                                                    description={new Date(relatedArticle.createdAt).toDateString()} 
+                                                <Meta
+                                                    title={relatedArticle.title}
+                                                    description={new Date(relatedArticle.createdAt).toDateString()}
                                                 />
                                             </Col>
                                         </Row>
@@ -82,7 +81,7 @@ const ArticleDetailPage: React.FC = () => {
                         </div>
                     )}
                 </Col>
-    
+
                 {/* 5 bài viết mới nhất */}
                 <Col span={8}>
                     <div className="mb-8 mt-24">
@@ -94,9 +93,9 @@ const ArticleDetailPage: React.FC = () => {
                                 className="mb-4"
                                 onClick={() => navigate(`/article-detail/${article.id}`)}
                             >
-                                <Meta 
-                                    title={article.title} 
-                                    description={new Date(article.createdAt).toDateString()} 
+                                <Meta
+                                    title={article.title}
+                                    description={new Date(article.createdAt).toDateString()}
                                 />
                             </Card>
                         ))}

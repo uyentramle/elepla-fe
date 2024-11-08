@@ -8,11 +8,10 @@ Elepla là một nền tảng hỗ trợ lập kế hoạch giảng dạy linh h
 
 ### 🚀 Key Features (Frontend)
 
-- **🎨 Giao diện linh hoạt**: Hỗ trợ cả light mode và dark mode, giúp giáo viên dễ dàng tùy chỉnh giao diện phù hợp với môi trường làm việc.
 - **💻 Responsive Design**: Giao diện web được tối ưu hóa để hiển thị tốt trên các kích thước màn hình khác nhau, đặc biệt là máy tính và laptop.
 - **🔍 Tìm kiếm Nhanh**: Dễ dàng tìm kiếm giáo án với các bộ lọc theo tên, môn học, khối lớp, và trạng thái.
-- **📄 Quản lý Lesson Plan**: Tạo, chỉnh sửa, và sắp xếp các giáo án theo môn học và lớp học.
-- **👥 Hợp tác và Chia sẻ**: Cho phép giáo viên chia sẻ giáo án với đồng nghiệp hoặc mời họ cùng chỉnh sửa.
+- **📄 Quản lý Kế hoạch Bài dạy**: Tạo, chỉnh sửa, và sắp xếp các kế hoạch bài dạy theo môn học và lớp học.
+- **👥 Chia sẻ**: Cho phép giáo viên chia sẻ kế hoạch bài dạy với đồng nghiệp hoặc chia sẻ công khai.
 
 ---
 
@@ -67,16 +66,14 @@ npm start
 
 ### 🔍 Frontend Specific Features
 
-- **Dark/Light Mode**: Hỗ trợ thay đổi giao diện giữa chế độ sáng và chế độ tối một cách linh hoạt, cải thiện trải nghiệm người dùng.
 - **Responsive Design**: Sử dụng Tailwind CSS để tối ưu hóa giao diện và tương thích với các thiết bị có kích thước màn hình khác nhau.
-- **Client-Side Routing**: Điều hướng giữa các trang như danh sách giáo án, chi tiết giáo án, và trang chia sẻ thông qua React Router.
-- **API Integration**: Kết nối với backend qua Axios để lấy dữ liệu giáo án, thông tin người dùng và lịch giảng dạy.
+- **Client-Side Routing**: Điều hướng giữa các trang như danh sách kế hoạch giảng dạy, chi tiết kế hoạch bài dạy, và trang chia sẻ thông qua React Router.
+- **API Integration**: Kết nối với backend qua Axios để lấy dữ liệu, thông tin người dùng và lịch giảng dạy.
 
 ---
 
 ### 🎯 Roadmap (Frontend)
 
-- [ ] 🌟 Hỗ trợ đa ngôn ngữ: Phát triển tính năng cho phép giáo viên sử dụng ứng dụng bằng nhiều ngôn ngữ. (optional)
 - [ ] 🎨 Tinh chỉnh thêm giao diện: Cải thiện UI/UX và tùy chỉnh thêm các thành phần giao diện. (optional)
 - [ ] 📄 Tính năng lưu trữ và chia sẻ nâng cao: Tích hợp các công cụ lưu trữ và chia sẻ trực tuyến mạnh mẽ hơn. (optional)
 

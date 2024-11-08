@@ -6,46 +6,46 @@ import AddUserForm from './AddUserForm';
 
 const { Option } = Select;
 
-interface Account {
-    id: string;
-    firstName: string;
-    lastName: string;
-    userName: string;
-    email: string;
-    phoneNumber: string;
-    googleEmail: string;
-    facebookEmail: string;
-    gender: 'Male' | 'Female' | 'Unknown';
-    status: 'Active' | 'Inactive' | 'Blocked';
-    lastLogin: string;
-    totalPoints: number;
-    avatar: string;
-    roles: string[];
-    address: string;
-    createdAt: Date;
-    createdBy: string;
-    updatedAt: Date;
-    updatedBy: string;
-    deletedAt: Date;
-    deletedBy: string;
-  }
-  
-  interface ApiResponse {
-    success: boolean;
-    message: string;
-    data: {
-      totalItemsCount: number;
-      pageSize: number;
-      totalPagesCount: number;
-      pageIndex: number;
-      next: boolean;
-      previous: boolean;
-      items: Account[];
-    };
-  }
+export interface Account {
+  id: string;
+  firstName: string;
+  lastName: string;
+  userName: string;
+  email: string;
+  phoneNumber: string;
+  googleEmail: string;
+  facebookEmail: string;
+  gender: 'Male' | 'Female' | 'Unknown';
+  status: 'Active' | 'Inactive' | 'Blocked';
+  lastLogin: string;
+  totalPoints: number;
+  avatar: string;
+  roles: string[];
+  address: string;
+  createdAt: Date;
+  createdBy: string;
+  updatedAt: Date;
+  updatedBy: string;
+  deletedAt: Date;
+  deletedBy: string;
+}
+
+// interface ApiResponse {
+//   success: boolean;
+//   message: string;
+//   data: {
+//     totalItemsCount: number;
+//     pageSize: number;
+//     totalPagesCount: number;
+//     pageIndex: number;
+//     next: boolean;
+//     previous: boolean;
+//     items: Account[];
+//   };
+// }
 
 const UserManagementPage: React.FC = () => {
-    const [accounts, setAccounts] = useState<Account[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'Active' | 'Inactive' | 'Blocked' | 'All'>('All');
   const [editVisible, setEditVisible] = useState(false); // State để điều khiển hiển thị của modal
@@ -55,9 +55,9 @@ const UserManagementPage: React.FC = () => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [totalItemsCount, setTotalItemsCount] = useState(0);
-  const [totalPagesCount, setTotalPagesCount] = useState(1);
+  const [, setTotalPagesCount] = useState(1);
 
-  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
+  const [isAuthorized,] = useState<boolean>(false);
 
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
@@ -109,6 +109,23 @@ const UserManagementPage: React.FC = () => {
     }
   };
 
+  const searchUsers = async (_term: string, _status: 'Active' | 'Inactive' | 'Blocked' | 'All', _pageIndex: number, _pageSize: number) => {
+    // Mock response or actual API call here
+    return {
+      data: {
+        totalItemsCount: 0,
+        totalPagesCount: 1,
+        items: [], // Replace with actual Account data as needed
+      },
+    };
+  };
+  
+  const blockOrUnblockUser = async (_id: string, _newStatus: 'Active' | 'Blocked') => {
+    // Mock response or logic for blocking/unblocking user here
+    return true;
+  };
+  
+
   const showUserDetailsModal = (user: Account) => {
     setSelectedUser(user);
     setEditVisible(true);
@@ -154,20 +171,20 @@ const UserManagementPage: React.FC = () => {
     setAddVisible(false); // Đóng modal sau khi cập nhật thành công
   };
 
-//   if (!isAuthorized) {
-//     return (
-//       <div className="flex justify-center items-center mt-16 text-lg font-semibold">
-//         Bạn không có quyền để truy cập nội dung này.
-//       </div>
-//     );
-//   }
+  //   if (!isAuthorized) {
+  //     return (
+  //       <div className="flex justify-center items-center mt-16 text-lg font-semibold">
+  //         Bạn không có quyền để truy cập nội dung này.
+  //       </div>
+  //     );
+  //   }
 
   const columns = [
     {
       title: 'Tên người dùng',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: Account) => {
+      render: (_text: string, record: Account) => {
         const fullName = record.firstName && record.lastName ? `${record.firstName} ${record.lastName}` : "";
         return (
           <div className="flex items-center">
@@ -194,7 +211,7 @@ const UserManagementPage: React.FC = () => {
       render: (roles: string[]) => {
         const roleOrder = { 'Admin': 1, 'Staff': 2, 'Customer': 3 };
         return roles
-          .sort((a, b) => (roleOrder[a] || 4) - (roleOrder[b] || 4))
+          .sort((a, b) => (roleOrder[a as keyof typeof roleOrder] || 4) - (roleOrder[b as keyof typeof roleOrder] || 4))
           .join(', ');
       },
     },
@@ -217,7 +234,7 @@ const UserManagementPage: React.FC = () => {
     {
       title: 'Thao tác',
       key: 'action',
-      render: (text: any, record: Account) => (
+      render: (_text: any, record: Account) => (
         <Space size="middle">
           <Dropdown
             overlay={
@@ -237,70 +254,70 @@ const UserManagementPage: React.FC = () => {
     },
   ];
 
-    return (
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="mb-6 text-3xl font-bold">Quản lý Người dùng</h1>
-          <div className="mb-4 flex justify-between">
-            <div className="flex">
-              <div className="relative mr-4">
-                <Input
-                  type="text"
-                  placeholder="Tìm kiếm..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  suffix={<SearchOutlined />}
-                />
-              </div>
-              <div>
-                <Select
-                  id="status-filter"
-                  className='w-48'
-                  value={filterStatus}
-                  onChange={(value) => setFilterStatus(value as 'Active' | 'Blocked' | 'All')}
-                >
-                  <Option value="All">Tất cả</Option>
-                  <Option value="Active">Hoạt động</Option>
-                  <Option value="Blocked">Bị chặn</Option>
-                </Select>
-              </div>
-            </div>
-            <div>
-              <Button
-                className="inline-flex items-center rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-                onClick={showAddUserModal}
-              >
-                <PlusOutlined className="mr-2" />
-                Thêm người dùng
-              </Button>
-            </div>
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="mb-6 text-3xl font-bold">Quản lý Người dùng</h1>
+      <div className="mb-4 flex justify-between">
+        <div className="flex">
+          <div className="relative mr-4">
+            <Input
+              type="text"
+              placeholder="Tìm kiếm..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              suffix={<SearchOutlined />}
+            />
           </div>
-          {/* <Table columns={columns} dataSource={filteredAccounts} rowKey="id" pagination={false} /> */}
-          <Table columns={columns} dataSource={accounts} rowKey="id" pagination={false} />
-          <Pagination
-            className="mt-10 flex justify-center"
-            current={pageIndex + 1}
-            pageSize={pageSize}
-            total={totalItemsCount}
-            onChange={handlePageChange}
-            // prevIcon={<Button type="text">Trước</Button>}
-            // nextIcon={<Button type="text">Sau</Button>}
-            showSizeChanger
-          />
-    
-          <AddUserForm
-            visible={addVisible}
-            onCancel={() => setAddVisible(false)}
-            onCreate={handleAddUser}
-          />
-    
-          <UserDetailsForm
-            visible={editVisible}
-            onCancel={handleCancel}
-            user={selectedUser}
-            onUpdate={handleUpdateUser}
-          />
+          <div>
+            <Select
+              id="status-filter"
+              className='w-48'
+              value={filterStatus}
+              onChange={(value) => setFilterStatus(value as 'Active' | 'Blocked' | 'All')}
+            >
+              <Option value="All">Tất cả</Option>
+              <Option value="Active">Hoạt động</Option>
+              <Option value="Blocked">Bị chặn</Option>
+            </Select>
+          </div>
         </div>
-      );
+        <div>
+          <Button
+            className="inline-flex items-center rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+            onClick={showAddUserModal}
+          >
+            <PlusOutlined className="mr-2" />
+            Thêm người dùng
+          </Button>
+        </div>
+      </div>
+      {/* <Table columns={columns} dataSource={filteredAccounts} rowKey="id" pagination={false} /> */}
+      <Table columns={columns} dataSource={accounts} rowKey="id" pagination={false} />
+      <Pagination
+        className="mt-10 flex justify-center"
+        current={pageIndex + 1}
+        pageSize={pageSize}
+        total={totalItemsCount}
+        onChange={handlePageChange}
+        // prevIcon={<Button type="text">Trước</Button>}
+        // nextIcon={<Button type="text">Sau</Button>}
+        showSizeChanger
+      />
+
+      <AddUserForm
+        visible={addVisible}
+        onCancel={() => setAddVisible(false)}
+        onCreate={handleAddUser}
+      />
+
+      <UserDetailsForm
+        visible={editVisible}
+        onCancel={handleCancel}
+        user={selectedUser}
+        onUpdate={handleUpdateUser}
+      />
+    </div>
+  );
 }
 
 export default UserManagementPage;
