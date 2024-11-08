@@ -45,8 +45,14 @@ export default function MySider({
                 getItem('Xem tất cả', '3-1', <CaretRightOutlined />),
                 getItem('Thêm mới danh mục', '3-2', <CaretRightOutlined />),
             ]),
-            getItem('Quản lý khung chương trình', '4', <ManageAccountsOutlinedIcon />),
-            getItem('Quản lý môn học', '5', <ManageAccountsOutlinedIcon />),
+            getItem('Quản lý khung chương trình', '4', <ManageAccountsOutlinedIcon />, [
+                getItem('Xem tất cả', '4-1', <CaretRightOutlined />),
+                getItem('Thêm mới khung chương trình', '4-2', <CaretRightOutlined />),
+            ]),
+            getItem('Quản lý môn học', '5', <ManageAccountsOutlinedIcon />, [
+                getItem('Xem tất cả', '5-1', <CaretRightOutlined />),
+                getItem('Thêm mới môn học', '5-2', <CaretRightOutlined />),
+            ]),
             getItem('Quản lý tài khoản', '6', <ManageAccountsOutlinedIcon />),
         ];
     };
@@ -61,7 +67,11 @@ export default function MySider({
         .set('3-1', '/admin/categories')
         .set('3-2', '/admin/categories/add-new')
         .set('4', '/admin/curriculum-frameworks')
-        .set('5', '#')
+        .set('4-1', '/admin/curriculum-frameworks')
+        .set('4-2', '/admin/curriculum-frameworks/add-new')
+        .set('5', '/admin/subjects')
+        .set('5-1', '/admin/subjects')
+        .set('5-2', '/admin/subjects/add-new')
         .set('6', '/admin/users');
 
     return (
