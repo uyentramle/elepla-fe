@@ -13,8 +13,7 @@ const CurriculumFrameworkManagementPage: React.FC = () => {
     const [curriculumToDelete, setCFToDelete] = React.useState<ICurriculumFramework | null>(null);
 
     const filteredCurriculums = curriculums.filter((curriculum) =>
-        curriculum.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        curriculum.subject.toLowerCase().includes(searchTerm.toLowerCase())
+        curriculum.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const handleDeleteModal = (curriculum: ICurriculumFramework) => {
@@ -59,27 +58,21 @@ const CurriculumFrameworkManagementPage: React.FC = () => {
             key: 'name',
         },
         {
-            title: 'Môn học',
-            dataIndex: 'subject',
-            key: 'subject',
-        },
-        {
-            title: 'Lớp',
-            dataIndex: 'grade',
-            key: 'grade',
-        },
-        {
-            title: 'Cập nhật lần cuối',
-            dataIndex: 'updatedAt',
-            key: 'updatedAt',
-            render: (text: string) => new Date(text).toLocaleDateString(),
+            title: 'Kiểm duyệt',
+            dataIndex: 'is_approved',
+            key: 'is_approved',
+            render: (isApproved: boolean) => (
+                <span className={`text-${isApproved ? 'green' : 'red'}-500`}>
+                    {isApproved ? 'Đã kiểm duyệt' : 'Chưa kiểm duyệt'}
+                </span>
+            ),
         },
         {
             title: 'Cập nhật',
             dataIndex: 'actions',
             key: 'actions',
             render: (_text: any, _record: ICurriculumFramework) => (
-                <Link to={`#`}>
+                <Link to={`/admin/curriculum-frameworks/edit/${_record.id}`}>
                     <Button type="link"><EditOutlined /> Chỉnh sửa</Button>
                 </Link>
             ),
@@ -113,9 +106,11 @@ const CurriculumFrameworkManagementPage: React.FC = () => {
                     suffix={<SearchOutlined />}
                     className="w-1/3"
                 />
-                <Button type="primary" icon={<PlusOutlined />}>
-                    Thêm mới
-                </Button>
+                <Link to="/admin/curriculum-frameworks/add-new">
+                    <Button type="primary" icon={<PlusOutlined />}>
+                        Thêm mới
+                    </Button>
+                </Link>
             </div>
 
             <div className="overflow-x-auto">
