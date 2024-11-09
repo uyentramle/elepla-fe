@@ -1,18 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Button, Input, Table, Select, Modal, message, Typography } from 'antd';
-import article_data, { IArticle } from '@/data/admin/ArticleData';
+// import article_data, { IArticle } from '@/data/admin/ArticleData';
+import { IViewListArticle, getViewListArticle, deleteArticle } from '@/data/admin/ArticleData';
 
 const { Option } = Select;
 const { Title } = Typography;
 
 const ArticleManagementPage: React.FC = () => {
-    const [articles, setArticles] = useState(article_data);
+    // const [articles, setArticles] = useState(article_data);
+    const [articles, setArticles] = useState<IViewListArticle[]>([]);
+    const [, setLoading] = useState<boolean>(true);
+
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<'Draft' | 'Public' | 'Private' | 'Trash' | 'All'>('All');
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-    const [articleToDelete, setArticleToDelete] = useState<IArticle | null>(null);
+    const [articleToDelete, setArticleToDelete] = useState<IViewListArticle | null>(null);
+
+    useEffect(() => {
+        const fetchArticles = async () => {
+            setLoading(true);
+            try {
+                const data = await getViewListArticle();
+                setArticles(data);
+            } catch (error) {
+                message.error('Không thể tải danh sách bài viết');
+                console.error('Lỗi khi tải danh sách bài viết:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchArticles();
+    }, []);
 
     const filteredArticles = articles.filter((b) => {
         const matchesSearch = `${b.title}`.toLowerCase().includes(searchTerm.toLowerCase());
@@ -25,9 +46,31 @@ const ArticleManagementPage: React.FC = () => {
         return matchesSearch && matchesStatus;
     });
 
-    const handleDeleteModal = (article: IArticle) => {
+    const handleDeleteModal = (article: IViewListArticle) => {
         setArticleToDelete(article);
         setDeleteModalVisible(true);
+    };
+
+    const handleDeleteArticle = async () => {
+        try {
+            if (!articleToDelete) return;
+            setDeleteModalVisible(false);
+
+            const success = await deleteArticle(articleToDelete.id);
+            if (success) {
+                message.success('Đã xóa bài viết thành công');
+                setArticles(articles.filter((article) => article.id !== articleToDelete.id));
+            } else {
+                message.error('Không xóa được bài viết');
+            }
+        } catch (error) {
+            message.error('Không xóa được bài viết');
+        }
+    };
+
+    const handleCancelDeleteModal = () => {
+        setDeleteModalVisible(false);
+        setArticleToDelete(null);
     };
 
     const columns = [
@@ -51,8 +94,8 @@ const ArticleManagementPage: React.FC = () => {
         },
         {
             title: 'Ngày tạo',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
+            dataIndex: 'created_at',
+            key: 'created_at',
             render: (text: Date) => <span className="font-semibold">{new Date(text).toLocaleDateString()}</span>,
         },
         {
@@ -69,7 +112,7 @@ const ArticleManagementPage: React.FC = () => {
         {
             title: 'Cập nhật',
             key: 'update',
-            render: (_text: any, _record: IArticle) => (
+            render: (_text: any, _record: IViewListArticle) => (
                 <Link to={`/admin/articles/edit/${_record.id}`}>
                     <Button type="primary" icon={<EditOutlined />} className="bg-blue-500">
                         Cập nhật
@@ -80,7 +123,7 @@ const ArticleManagementPage: React.FC = () => {
         {
             title: 'Xóa',
             key: 'delete',
-            render: (_text: any, record: IArticle) => (
+            render: (_text: any, record: IViewListArticle) => (
                 <Button
                     type="primary"
                     danger
@@ -93,31 +136,6 @@ const ArticleManagementPage: React.FC = () => {
             ),
         },
     ];
-
-    const handleDeleteArticle = async () => {
-        try {
-            if (!articleToDelete) return;
-            setDeleteModalVisible(false);
-
-            // Simulating API response success
-            const response = { data: { success: true } };
-            if (response.data.success) {
-                message.success('Đã xóa bài viết thành công');
-                const updatedArticles = articles.filter((article) => article.id !== articleToDelete.id);
-                setArticles(updatedArticles);
-            } else {
-                message.error('Không xóa được bài viết');
-            }
-        } catch (error) {
-            console.error('Lỗi khi xóa bài viết:', error);
-            message.error('Không xóa được bài viết');
-        }
-    };
-
-    const handleCancelDeleteModal = () => {
-        setDeleteModalVisible(false);
-        setArticleToDelete(null);
-    };
 
     return (
         <>

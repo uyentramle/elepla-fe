@@ -1,3 +1,73 @@
+import axios from 'axios';
+
+export interface IViewListArticle {
+    id: string;
+    url: string;
+    title: string;
+    excerpt: string;
+    status: string;
+    thumb: string;
+
+    created_at: string;
+    created_by: string;
+    updated_at: string | undefined;
+    updated_by: string | undefined;
+    deleted_at: string | undefined;
+    deleted_by: string | undefined;
+    isDelete: boolean;
+}
+
+export const getViewListArticle = async (): Promise<IViewListArticle[]> => {
+    try {
+        const response = await axios.get('https://localhost:7052/api/Article/GetAllArticle', {
+            params: {
+                pageIndex: 0,
+                pageSize: 10,
+            },
+            headers: {
+                'accept': '*/*',
+            },
+        });
+
+        const articles = response.data.data.items.map((article: any) => ({
+            id: article.articleId,
+            url: article.url,
+            title: article.title,
+            excerpt: article.excerpt,
+            status: article.status,
+            thumb: article.thumb || '',
+            created_at: article.createdAt,
+            created_by: article.createdBy || '',
+            updated_at: article.updatedAt || undefined,
+            updated_by: article.updatedBy || undefined,
+            deleted_at: article.deletedAt || undefined,
+            deleted_by: article.deletedBy || undefined,
+            isDelete: article.isDelete,
+        }));
+
+        return articles;
+    } catch (error) {
+        console.error('Error fetching articles:', error);
+        return [];
+    }
+};
+
+export const deleteArticle = async (articleId: string): Promise<boolean> => {
+    try {
+        const response = await axios.delete(`https://localhost:7052/api/Article/DeleteArticle?id=${articleId}`, {
+            headers: {
+                'accept': '*/*',
+            },
+        });
+        return response.status === 200;
+    } catch (error) {
+        console.error('Error deleting article:', error);
+        return false;
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 import blog2Thumb_1 from "/assets/img/blog/4.png";
 import blog2Thumb_2 from "/assets/img/blog/5.png";
 import blog2Thumb_3 from "/assets/img/blog/6.png";
