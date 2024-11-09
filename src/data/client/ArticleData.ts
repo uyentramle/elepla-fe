@@ -1,3 +1,53 @@
+import axios from 'axios';
+
+export interface IViewListArticle {
+    id: string;
+    url: string;
+    title: string;
+    excerpt: string;
+    status: string;
+    thumb: string;
+
+    created_at: string;
+    created_by: string;
+    updated_at: string | undefined;
+    updated_by: string | undefined;
+}
+
+export const getViewListArticle = async (): Promise<IViewListArticle[]> => {
+    try {
+        const response = await axios.get('https://localhost:7052/api/Article/GetAllArticle', {
+            params: {
+                pageIndex: 0,
+                pageSize: 10,
+            },
+            headers: {
+                'accept': '*/*',
+            },
+        });
+
+        const articles = response.data.data.items.map((article: any) => ({
+            id: article.articleId,
+            url: article.url,
+            title: article.title,
+            excerpt: article.excerpt,
+            status: article.status,
+            thumb: article.thumb || '',
+            created_at: article.createdAt,
+            created_by: article.createdBy || '',
+            updated_at: article.updatedAt || undefined,
+            updated_by: article.updatedBy || undefined,
+        }));
+
+        return articles;
+    } catch (error) {
+        console.error('Error fetching articles:', error);
+        return []; 
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 import blogThumb_1 from "/assets/img/blog/1.png";
 import blogThumb_2 from "/assets/img/blog/2.png";
 import blogThumb_3 from "/assets/img/blog/4.png";
