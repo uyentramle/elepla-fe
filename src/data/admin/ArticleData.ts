@@ -52,6 +52,123 @@ export const getViewListArticle = async (): Promise<IViewListArticle[]> => {
     }
 };
 
+export interface IViewDetailArticle {
+    id: string;
+    slug: string;
+    title: string;
+    content: string;
+    status: string;
+    thumb: string;
+
+    categories: string[] | undefined;
+
+    created_at: string;
+    created_by: string;
+    updated_at: string | undefined;
+    updated_by: string | undefined;
+    deleted_at: string | undefined;
+    deleted_by: string | undefined;
+    isDelete: boolean;
+}
+
+export const getArticleById = async (articleId: string): Promise<IViewDetailArticle | null> => {
+    try {
+        const response = await axios.get(`https://localhost:7052/api/Article/GetArticleById?id=${articleId}`, {
+            headers: {
+                'accept': '*/*',
+            },
+        });
+
+        const article = response.data.data.item.map((article: any) => ({
+            id: article.articleId,
+            slug: article.url,
+            title: article.title,
+            content: article.content,
+            status: article.status,
+            thumb: article.thumb || '',
+
+            categories: article.categories || [],
+
+            created_at: article.createdAt,
+            created_by: article.createdBy || '',
+            updated_at: article.updatedAt || undefined,
+            updated_by: article.updatedBy || undefined,
+            deleted_at: article.deletedAt || undefined,
+            deleted_by: article.deletedBy || undefined,
+            isDelete: article.isDelete,
+        }))[0];
+
+        return article;
+    } catch (error) {
+        console.error('Error fetching article:', error);
+        return null;
+    }
+};
+
+export interface ICreateArticle {
+    title: string;
+    slug: string | null;
+    content: string | null;
+    status: string;
+    thumb: string | null;
+    categories: string[] | null;
+}
+
+export const createArticle = async (article: ICreateArticle): Promise<boolean> => {
+    try {
+        const response = await axios.post('https://localhost:7052/api/Article/CreateArticle', {
+            title: article.title,
+            slug: article.slug,
+            content: article.content,
+            status: article.status,
+            thumb: article.thumb,
+            categories: article.categories,
+        }, {
+            headers: {
+                'accept': '*/*',
+            },
+        });
+
+        return response.status === 200;
+    } catch (error) {
+        console.error('Error creating article:', error);
+        return false;
+    }
+};
+
+export interface IUpdateArticle {
+    id: string;
+    title: string;
+    slug: string | null;
+    content: string | null;
+    status: string;
+    thumb: string | null;
+    categories: string[] | null;
+}
+
+export const updateArticle = async (article: IUpdateArticle): Promise<boolean> => {
+    try {
+        const response = await axios.put('https://localhost:7052/api/Article/UpdateArticle', {
+            id: article.id,
+            title: article.title,
+            slug: article.slug,
+            content: article.content,
+            status: article.status,
+            thumb: article.thumb,
+            categories: article.categories,
+        }, {
+            headers: {
+                'accept': '*/*',
+            },
+        });
+
+        return response.status === 200;
+    } catch (error) {
+        console.error('Error updating article:', error);
+        return false;
+    }
+};
+
 export const deleteArticle = async (articleId: string): Promise<boolean> => {
     try {
         const response = await axios.delete(`https://localhost:7052/api/Article/DeleteArticle?id=${articleId}`, {

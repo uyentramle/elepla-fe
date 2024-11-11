@@ -3,9 +3,15 @@ import { Button, Form, Input, Select, Typography, Upload } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
-import data_articles, { IArticle } from "@/data/admin/ArticleData";
 import categoryData from "@/data/admin/CategoryData";
 import { UploadOutlined } from "@ant-design/icons";
+import {
+    getArticleById,
+    createArticle,
+    updateArticle,
+    ICreateArticle,
+    IUpdateArticle
+} from '@/data/admin/ArticleData';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -13,41 +19,39 @@ const { Option } = Select;
 const ArticleFormPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [form] = Form.useForm();
-    const [formData, setFormData] = React.useState<IArticle>({
+    const [formData, setFormData] = React.useState<ICreateArticle | IUpdateArticle>({
         id: "",
         title: "",
-        url: "",
+        slug: "",
         content: "",
         status: "Public",
         thumb: "",
-        createdAt: new Date(),
-        createdBy: "",
-        updatedAt: null,
-        updatedBy: null,
-        deletedAt: null,
-        deletedBy: null,
-        isDelete: false,
-        categoryId: "",
+        categories: [],
     });
-    const [selectedCategories, setSelectedCategories] = React.useState<number[]>([]);
+    const [selectedCategories, setSelectedCategories] = React.useState<string[]>([]);
 
     const navigate = useNavigate();
 
     // Fetch Article data if editing
     useEffect(() => {
         if (id) {
-            const article = data_articles.find((art) => art.id === id);
-            if (article) {
-                setFormData(article);
-                form.setFieldsValue({
-                    title: article.title,
-                    url: article.url,
-                    content: article.content,
-                    status: article.status,
-                    thumb: article.thumb,
-                });
-                // setSelectedCategories(article.category || []);
-            }
+            (async () => {
+                const article = await getArticleById(id);
+                if (article) {
+                    setFormData({
+                        ...article,
+                        categories: article.categories || [],
+                    });
+                    form.setFieldsValue({
+                        id: article.id,
+                        title: article.title,
+                        slug: article.slug,
+                        content: article.content,
+                        status: article.status,
+                        thumb: article.thumb,
+                    });
+                }
+            })();
         }
     }, [id, form]);
 
@@ -78,28 +82,41 @@ const ArticleFormPage: React.FC = () => {
     };
 
     // Handle category changes
-    const handleCategoryChange = (value: number[]) => {
+    const handleCategoryChange = (value: string[]) => {
         setSelectedCategories(value);
     };
 
-    const handleSubmit = () => {
-        const updatedArticle: IArticle = {
+    const handleSubmit = async () => {
+        const updatedArticle: ICreateArticle | IUpdateArticle = {
             ...formData,
-            // category: selectedCategories,
+            categories: selectedCategories,
         };
 
-        if (id) {
-            // Edit Article logic
-            const updatedArticles = data_articles.map((article) =>
-                article.id === id ? updatedArticle : article
-            );
-            console.log("Updated Articles:", updatedArticles);
-        } else {
-            // Add new Article logic
-            console.log("New Article:", updatedArticle);
-            data_articles.push(updatedArticle);
+        try {
+            if (id) {
+                const success = await updateArticle({
+                    id: id,
+                    ...updatedArticle,
+                } as IUpdateArticle);
+
+                if (success) {
+                    console.log("Article updated successfully");
+                } else {
+                    console.error("Failed to update the article");
+                }
+            } else {
+                const success = await createArticle(updatedArticle as ICreateArticle);
+
+                if (success) {
+                    console.log("Article created successfully");
+                } else {
+                    console.error("Failed to create the article");
+                }
+            }
+            navigate(-1);
+        } catch (error) {
+            console.error("Error handling submit:", error);
         }
-        navigate(-1);
     };
 
     return (
@@ -131,11 +148,29 @@ const ArticleFormPage: React.FC = () => {
                         label="Slug"
                         name="url"
                     >
-                        <Input
-                            id="url"
-                            name="url"
-                            value={formData.url}
+                        {/* <Input
+                            id="slug"
+                            name="slug"
+                            value={formData.slug || ""}
                             onChange={handleChange}
+                            className="w-full"
+                        /> */}
+                        <Input
+                            id="slug"
+                            name="slug"
+                            value={formData.slug || ""}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                const formattedValue = value
+                                    .toLowerCase()
+                                    .replace(/ /g, '-')
+                                    .normalize('NFD')
+                                    .replace(/[\u0300-\u036f]/g, '');
+                                setFormData((prevState) => ({
+                                    ...prevState,
+                                    slug: formattedValue,
+                                }));
+                            }}
                             className="w-full"
                         />
                     </Form.Item>
@@ -149,7 +184,7 @@ const ArticleFormPage: React.FC = () => {
                                 name="content"
                             >
                                 <ReactQuill
-                                    value={formData.content}
+                                    value={formData.content || ""}
                                     onChange={handleContentChange}
                                     className="h-80 mb-4"
                                 />
@@ -213,7 +248,7 @@ const ArticleFormPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                
+
                 <div className="w-full flex justify-center pt-4">
                     <Form.Item>
                         <div className="flex space-x-4">
