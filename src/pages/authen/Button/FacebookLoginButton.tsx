@@ -24,7 +24,7 @@ export const CustomFacebookLoginButton: React.FC = () => {
 
     const callFacebookLoginApi = async (accessToken: string) => {
         try {
-            const response = await fetch('https://localhost:44314/api/Auth/FacebookLogin', {
+            const response = await fetch('https://elepla-be-production.up.railway.app/api/Auth/FacebookLogin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
