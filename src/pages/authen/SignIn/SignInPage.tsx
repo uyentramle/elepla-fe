@@ -19,7 +19,7 @@ interface ApiResponse {
 
 const loginApi = async (username: string, password: string): Promise<ApiResponse> => {
     try {
-        const response = await axios.post('https://localhost:44314/api/Auth/Login', {
+        const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/Login', {
             username,
             password
         }, {

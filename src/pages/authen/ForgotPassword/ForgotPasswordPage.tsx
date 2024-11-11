@@ -66,7 +66,7 @@ const ForgotPasswordPage: React.FC = () => {
 
     const sendVerificationCode = async (phoneNumberOrEmail: any) => {
         try {
-            const response = await axios.post('https://localhost:44314/api/Auth/SendForgotPasswordVerificationCode', {
+            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/SendForgotPasswordVerificationCode', {
                 phoneNumberOrEmail,
             });
             if (response.data.success) {
@@ -101,7 +101,7 @@ const ForgotPasswordPage: React.FC = () => {
 
     const verifyForgotPasswordCode = async (phoneNumberOrEmail: any, verificationCode: any) => {
         try {
-            const response = await axios.post('https://localhost:44314/api/Auth/VerifyForgotPasswordCode', {
+            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/VerifyForgotPasswordCode', {
                 phoneNumberOrEmail,
                 verificationCode
             });
@@ -131,7 +131,7 @@ const ForgotPasswordPage: React.FC = () => {
 
     const resetPasswordUser = async (values: any) => {
         try {
-            const response = await axios.post('https://localhost:44314/api/Auth/ResetPassword', {
+            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/ResetPassword', {
                 phoneNumberOrEmail: phoneNumberOrEmail,
                 resetPasswordToken: resetPasswordToken,
                 newPassword: values.newPassword,
