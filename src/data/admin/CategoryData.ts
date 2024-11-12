@@ -1,3 +1,88 @@
+import axios from 'axios';
+
+export interface IViewListCategory {
+    id: string;
+    name: string;
+    url: string;
+    description: string;
+    status: boolean;
+    created_at: string;
+    created_by: string;
+    updated_at: string | undefined;
+    updated_by: string | undefined;
+    deleted_at: string | undefined;
+    deleted_by: string | undefined;
+    isDelete: boolean;
+}
+
+export const fetchListCategory = async (): Promise<IViewListCategory[]> => {
+    try {
+        const response = await axios.get('https://elepla-be-production.up.railway.app/api/Category/GetAllCategory?pageIndex=0&pageSize=10');
+        if (response.data.success) {
+            return response.data.data.items.map((category: any) => ({
+                id: category.categoryId,
+                name: category.name,
+                url: category.url,
+                description: category.description,
+                status: category.status,
+                created_at: category.createdAt,
+                created_by: category.createdBy || '',
+                updated_at: category.updatedAt || undefined,
+                updated_by: category.updatedBy || undefined,
+                deleted_at: category.deletedAt || undefined,
+                deleted_by: category.deletedBy || undefined,
+                isDelete: category.isDelete,
+            }));
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+        return [];
+    }
+};
+
+export const deleteCategory = async (id: string): Promise<boolean> => {
+    try {
+        const response = await axios.delete(`https://elepla-be-production.up.railway.app/api/Category/DeleteCategory`, {
+            data: { id }  // Include the id as part of the request body
+        });
+        return response.status === 200 && response.data.success;
+    } catch (error) {
+        console.error('Error deleting category:', error);
+        return false;
+    }
+};
+
+export interface ICategoryForm {
+    id: string | undefined;
+    name: string;
+    url: string | undefined;
+    description: string | undefined;
+    status: boolean;
+}
+
+export const createCategory = async (category: ICategoryForm): Promise<boolean> => {
+    try {
+        const response = await axios.post('https://elepla-be-production.up.railway.app/api/Category/CreateCategory', category);
+        return response.status === 200 && response.data.success;
+    } catch (error) {
+        console.error('Error creating category:', error);
+        return false;
+    }
+};
+
+export const updateCategory = async (category: ICategoryForm): Promise<boolean> => {
+    try {
+        const response = await axios.put('https://elepla-be-production.up.railway.app/api/Category/UpdateCategory', category);
+        return response.status === 200 && response.data.success;
+    } catch (error) {
+        console.error('Error updating category:', error);
+        return false;
+    }
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export interface ICategory {
     id: string;
