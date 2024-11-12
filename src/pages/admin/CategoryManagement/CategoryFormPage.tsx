@@ -33,7 +33,7 @@ const CategoryFormPage: React.FC = () => {
                 setLoading(false);
             }).catch((error) => {
                 console.error("Error fetching category:", error);
-                message.error("Failed to fetch category data.");
+                message.error("Lỗi lấy dữ liệu.");
                 setLoading(false);
             });
         }

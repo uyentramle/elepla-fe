@@ -1,3 +1,81 @@
+import axios from 'axios';
+
+export interface IViewListCurriculum {
+    curriculumId: string;
+    name: string;
+    description: string | undefined;
+
+    created_at: string;
+    created_by: string;
+    updated_at: string | undefined;
+    updated_by: string | undefined;
+    deleted_at: string | undefined;
+    deleted_by: string | undefined;
+    isDelete: boolean;
+}
+
+export const fetchCurriculumList = async (): Promise<IViewListCurriculum[]> => {
+    try {
+        const response = await axios.get('https://elepla-be-production.up.railway.app/api/CurriculumFramework/GetAllCurriculumFramework?pageIndex=0&pageSize=10');
+        if (response.data.success) {
+            return response.data.data.items.map((curriculum: any) => ({
+                curriculumId: curriculum.curriculumId,
+                name: curriculum.name,
+                description: curriculum.description,
+                created_at: curriculum.createdAt,
+                created_by: curriculum.createdBy || '',
+                updated_at: curriculum.updatedAt || undefined,
+                updated_by: curriculum.updatedBy || undefined,
+                deleted_at: curriculum.deletedAt || undefined,
+                deleted_by: curriculum.deletedBy || undefined,
+                isDelete: curriculum.isDelete,
+            }));
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching curriculum list:', error);
+        return [];
+    }
+};
+
+export const deleteCurriculum = async (curriculumId: string): Promise<boolean> => {
+    try {
+        const response = await axios.delete(`https://elepla-be-production.up.railway.app/api/CurriculumFramework/DeleteCurriculumFramework?curriculumFrameworkId=${curriculumId}`);
+        return response.status === 200 && response.data.success;
+    } catch (error) {
+        console.error('Error deleting curriculum:', error);
+        return false;        
+    }
+};
+
+export interface ICurriculumFrameworkForm {
+    curriculumId: string | undefined;
+    name: string;
+    description: string | undefined;
+}
+
+export const createCurriculum = async (curriculum: ICurriculumFrameworkForm): Promise<boolean> => {
+    try {
+        const response = await axios.post('https://elepla-be-production.up.railway.app/api/CurriculumFramework/CreateCurriculumFramework', curriculum);
+        return response.status === 200 && response.data.success;
+    } catch (error) {
+        console.error('Error creating curriculum:', error);
+        return false;        
+    }
+};
+
+export const updateCurriculum = async (curriculum: ICurriculumFrameworkForm): Promise<boolean> => {
+    try {
+        const response = await axios.put('https://elepla-be-production.up.railway.app/api/CurriculumFramework/UpdateCurriculumFramework', curriculum);
+        return response.status === 200 && response.data.success;
+    } catch (error) {
+        console.error('Error updating curriculum:', error);
+        return false;
+    }
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export interface ICurriculumFramework {
     id: string;
     name: string;

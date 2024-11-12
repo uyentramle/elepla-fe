@@ -1,31 +1,39 @@
 import React, { useEffect, ChangeEvent } from "react";
-import { Button, Form, Input, Switch, Typography } from "antd";
+import { Button, Form, Input, message, Typography } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
-import curriculumData, { ICurriculumFramework } from '@/data/admin/CurriculumFramworkData';
+import { ICurriculumFrameworkForm, createCurriculum, updateCurriculum, fetchCurriculumList } from '@/data/admin/CurriculumFramworkData';
 
 const { Title } = Typography;
 
 const CurriculumFrameworkFormPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [form] = Form.useForm();
-    const [formData, setFormData] = React.useState<ICurriculumFramework>({
-        id: "",
+    const [formData, setFormData] = React.useState<ICurriculumFrameworkForm>({
+        curriculumId: "",
         name: "",
         description: "",
-        is_approved: true,
     });
     const navigate = useNavigate();
 
     // Fetch curriculum data if editing
     useEffect(() => {
         if (id) {
-            const curriculumFramework = curriculumData.find((cr) => cr.id === id);
-            if (curriculumFramework) {
-                setFormData(curriculumFramework);
-                form.setFieldsValue(curriculumFramework);
-            }
+            fetchCurriculumList().then((curriculumData) => {
+                const curriculumFramework = curriculumData.find((cr) => cr.curriculumId === id);
+                if (curriculumFramework) {
+                    setFormData({
+                        curriculumId: curriculumFramework.curriculumId,
+                        name: curriculumFramework.name,
+                        description: curriculumFramework.description,
+                    });
+                    form.setFieldsValue(curriculumFramework);
+                }
+            }).catch((error) => {
+                console.error("Error fetching curriculum:", error);
+                message.error("Lỗi lấy dữ liệu.");
+            });
         }
     }, [id, form]);
 
@@ -46,32 +54,30 @@ const CurriculumFrameworkFormPage: React.FC = () => {
         }));
     };
 
-    // Handle switch toggle
-    const handleSwitchChange = (checked: boolean) => {
-        setFormData((prevState) => ({
-            ...prevState,
-            is_approved: checked,
-        }));
-    };
-
-    const handleSubmit = () => {
-        if (id) {
-            // Edit logic
-            const updatedCurriculums = curriculumData.map((curriculumFramework) =>
-                curriculumFramework.id === id
-                    ? { ...curriculumFramework, ...formData }
-                    : curriculumFramework
-            );
-            console.log("Updated Curriculums:", updatedCurriculums);
-        } else {
-            // Add new curriculum logic
-            const newCurriculumFramework: ICurriculumFramework = {
-                ...formData,
-            };
-            console.log("New CurriculumFramework:", newCurriculumFramework);
-            curriculumData.push(newCurriculumFramework);
+    const handleSubmit = async () => {
+        try {
+            let success = false;
+            if (id) {
+                success = await updateCurriculum(formData);
+                if (success) {
+                    message.success('Cập nhật khung chương trình thành công');
+                } else {
+                    message.error('Lỗi cập nhật khung chương trình.');
+                }
+            } else {
+                // Add new curriculum logic
+                success = await createCurriculum(formData);
+                if (success) {
+                    message.success('Tạo khung chương trình thành công');
+                } else {
+                    message.error('Lỗi tạo khung chương trình.');
+                }
+            }
+            if (success) navigate('/admin/curriculum-frameworks');
+        } catch (error) {
+            console.error('Error creating curriculum:', error);
+            message.error('Lỗi tạo khung chương trình.');
         }
-        navigate(-1);
     };
 
     return (
@@ -108,27 +114,18 @@ const CurriculumFrameworkFormPage: React.FC = () => {
                     />
                 </Form.Item>
 
-                <Form.Item
-                    label="Trạng thái"
-                    name="is_approved"
-                    valuePropName="checked"
-                >
-                    <Switch
-                        checked={formData.is_approved}
-                        onChange={handleSwitchChange}
-                    />
-                </Form.Item>
-
-                <Form.Item>
-                    <div className="flex space-x-4 justify-center">
-                        <Button type="primary" htmlType="submit">
-                            {id ? "Cập nhật" : "Thêm mới"}
-                        </Button>
-                        <Button type="default" onClick={() => navigate('/admin/curriculum-frameworks')}>
-                            Quay lại
-                        </Button>
-                    </div>
-                </Form.Item>
+                <div className="pt-4">
+                    <Form.Item>
+                        <div className="flex space-x-4 justify-center">
+                            <Button type="primary" htmlType="submit">
+                                {id ? "Cập nhật" : "Thêm mới"}
+                            </Button>
+                            <Button type="default" onClick={() => navigate('/admin/curriculum-frameworks')}>
+                                Quay lại
+                            </Button>
+                        </div>
+                    </Form.Item>
+                </div>
             </Form>
         </>
     );
