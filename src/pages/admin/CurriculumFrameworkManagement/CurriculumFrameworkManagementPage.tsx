@@ -1,22 +1,31 @@
 import React from "react";
 import { Input, Table, Typography, Button, Modal, message } from 'antd';
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import curriculumData, { ICurriculumFramework } from '@/data/admin/CurriculumFramworkData';
+import { IViewListCurriculum, fetchCurriculumList, deleteCurriculum } from '@/data/admin/CurriculumFramworkData';
 import { Link } from "react-router-dom";
 
 const { Title } = Typography;
 
 const CurriculumFrameworkManagementPage: React.FC = () => {
-    const [curriculums, setCurriculums] = React.useState<ICurriculumFramework[]>(curriculumData);
+    const [curriculums, setCurriculums] = React.useState<IViewListCurriculum[]>([]);
     const [searchTerm, setSearchTerm] = React.useState('');
     const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
-    const [curriculumToDelete, setCFToDelete] = React.useState<ICurriculumFramework | null>(null);
+    const [curriculumToDelete, setCFToDelete] = React.useState<IViewListCurriculum | null>(null);
 
     const filteredCurriculums = curriculums.filter((curriculum) =>
         curriculum.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleDeleteModal = (curriculum: ICurriculumFramework) => {
+    React.useEffect(() => {
+        const fetchCurriculums = async () => {
+            const curriculumList = await fetchCurriculumList();
+            setCurriculums(curriculumList);
+        };
+
+        fetchCurriculums();
+    }, []);
+
+    const handleDeleteModal = (curriculum: IViewListCurriculum) => {
         setCFToDelete(curriculum);
         setDeleteModalVisible(true);
     };
@@ -26,11 +35,10 @@ const CurriculumFrameworkManagementPage: React.FC = () => {
             if (!curriculumToDelete) return;
             setDeleteModalVisible(false);
 
-            // Simulating API response success
-            const response = { data: { success: true } };
-            if (response.data.success) {
+            const isDeleted = await deleteCurriculum(curriculumToDelete.curriculumId);
+            if (isDeleted) {
                 message.success('Đã xóa khung chương trình thành công');
-                const updatedCurriculums = curriculums.filter((curriculum) => curriculum.id !== curriculumToDelete.id);
+                const updatedCurriculums = curriculums.filter((curriculum) => curriculum.curriculumId !== curriculumToDelete.curriculumId);
                 setCurriculums(updatedCurriculums);
             } else {
                 message.error('Không xóa được khung chương trình');
@@ -50,6 +58,7 @@ const CurriculumFrameworkManagementPage: React.FC = () => {
         {
             title: 'No.',
             dataIndex: '1',
+            key: 'curriculumId',
             render: (_text: any, _record: any, index: number) => index + 1,
         },
         {
@@ -57,22 +66,22 @@ const CurriculumFrameworkManagementPage: React.FC = () => {
             dataIndex: 'name',
             key: 'name',
         },
-        {
-            title: 'Kiểm duyệt',
-            dataIndex: 'is_approved',
-            key: 'is_approved',
-            render: (isApproved: boolean) => (
-                <span className={`text-${isApproved ? 'green' : 'red'}-500`}>
-                    {isApproved ? 'Đã kiểm duyệt' : 'Chưa kiểm duyệt'}
-                </span>
-            ),
-        },
+        // {
+        //     title: 'Kiểm duyệt',
+        //     dataIndex: 'is_approved',
+        //     key: 'is_approved',
+        //     render: (isApproved: boolean) => (
+        //         <span className={`text-${isApproved ? 'green' : 'red'}-500`}>
+        //             {isApproved ? 'Đã kiểm duyệt' : 'Chưa kiểm duyệt'}
+        //         </span>
+        //     ),
+        // },
         {
             title: 'Cập nhật',
             dataIndex: 'actions',
             key: 'actions',
-            render: (_text: any, _record: ICurriculumFramework) => (
-                <Link to={`/admin/curriculum-frameworks/edit/${_record.id}`}>
+            render: (_text: any, _record: IViewListCurriculum) => (
+                <Link to={`/admin/curriculum-frameworks/edit/${_record.curriculumId}`}>
                     <Button type="link"><EditOutlined /> Chỉnh sửa</Button>
                 </Link>
             ),
@@ -80,7 +89,7 @@ const CurriculumFrameworkManagementPage: React.FC = () => {
         {
             title: 'Xóa',
             key: 'delete',
-            render: (_text: any, record: ICurriculumFramework) => (
+            render: (_text: any, record: IViewListCurriculum) => (
                 <Button
                     type="primary"
                     danger
