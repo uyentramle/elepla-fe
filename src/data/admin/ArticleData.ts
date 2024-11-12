@@ -1,4 +1,5 @@
 import axios from 'axios';
+import blog2Thumb_1 from "/assets/img/blog/4.png";
 
 export interface IViewListArticle {
     id: string;
@@ -19,7 +20,7 @@ export interface IViewListArticle {
 
 export const getViewListArticle = async (): Promise<IViewListArticle[]> => {
     try {
-        const response = await axios.get('https://localhost:7052/api/Article/GetAllArticle', {
+        const response = await axios.get('https://elepla-be-production.up.railway.app/api/Article/GetAllArticle', {
             params: {
                 pageIndex: 0,
                 pageSize: 10,
@@ -35,7 +36,7 @@ export const getViewListArticle = async (): Promise<IViewListArticle[]> => {
             title: article.title,
             excerpt: article.excerpt,
             status: article.status,
-            thumb: article.thumb || '',
+            thumb: article.thumb || 'blog2Thumb_1',
             created_at: article.createdAt,
             created_by: article.createdBy || '',
             updated_at: article.updatedAt || undefined,
@@ -73,30 +74,28 @@ export interface IViewDetailArticle {
 
 export const getArticleById = async (articleId: string): Promise<IViewDetailArticle | null> => {
     try {
-        const response = await axios.get(`https://localhost:7052/api/Article/GetArticleById?id=${articleId}`, {
+        const response = await axios.get(`https://elepla-be-production.up.railway.app/api/Article/GetArticleById?id=${articleId}`, {
             headers: {
                 'accept': '*/*',
             },
         });
 
-        const article = response.data.data.item.map((article: any) => ({
-            id: article.articleId,
-            slug: article.url,
-            title: article.title,
-            content: article.content,
-            status: article.status,
-            thumb: article.thumb || '',
-
-            categories: article.categories || [],
-
-            created_at: article.createdAt,
-            created_by: article.createdBy || '',
-            updated_at: article.updatedAt || undefined,
-            updated_by: article.updatedBy || undefined,
-            deleted_at: article.deletedAt || undefined,
-            deleted_by: article.deletedBy || undefined,
-            isDelete: article.isDelete,
-        }))[0];
+        const article = {
+            id: response.data.data.articleId,
+            slug: response.data.data.url,
+            title: response.data.data.title,
+            content: response.data.data.content,
+            status: response.data.data.status,
+            thumb: response.data.data.thumb || 'blog2Thumb_1',
+            categories: response.data.data.categories || [],
+            created_at: response.data.data.createdAt,
+            created_by: response.data.data.createdBy || '',
+            updated_at: response.data.data.updatedAt || undefined,
+            updated_by: response.data.data.updatedBy || undefined,
+            deleted_at: response.data.data.deletedAt || undefined,
+            deleted_by: response.data.data.deletedBy || undefined,
+            isDelete: response.data.data.isDelete,
+        };
 
         return article;
     } catch (error) {
@@ -116,7 +115,7 @@ export interface ICreateArticle {
 
 export const createArticle = async (article: ICreateArticle): Promise<boolean> => {
     try {
-        const response = await axios.post('https://localhost:7052/api/Article/CreateArticle', {
+        const response = await axios.post('https://elepla-be-production.up.railway.app/api/Article/CreateArticle', {
             title: article.title,
             slug: article.slug,
             content: article.content,
@@ -148,7 +147,7 @@ export interface IUpdateArticle {
 
 export const updateArticle = async (article: IUpdateArticle): Promise<boolean> => {
     try {
-        const response = await axios.put('https://localhost:7052/api/Article/UpdateArticle', {
+        const response = await axios.put('https://elepla-be-production.up.railway.app/api/Article/UpdateArticle', {
             id: article.id,
             title: article.title,
             slug: article.slug,
@@ -171,7 +170,7 @@ export const updateArticle = async (article: IUpdateArticle): Promise<boolean> =
 
 export const deleteArticle = async (articleId: string): Promise<boolean> => {
     try {
-        const response = await axios.delete(`https://localhost:7052/api/Article/DeleteArticle?id=${articleId}`, {
+        const response = await axios.delete(`https://elepla-be-production.up.railway.app/api/Article/DeleteArticle?id=${articleId}`, {
             headers: {
                 'accept': '*/*',
             },
@@ -185,7 +184,6 @@ export const deleteArticle = async (articleId: string): Promise<boolean> => {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import blog2Thumb_1 from "/assets/img/blog/4.png";
 import blog2Thumb_2 from "/assets/img/blog/5.png";
 import blog2Thumb_3 from "/assets/img/blog/6.png";
 import blog2Thumb_4 from "/assets/img/blog/7.png";

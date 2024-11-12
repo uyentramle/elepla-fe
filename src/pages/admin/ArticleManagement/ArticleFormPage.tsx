@@ -3,7 +3,8 @@ import { Button, Form, Input, Select, Typography, Upload } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
-import categoryData from "@/data/admin/CategoryData";
+import { fetchListCategory } from "@/data/admin/CategoryData";
+
 import { UploadOutlined } from "@ant-design/icons";
 import {
     getArticleById,
@@ -29,6 +30,16 @@ const ArticleFormPage: React.FC = () => {
         categories: [],
     });
     const [selectedCategories, setSelectedCategories] = React.useState<string[]>([]);
+
+    const [categoriesData, setCategoriesData] = React.useState<{ id: string, name: string }[]>([]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            const data = await fetchListCategory();
+            setCategoriesData(data);
+        };
+        fetchCategories();
+    }, []);
 
     const navigate = useNavigate();
 
@@ -91,7 +102,8 @@ const ArticleFormPage: React.FC = () => {
             ...formData,
             categories: selectedCategories,
         };
-
+        console.log("Submitting article data:", updatedArticle); 
+        
         try {
             if (id) {
                 const success = await updateArticle({
@@ -113,7 +125,7 @@ const ArticleFormPage: React.FC = () => {
                     console.error("Failed to create the article");
                 }
             }
-            navigate(-1);
+            // navigate(-1);
         } catch (error) {
             console.error("Error handling submit:", error);
         }
@@ -144,7 +156,7 @@ const ArticleFormPage: React.FC = () => {
                         />
                     </Form.Item>
 
-                    <Form.Item
+                    {/* <Form.Item
                         label="Slug"
                         name="url"
                     >
@@ -154,7 +166,7 @@ const ArticleFormPage: React.FC = () => {
                             value={formData.slug || ""}
                             onChange={handleChange}
                             className="w-full"
-                        /> */}
+                        /> 
                         <Input
                             id="slug"
                             name="slug"
@@ -173,7 +185,7 @@ const ArticleFormPage: React.FC = () => {
                             }}
                             className="w-full"
                         />
-                    </Form.Item>
+                    </Form.Item> */}
                 </div>
 
                 <div className="flex w-full px-4">
@@ -219,7 +231,7 @@ const ArticleFormPage: React.FC = () => {
                                     value={selectedCategories}
                                     onChange={handleCategoryChange}
                                 >
-                                    {categoryData.map((category) => (
+                                    {categoriesData.map((category: { id: string, name: string }) => (
                                         <Option key={category.id} value={category.id}>
                                             {category.name}
                                         </Option>
