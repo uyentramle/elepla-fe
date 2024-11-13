@@ -1,41 +1,41 @@
-import React, { useEffect, ChangeEvent } from "react";
-import { Button, Form, Input, Switch, Typography } from "antd";
+import React, { useEffect, ChangeEvent, useState } from "react";
+import { Button, Form, Input, Switch, Typography, message, } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
-import data_categories, { ICategory } from "@/data/admin/CategoryData";
+import { createCategory, updateCategory, fetchListCategory, ICategoryForm } from "@/data/admin/CategoryData";
 
 const { Title } = Typography;
 
 const CategoryFormPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [form] = Form.useForm();
-    const [formData, setFormData] = React.useState<ICategory>({
-        id: "",
+    const [, setLoading] = useState(false);
+    const [formData, setFormData] = useState<ICategoryForm>({
+        id: undefined,
         name: "",
         url: "",
         description: "",
         status: true,
-        thumb: "",
-
-        createdAt: new Date(),
-        createdBy: "",
-        updatedAt: null,
-        updatedBy: null,
-        deletedAt: null,
-        deletedBy: null,
-        isDelete: false,
     });
     const navigate = useNavigate();
 
     // Fetch category data if editing
     useEffect(() => {
         if (id) {
-            const category = data_categories.find((cat) => cat.id === id);
-            if (category) {
-                setFormData(category);
-                form.setFieldsValue(category);
-            }
+            setLoading(true);
+            fetchListCategory().then((categories) => {
+                const category = categories.find((cat) => cat.id === id);
+                if (category) {
+                    setFormData(category);
+                    form.setFieldsValue(category);
+                }
+                setLoading(false);
+            }).catch((error) => {
+                console.error("Error fetching category:", error);
+                message.error("Lỗi lấy dữ liệu.");
+                setLoading(false);
+            });
         }
     }, [id, form]);
 
@@ -64,25 +64,34 @@ const CategoryFormPage: React.FC = () => {
         }));
     };
 
-    const handleSubmit = () => {
-        if (id) {
-            // Edit category logic
-            const updatedCategories = data_categories.map((category) =>
-                category.id === id
-                    ? { ...category, ...formData }
-                    : category
-            );
-            console.log("Updated Categories:", updatedCategories);
-        } else {
-            // Add new category logic
-            const newCategory: ICategory = {
-                ...formData,
-                // id: `${Date.now()}`
-            };
-            console.log("New Category:", newCategory);
-            data_categories.push(newCategory);
+    const handleSubmit = async () => {
+        setLoading(true);
+        try {
+            let success = false;
+            if (id) {
+                // Update category
+                success = await updateCategory(formData);
+                if (success) {
+                    message.success("Category updated successfully!");
+                } else {
+                    message.error("Failed to update category.");
+                }
+            } else {
+                // Create category
+                success = await createCategory(formData);
+                if (success) {
+                    message.success("Category created successfully!");
+                } else {
+                    message.error("Failed to create category.");
+                }
+            }
+            if (success) navigate('/admin/categories');
+        } catch (error) {
+            console.error("Error during form submission:", error);
+            message.error("An error occurred during the process.");
+        } finally {
+            setLoading(false);
         }
-        navigate(-1);
     };
 
     return (
@@ -166,7 +175,7 @@ const CategoryFormPage: React.FC = () => {
                                 </Button>
                                 <Button
                                     type="default"
-                                    onClick={() => navigate('/admin/category')}
+                                    onClick={() => navigate('/admin/categories')}
                                 >
                                     Quay lại
                                 </Button>

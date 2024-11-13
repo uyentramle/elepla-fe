@@ -46,7 +46,7 @@ const SignUpPage: React.FC = () => {
 
     const sendVerificationCode = async (phoneNumberOrEmail: any) => {
         try {
-            const response = await axios.post('https://localhost:44314/api/Auth/SendRegisterVerificationCode', {
+            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/SendRegisterVerificationCode', {
                 phoneNumberOrEmail,
             });
             if (response.data.success) {
@@ -77,7 +77,7 @@ const SignUpPage: React.FC = () => {
 
     const verifyRegisterCode = async (phoneNumberOrEmail: any, verificationCode: any) => {
         try {
-            const response = await axios.post('https://localhost:44314/api/Auth/VerifyRegisterCode', {
+            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/VerifyRegisterCode', {
                 phoneNumberOrEmail,
                 verificationCode
             });
@@ -107,7 +107,7 @@ const SignUpPage: React.FC = () => {
 
     const registerUser = async (values: any) => {
         try {
-            const response = await axios.post('https://localhost:44314/api/Auth/Register', {
+            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/Register', {
                 registerToken: registerToken,
                 phoneNumberOrEmail: phoneNumberOrEmail,
                 firstName: values.firstName,

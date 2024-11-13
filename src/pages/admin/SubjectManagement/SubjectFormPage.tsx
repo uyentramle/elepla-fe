@@ -1,31 +1,35 @@
 import React, { useEffect, ChangeEvent } from "react";
-import { Button, Form, Input, Switch, Typography } from "antd";
+import { Button, Form, Input, message, Typography } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
-import subjectData, { ISubject } from "@/data/admin/SubjectData";
+import { ISubjectForm, createSubject, updateSubject, fetchSubjectList } from "@/data/admin/SubjectData";
 
 const { Title } = Typography;
 
 const SubjectFormPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [form] = Form.useForm();
-    const [formData, setFormData] = React.useState<ISubject>({
-        id: "",
+    const [formData, setFormData] = React.useState<ISubjectForm>({
+        subjectId: "",
         name: "",
         description: "",
-        is_approved: true,
     });
     const navigate = useNavigate();
 
     // Fetch subject data if editing
     useEffect(() => {
         if (id) {
-            const subject = subjectData.find((cr) => cr.id === id);
-            if (subject) {
-                setFormData(subject);
-                form.setFieldsValue(subject);
-            }
+            fetchSubjectList().then((subjectData) => {
+                const subject = subjectData.find((cr) => cr.subjectId === id);
+                if (subject) {
+                    setFormData(subject);
+                    form.setFieldsValue(subject);
+                }
+            }).catch((error) => {
+                console.error("Error fetching subject:", error);
+                message.error("Lỗi lấy dữ liệu.");
+            });
         }
     }, [id, form]);
 
@@ -46,32 +50,31 @@ const SubjectFormPage: React.FC = () => {
         }));
     };
 
-    // Handle switch toggle
-    const handleSwitchChange = (checked: boolean) => {
-        setFormData((prevState) => ({
-            ...prevState,
-            is_approved: checked,
-        }));
-    };
-
-    const handleSubmit = () => {
-        if (id) {
-            // Edit logic
-            const updatedSubjects = subjectData.map((subject) =>
-                subject.id === id
-                    ? { ...subject, ...formData }
-                    : subject
-            );
-            console.log("Updated Subjects:", updatedSubjects);
-        } else {
-            // Add new subject logic
-            const newSubject: ISubject = {
-                ...formData,
-            };
-            console.log("New Subject:", newSubject);
-            subjectData.push(newSubject);
+    const handleSubmit = async () => {
+        try {
+            let success = false;
+            if (id) {
+                success = await updateSubject(formData);
+                if (success) {
+                    message.success("Cập nhật môn học thành công.");
+                } else {
+                    message.error("Lỗi cập nhật môn học.");
+                }
+            } else {
+                success = await createSubject(formData);
+                if (success) {
+                    message.success("Tạo môn học thành công.");
+                } else {
+                    message.error("Lỗi tạo môn học.");
+                }
+            }
+            if (success) {
+                navigate('/admin/subjects');
+            }
+        } catch (error) {
+            console.error("Error creating subject:", error);
+            message.error("Lỗi tạo môn học.");
         }
-        navigate(-1);
     };
 
     return (
@@ -108,7 +111,7 @@ const SubjectFormPage: React.FC = () => {
                     />
                 </Form.Item>
 
-                <Form.Item
+                {/* <Form.Item
                     label="Trạng thái"
                     name="is_approved"
                     valuePropName="checked"
@@ -117,10 +120,10 @@ const SubjectFormPage: React.FC = () => {
                         checked={formData.is_approved}
                         onChange={handleSwitchChange}
                     />
-                </Form.Item>
+                </Form.Item> */}
 
                 <Form.Item>
-                    <div className="flex space-x-4 justify-center">
+                    <div className="flex space-x-4 justify-center pt-4">
                         <Button type="primary" htmlType="submit">
                             {id ? "Cập nhật" : "Thêm mới"}
                         </Button>
