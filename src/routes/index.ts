@@ -47,7 +47,7 @@ import PlanbookFeedbackManagementPage from '@/pages/academy-staff/FeedbackManage
 import SystemFeedbackManagementPage from '@/pages/academy-staff/FeedbackManagement/SystemFeedbackManagementPage';
 
 // Teacher
-import ProfilePage from '@/pages/teacher/User/ProfilePage';
+import UserProfilePage from '@/pages/teacher/User/UserProfilePage';
 import ChangePasswordPage from '@/pages/teacher/User/ChangePasswordPage';
 import AccountSettingsPage from '@/pages/teacher/User/AccountSettingsPage';
 import PaymentHistoryPage from '@/pages/teacher/User/PaymentHistoryPage';
@@ -117,7 +117,7 @@ const academyStaffRoutes: RouteProps[] = [
 ];
 
 const teacherRoutes: RouteProps[] = [
-    { path: '/teacher/profile', component: ProfilePage, layout: DefaultClientLayout },
+    { path: '/teacher/profile', component: UserProfilePage, layout: DefaultClientLayout },
     { path: '/teacher/change-password', component: ChangePasswordPage, layout: DefaultClientLayout },
     { path: '/teacher/account-settings', component: AccountSettingsPage, layout: DefaultClientLayout },
     { path: '/teacher/payment-history', component: PaymentHistoryPage, layout: DefaultClientLayout },
