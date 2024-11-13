@@ -6,6 +6,7 @@ import SidebarMenu from './SidebarMenu';
 import { message, Modal, Button } from 'antd';
 import { jwtDecode } from 'jwt-decode';
 import { convertGenderToVietnamese } from '@/utils/ConvertGender';
+import { obfuscateContactInfo } from '@/utils/ObfuscateInfo';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../services/Firebase/firebase';
 
@@ -220,7 +221,7 @@ const UserProfilePage: React.FC = () => {
                                                 className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 focus:border-blue-500 focus:outline-none"
                                                 type="email"
                                                 name="email"
-                                                value={userData?.email || 'Chưa liên kết'}
+                                                value={obfuscateContactInfo(userData?.email) || 'Chưa liên kết'}
                                                 readOnly
                                             />
                                         </div>
@@ -232,7 +233,7 @@ const UserProfilePage: React.FC = () => {
                                                 className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 focus:border-blue-500 focus:outline-none"
                                                 type="text"
                                                 name="phone"
-                                                value={userData?.phoneNumber || 'Chưa liên kết'}
+                                                value={obfuscateContactInfo(userData?.phoneNumber) || 'Chưa liên kết'}
                                                 readOnly
                                             />
                                         </div>
