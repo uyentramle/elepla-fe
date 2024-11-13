@@ -16,7 +16,7 @@ export interface IViewListArticle {
 
 export const getViewListArticle = async (): Promise<IViewListArticle[]> => {
     try {
-        const response = await axios.get('https://localhost:7052/api/Article/GetAllArticle', {
+        const response = await axios.get('https://elepla-be-production.up.railway.app/api/Article/GetAllArticle', {
             params: {
                 pageIndex: 0,
                 pageSize: 10,
@@ -32,7 +32,7 @@ export const getViewListArticle = async (): Promise<IViewListArticle[]> => {
             title: article.title,
             excerpt: article.excerpt,
             status: article.status,
-            thumb: article.thumb || '',
+            thumb: article.thumb || 'blog2Thumb_1',
             created_at: article.createdAt,
             created_by: article.createdBy || '',
             updated_at: article.updatedAt || undefined,
