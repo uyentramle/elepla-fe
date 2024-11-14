@@ -1,23 +1,36 @@
 import React from "react";
 import { Input, Table, Typography, Button, Modal, message } from 'antd';
-import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import subjectInCurriculumData, { ISubjectInCurriculum } from "@/data/academy-staff/SubjectInCurriculumData";
+import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, IssuesCloseOutlined } from "@ant-design/icons";
+import {
+    IViewListSubjectInCurriculum,
+    fetchSubjectInCurriculumList,
+    deleteSubjectInCurriculum,
+} from "@/data/academy-staff/SubjectInCurriculumData";
 import { Link } from "react-router-dom";
 
 const { Title } = Typography;
 
 const SubjectInCurriculumManagementPage: React.FC = () => {
-    const [subjectInCurriculums, setCurriculums] = React.useState<ISubjectInCurriculum[]>(subjectInCurriculumData);
+    const [subjectInCurriculums, setCurriculums] = React.useState<IViewListSubjectInCurriculum[]>([]);
     const [searchTerm, setSearchTerm] = React.useState('');
     const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
-    const [subjectInCurriculumToDelete, setCFToDelete] = React.useState<ISubjectInCurriculum | null>(null);
+    const [subjectInCurriculumToDelete, setSubjectInCurriculumToDelete] = React.useState<IViewListSubjectInCurriculum | null>(null);
+
+    React.useEffect(() => {
+        const fetchSubjectInCurriculums = async () => {
+            const subjects = await fetchSubjectInCurriculumList();
+            setCurriculums(subjects);
+        };
+
+        fetchSubjectInCurriculums();
+    }, []);
 
     const filteredCurriculums = subjectInCurriculums.filter((subjectInCurriculum) =>
         subjectInCurriculum.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleDeleteModal = (subjectInCurriculum: ISubjectInCurriculum) => {
-        setCFToDelete(subjectInCurriculum);
+    const handleDeleteModal = (subjectInCurriculum: IViewListSubjectInCurriculum) => {
+        setSubjectInCurriculumToDelete(subjectInCurriculum);
         setDeleteModalVisible(true);
     };
 
@@ -27,8 +40,8 @@ const SubjectInCurriculumManagementPage: React.FC = () => {
             setDeleteModalVisible(false);
 
             // Simulating API response success
-            const response = { data: { success: true } };
-            if (response.data.success) {
+            const isDeleted = await deleteSubjectInCurriculum(subjectInCurriculumToDelete.id);
+            if (isDeleted) {
                 message.success('Đã xóa môn học trong khung chương trình thành công');
                 const updatedCurriculums = subjectInCurriculums.filter((subjectInCurriculum) => subjectInCurriculum.id !== subjectInCurriculumToDelete.id);
                 setCurriculums(updatedCurriculums);
@@ -43,7 +56,7 @@ const SubjectInCurriculumManagementPage: React.FC = () => {
 
     const handleCancelDeleteModal = () => {
         setDeleteModalVisible(false);
-        setCFToDelete(null);
+        setSubjectInCurriculumToDelete(null);
     };
 
     const columns = [
@@ -76,7 +89,7 @@ const SubjectInCurriculumManagementPage: React.FC = () => {
             title: 'Cập nhật',
             dataIndex: 'actions',
             key: 'actions',
-            render: (_text: any, _record: ISubjectInCurriculum) => (
+            render: (_text: any, _record: IViewListSubjectInCurriculum) => (
                 <Link to={`#`}>
                     <Button type="link"><EditOutlined /> Chỉnh sửa</Button>
                 </Link>
@@ -85,7 +98,7 @@ const SubjectInCurriculumManagementPage: React.FC = () => {
         {
             title: 'Xóa',
             key: 'delete',
-            render: (_text: any, record: ISubjectInCurriculum) => (
+            render: (_text: any, record: IViewListSubjectInCurriculum) => (
                 <Button
                     type="primary"
                     danger
@@ -113,7 +126,12 @@ const SubjectInCurriculumManagementPage: React.FC = () => {
                 />
                 <div className="flex items-center space-x-4">
                     <Link to={`#`}>
-                        <Button type="default" icon={<PlusOutlined />}>
+                        <Button type="default" icon={<IssuesCloseOutlined />}>
+                            Đề xuất khung chương trình
+                        </Button>
+                    </Link>
+                    <Link to={`#`}>
+                        <Button type="default" icon={<IssuesCloseOutlined />}>
                             Đề xuất môn học
                         </Button>
                     </Link>

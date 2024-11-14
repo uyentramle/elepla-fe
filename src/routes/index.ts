@@ -8,6 +8,7 @@ import DefaultTeacherLayout from '@/layouts/teacher/DefaultTeacherLayout';
 
 // Client
 import HomePage from '../pages/client/Home/HomePage';
+import NotFoundPage from '@/pages/client/NotFound/NotFoundPage';
 import ComingSoonPage from '../pages/client/ComingSoon/ComingSoonPage';
 import PlanbookLibraryPage from '../pages/client/PlanbookLibrary/PlanbookLibraryPage';
 import PlanbookDetailPage from '../pages/client/PlanBookDetail/PlanBookDetailPage';
@@ -48,6 +49,8 @@ import QuestionBankFormPage from '@/pages/academy-staff/QuestionBankManagement/Q
 import PlanbookFeedbackManagementPage from '@/pages/academy-staff/FeedbackManagement/PlanbookFeedbackManagementPage';
 import SystemFeedbackManagementPage from '@/pages/academy-staff/FeedbackManagement/SystemFeedbackManagementPage';
 import SubjectInCurriculumManagementPage from '@/pages/academy-staff/SubjectInCurriculum/SubjectInCurriculumManagementPage';
+import ChapterManagementPage from '@/pages/academy-staff/ChapterManagement/ChapterManagementPage';
+import LessonManagementPage from '@/pages/academy-staff/LessonManagement/LessonManagementPage';
 
 // Teacher
 import UserProfilePage from '@/pages/teacher/User/UserProfilePage';
@@ -69,6 +72,7 @@ interface RouteProps {
 
 const publicRoutes: RouteProps[] = [
     { path: '/', component: HomePage, layout: DefaultClientLayout },
+    { path: '*', component: NotFoundPage, layout: DefaultClientLayout },
     { path: '/sign-in', component: SignInPage, layout: DefaultAuthenLayout },
     { path: '/sign-up', component: SignUpPage, layout: DefaultAuthenLayout },
     { path: '/forgot-password', component: ForgotPasswordPage, layout: DefaultAuthenLayout },
@@ -121,6 +125,8 @@ const academyStaffRoutes: RouteProps[] = [
     { path: '/academy-staff/feedbacks/planbook/', component: PlanbookFeedbackManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/feedbacks/system/', component: SystemFeedbackManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/subject-in-curriculum', component: SubjectInCurriculumManagementPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/chapters', component: ChapterManagementPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/lessons', component: LessonManagementPage, layout: DefaultStaffLayout },
 ];
 
 const teacherRoutes: RouteProps[] = [
