@@ -29,6 +29,8 @@ import CurriculumFrameworkManagementPage from '@/pages/admin/CurriculumFramework
 import CurriculumFrameworkFormPage from '@/pages/admin/CurriculumFrameworkManagement/CurriculumFrameworkFormPage';
 import SubjectManagementPage from '@/pages/admin/SubjectManagement/SubjectManagementPage';
 import SubjectFormPage from '@/pages/admin/SubjectManagement/SubjectFormPage';
+import GradeManagementPage from '@/pages/admin/GradeManagement/GrademanagementPage';
+import GradeFormPage from '@/pages/admin/GradeManagement/GradeFormPage';
 
 // Manager
 import DashBoardManagerPage from '@/pages/manager/DashBoard/DashBoardPage';
@@ -94,6 +96,9 @@ const adminRoutes: RouteProps[] = [
     { path: '/admin/subjects', component: SubjectManagementPage, layout: DefaultAdminLayout },
     { path: '/admin/subjects/add-new', component: SubjectFormPage, layout: DefaultAdminLayout },
     { path: '/admin/subjects/edit/:id', component: SubjectFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/grades', component: GradeManagementPage, layout: DefaultAdminLayout },
+    { path: '/admin/grades/add-new', component: GradeFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/grades/edit/:id', component: GradeFormPage, layout: DefaultAdminLayout },
 ];
 
 const managerRoutes: RouteProps[] = [
