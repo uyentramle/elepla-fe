@@ -1,57 +1,57 @@
 import React from "react";
 import { Input, Table, Typography, Button, Modal, message } from 'antd';
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { IViewListChapter, fetchChapterList, deleteChapter } from '@/data/academy-staff/ChapterData';
+import { IViewListLesson, fetchLessonList, deleteLesson } from '@/data/academy-staff/LessonData';
 import { Link } from "react-router-dom";
 
 const { Title } = Typography;
 
-const ChapterManagementPage: React.FC = () => {
-    const [chapters, setChapters] = React.useState<IViewListChapter[]>([]);
+const LessonManagementPage: React.FC = () => {
+    const [lessons, setLessons] = React.useState<IViewListLesson[]>([]);
     const [searchTerm, setSearchTerm] = React.useState('');
     const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
-    const [chapterToDelete, setChapterToDelete] = React.useState<IViewListChapter | null>(null);
+    const [lessonToDelete, setLessonToDelete] = React.useState<IViewListLesson | null>(null);
 
-    const filteredChapters = chapters.filter((chapter) =>
-        chapter.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredLessons = lessons.filter((lesson) =>
+        lesson.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     React.useEffect(() => {
-        const fetchChapters = async () => {
-            const chapterList = await fetchChapterList();
-            setChapters(chapterList);
+        const fetchLessons = async () => {
+            const lessonList = await fetchLessonList();
+            setLessons(lessonList);
         };
 
-        fetchChapters();
+        fetchLessons();
     }, []);
 
-    const handleDeleteModal = (chapter: IViewListChapter) => {
-        setChapterToDelete(chapter);
+    const handleDeleteModal = (lesson: IViewListLesson) => {
+        setLessonToDelete(lesson);
         setDeleteModalVisible(true);
     };
 
-    const handleDeleteChapter = async () => {
+    const handleDeleteLesson = async () => {
         try {
-            if (!chapterToDelete) return;
+            if (!lessonToDelete) return;
             setDeleteModalVisible(false);
 
-            const isDeleted = await deleteChapter(chapterToDelete.id);
+            const isDeleted = await deleteLesson(lessonToDelete.id);
             if (isDeleted) {
-                message.success('Đã xóa chương thành công');
-                const updatedChapters = chapters.filter((chapter) => chapter.id !== chapterToDelete.id);
-                setChapters(updatedChapters);
+                message.success('Đã xóa bài học thành công');
+                const updatedLessons = lessons.filter((lesson) => lesson.id !== lessonToDelete.id);
+                setLessons(updatedLessons);
             } else {
-                message.error('Không xóa được chương');
+                message.error('Không xóa được bài học');
             }
         } catch (error) {
-            console.error('Lỗi khi xóa chương:', error);
-            message.error('Không xóa được chương');
+            console.error('Lỗi khi xóa bài học:', error);
+            message.error('Không xóa được bài học');
         }
     };
 
     const handleCancelDeleteModal = () => {
         setDeleteModalVisible(false);
-        setChapterToDelete(null);
+        setLessonToDelete(null);
     };
 
     const columns = [
@@ -62,7 +62,7 @@ const ChapterManagementPage: React.FC = () => {
             render: (_text: any, _record: any, index: number) => index + 1,
         },
         {
-            title: 'Tên chương',
+            title: 'Tên bài học',
             dataIndex: 'name',
             key: 'name',
         },
@@ -70,8 +70,8 @@ const ChapterManagementPage: React.FC = () => {
             title: 'Cập nhật',
             dataIndex: 'actions',
             key: 'actions',
-            render: (_text: any, _record: IViewListChapter) => (
-                <Link to={`/admin/chapters/edit/${_record.id}`}>
+            render: (_text: any, _record: IViewListLesson) => (
+                <Link to={`/admin/lessons/edit/${_record.id}`}>
                     <Button type="link"><EditOutlined /> Chỉnh sửa</Button>
                 </Link>
             ),
@@ -79,7 +79,7 @@ const ChapterManagementPage: React.FC = () => {
         {
             title: 'Xóa',
             key: 'delete',
-            render: (_text: any, record: IViewListChapter) => (
+            render: (_text: any, record: IViewListLesson) => (
                 <Button
                     type="primary"
                     danger
@@ -95,17 +95,17 @@ const ChapterManagementPage: React.FC = () => {
 
     return (
         <>
-            <Title level={2} className="my-4">Quản lý chương</Title>
+            <Title level={2} className="my-4">Quản lý bài học</Title>
 
             <div className="mb-4 flex justify-between items-center">
                 <Input
-                    placeholder="Tìm kiếm chương..."
+                    placeholder="Tìm kiếm bài học..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     suffix={<SearchOutlined />}
                     className="w-1/3"
                 />
-                <Link to="/admin/chapters/add-new">
+                <Link to="/admin/lessons/add-new">
                     <Button type="primary" icon={<PlusOutlined />}>
                         Thêm mới
                     </Button>
@@ -115,24 +115,24 @@ const ChapterManagementPage: React.FC = () => {
             <div className="overflow-x-auto">
                 <Table
                     columns={columns}
-                    dataSource={filteredChapters}
+                    dataSource={filteredLessons}
                     rowKey="id"
                 />
             </div>
 
             <Modal
-                title="Xác nhận xóa chương"
+                title="Xác nhận xóa bài học"
                 open={deleteModalVisible}
-                onOk={handleDeleteChapter}
+                onOk={handleDeleteLesson}
                 onCancel={handleCancelDeleteModal}
                 okText="Xóa"
                 cancelText="Hủy"
                 okButtonProps={{ danger: true }}
             >
-                <p>Bạn có chắc chắn muốn xóa chương này?</p>
+                <p>Bạn có chắc chắn muốn xóa bài học này?</p>
             </Modal>
         </>
     );
 };
 
-export default ChapterManagementPage;
+export default LessonManagementPage;

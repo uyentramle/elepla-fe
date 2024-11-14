@@ -50,6 +50,7 @@ import PlanbookFeedbackManagementPage from '@/pages/academy-staff/FeedbackManage
 import SystemFeedbackManagementPage from '@/pages/academy-staff/FeedbackManagement/SystemFeedbackManagementPage';
 import SubjectInCurriculumManagementPage from '@/pages/academy-staff/SubjectInCurriculum/SubjectInCurriculumManagementPage';
 import ChapterManagementPage from '@/pages/academy-staff/ChapterManagement/ChapterManagementPage';
+import LessonManagementPage from '@/pages/academy-staff/LessonManagement/LessonManagementPage';
 
 // Teacher
 import UserProfilePage from '@/pages/teacher/User/UserProfilePage';
@@ -125,6 +126,7 @@ const academyStaffRoutes: RouteProps[] = [
     { path: '/academy-staff/feedbacks/system/', component: SystemFeedbackManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/subject-in-curriculum', component: SubjectInCurriculumManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/chapters', component: ChapterManagementPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/lessons', component: LessonManagementPage, layout: DefaultStaffLayout },
 ];
 
 const teacherRoutes: RouteProps[] = [
