@@ -49,6 +49,7 @@ import QuestionBankFormPage from '@/pages/academy-staff/QuestionBankManagement/Q
 import PlanbookFeedbackManagementPage from '@/pages/academy-staff/FeedbackManagement/PlanbookFeedbackManagementPage';
 import SystemFeedbackManagementPage from '@/pages/academy-staff/FeedbackManagement/SystemFeedbackManagementPage';
 import SubjectInCurriculumManagementPage from '@/pages/academy-staff/SubjectInCurriculum/SubjectInCurriculumManagementPage';
+import ChapterManagementPage from '@/pages/academy-staff/ChapterManagement/ChapterManagementPage';
 
 // Teacher
 import UserProfilePage from '@/pages/teacher/User/UserProfilePage';
@@ -123,6 +124,7 @@ const academyStaffRoutes: RouteProps[] = [
     { path: '/academy-staff/feedbacks/planbook/', component: PlanbookFeedbackManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/feedbacks/system/', component: SystemFeedbackManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/subject-in-curriculum', component: SubjectInCurriculumManagementPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/chapters', component: ChapterManagementPage, layout: DefaultStaffLayout },
 ];
 
 const teacherRoutes: RouteProps[] = [
