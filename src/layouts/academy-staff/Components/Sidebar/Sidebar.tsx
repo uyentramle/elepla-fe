@@ -50,8 +50,8 @@ export default function MySider() {
     const getConditionalItems = (): MenuItem[] => {
         return [
             getItem('Bảng thống kê', '1', <LineChartOutlined />),
-            getItem('Quản lý nội dung bài học', '2', <FileTextOutlined />),
-            getItem('Quản lý kế hoạch giảng dạy', '3', <AuditOutlined />),
+            getItem('Quản lý môn học trong chương trình', '2', <FileTextOutlined />),
+            getItem('Quản lý kế hoạch bài dạy', '3', <AuditOutlined />),
             getItem('Quản lý ngân hàng câu hỏi', '4', <QuestionCircleOutlined />),
             getItem('Đánh giá - phản hồi', '5', <CommentOutlined />, [
                 getItem('Kế hoạch giảng dạy', '5-1', <CaretRightOutlined />),
@@ -62,7 +62,7 @@ export default function MySider() {
     const navUrl = new Map<string, string>();
     navUrl
         .set('1', '/academy-staff/')
-        .set('2', '#')
+        .set('2', '/academy-staff/subject-in-curriculum')
         .set('3', '#')
         .set('4', '/academy-staff/question-banks/')
         .set('5', '#')
