@@ -37,8 +37,8 @@ const HomePage: React.FC = () => {
 
         fetchArticles();
     }, []);
-    const mainArticles = articles.slice(0, 2); 
-    const sidebarArticles = articles.slice(2, 6); 
+    const mainArticles = articles.slice(0, 2);
+    const sidebarArticles = articles.slice(2, 6);
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const feedbacks = feedback_data.filter((item) => item.page === "home_1");
@@ -266,7 +266,7 @@ const HomePage: React.FC = () => {
                                                             <FolderOpenOutlined className="mr-1" /> Air transport
                                                         </li>
                                                     </ul>
-                                                    <Link href="#">
+                                                    <Link href={`/articles/${article.id}`}>
                                                         <Title level={5} className="text-lg font-semibold">
                                                             {article.title}
                                                         </Title>
@@ -282,36 +282,36 @@ const HomePage: React.FC = () => {
                         {/* Article Content */}
                         <div className="w-full lg:w-2/3">
                             <div className="flex flex-wrap justify-center">
-                            {mainArticles.map((article) => (
-                                        <div key={article.id} className="w-full md:w-1/2 p-4">
-                                            <div className="single-blog-inner shadow-lg rounded-lg overflow-hidden">
-                                                <div className="thumb relative">
-                                                    <img src={article.thumb} alt="img" className="w-full h-60 object-cover" />
-                                                    <span className="date bg-blue-700 text-white text-sm py-1 px-3 absolute bottom-4 left-4 rounded-full">
+                                {mainArticles.map((article) => (
+                                    <div key={article.id} className="w-full md:w-1/2 p-4">
+                                        <div className="single-blog-inner shadow-lg rounded-lg overflow-hidden">
+                                            <div className="thumb relative">
+                                                <img src={article.thumb} alt="img" className="w-full h-60 object-cover" />
+                                                <span className="date bg-blue-700 text-white text-sm py-1 px-3 absolute bottom-4 left-4 rounded-full">
                                                     {new Date(article.created_at).toLocaleDateString('vi-VN')}
-                                                    </span>
-                                                </div>
-                                                <div className="details p-6">
-                                                    <ul className="blog-meta text-sm text-gray-600 mb-2">
-                                                        <li className="inline mr-4">
-                                                            <UserOutlined className="mr-1" /> Đăng bởi ADMIN
-                                                        </li>
-                                                        <li className="inline">
-                                                            <FolderOpenOutlined className="mr-1" /> Air transport
-                                                        </li>
-                                                    </ul>
-                                                    <Link href="#">
-                                                        <Title level={4} className="mb-2">
-                                                            {article.title}
-                                                        </Title>
-                                                    </Link>
-                                                    <Link href="#" className="read-more-text text-primary font-semibold hover:underline">
-                                                        XEM THÊM <RightOutlined className="ml-1" />
-                                                    </Link>
-                                                </div>
+                                                </span>
+                                            </div>
+                                            <div className="details p-6">
+                                                <ul className="blog-meta text-sm text-gray-600 mb-2">
+                                                    <li className="inline mr-4">
+                                                        <UserOutlined className="mr-1" /> Đăng bởi ADMIN
+                                                    </li>
+                                                    <li className="inline">
+                                                        <FolderOpenOutlined className="mr-1" /> Air transport
+                                                    </li>
+                                                </ul>
+                                                <Link href={`/articles/${article.id}`}>
+                                                    <Title level={4} className="mb-2">
+                                                        {article.title}
+                                                    </Title>
+                                                </Link>
+                                                <Link href={`/articles/${article.id}`} className="read-more-text text-primary font-semibold hover:underline">
+                                                    XEM THÊM <RightOutlined className="ml-1" />
+                                                </Link>
                                             </div>
                                         </div>
-                                    ))}
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
