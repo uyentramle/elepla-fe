@@ -8,6 +8,7 @@ import DefaultTeacherLayout from '@/layouts/teacher/DefaultTeacherLayout';
 
 // Client
 import HomePage from '../pages/client/Home/HomePage';
+import NotFoundPage from '@/pages/client/NotFound/NotFoundPage';
 import ComingSoonPage from '../pages/client/ComingSoon/ComingSoonPage';
 import PlanbookLibraryPage from '../pages/client/PlanbookLibrary/PlanbookLibraryPage';
 import PlanbookDetailPage from '../pages/client/PlanBookDetail/PlanBookDetailPage';
@@ -69,6 +70,7 @@ interface RouteProps {
 
 const publicRoutes: RouteProps[] = [
     { path: '/', component: HomePage, layout: DefaultClientLayout },
+    { path: '*', component: NotFoundPage, layout: DefaultClientLayout },
     { path: '/sign-in', component: SignInPage, layout: DefaultAuthenLayout },
     { path: '/sign-up', component: SignUpPage, layout: DefaultAuthenLayout },
     { path: '/forgot-password', component: ForgotPasswordPage, layout: DefaultAuthenLayout },
