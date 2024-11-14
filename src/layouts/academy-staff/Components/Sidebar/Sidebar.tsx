@@ -66,7 +66,7 @@ export default function MySider() {
         .set('1', '/academy-staff/')
         .set('2', '/academy-staff/subject-in-curriculum')
         .set('3', '/academy-staff/chapters')
-        .set('4', '#')
+        .set('4', '/academy-staff/lessons')
         .set('5', '#')
         .set('6', '/academy-staff/question-banks/')
         .set('7', '#')

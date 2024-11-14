@@ -1,4 +1,5 @@
-import axios from 'axios';
+import apiClient from '@/data/apiClient';
+// import axios from 'axios';
 
 export interface IViewListLesson {
     id: string;
@@ -16,7 +17,7 @@ export interface IViewListLesson {
 
 export const fetchLessonList = async (): Promise<IViewListLesson[]> => {
     try {
-        const response = await axios.get('https://elepla-be-production.up.railway.app/api/Lesson/GetAllLesson?pageIndex=0&pageSize=50');
+        const response = await apiClient.get('Lesson/GetAllLesson?pageIndex=0&pageSize=50');
         if (response.data.success) {
             return response.data.data.items.map((lesson: any) => ({
                 id: lesson.lessonId,
@@ -40,7 +41,7 @@ export const fetchLessonList = async (): Promise<IViewListLesson[]> => {
 
 export const fetchLessonsBySubjectInCurriculumId = async (subjectInCurriculumId: string): Promise<IViewListLesson[]> => {
     try {
-        const response = await axios.get(`https://elepla-be-production.up.railway.app/api/Lesson/GetAllLessonBySubjectInCurriculumId?subjectInCurriculumId=${subjectInCurriculumId}`);
+        const response = await apiClient.get(`Lesson/GetAllLessonBySubjectInCurriculumId?subjectInCurriculumId=${subjectInCurriculumId}`);
         if (response.data.success) {
             return response.data.data.items.map((lesson: any) => ({
                 id: lesson.lessonId,
@@ -64,7 +65,7 @@ export const fetchLessonsBySubjectInCurriculumId = async (subjectInCurriculumId:
 
 export const deleteLesson = async (lessonId: string): Promise<boolean> => {
     try {
-        const response = await axios.delete(`https://elepla-be-production.up.railway.app/api/Lesson/DeleteLesson?lessonId=${lessonId}`);
+        const response = await apiClient.delete(`Lesson/DeleteLesson?lessonId=${lessonId}`);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error deleting lesson:', error);
@@ -80,7 +81,7 @@ export interface ILessonForm {
 
 export const createLesson = async (lesson: ILessonForm): Promise<boolean> => {
     try {
-        const response = await axios.post('https://elepla-be-production.up.railway.app/api/Lesson/CreateLesson', lesson);
+        const response = await apiClient.post('Lesson/CreateLesson', lesson);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error creating lesson:', error);
@@ -90,7 +91,7 @@ export const createLesson = async (lesson: ILessonForm): Promise<boolean> => {
 
 export const updateLesson = async (lesson: ILessonForm): Promise<boolean> => {
     try {
-        const response = await axios.put('https://elepla-be-production.up.railway.app/api/Lesson/UpdateLesson', lesson);
+        const response = await apiClient.put('Lesson/UpdateLesson', lesson);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error updating lesson:', error);

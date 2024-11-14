@@ -1,4 +1,5 @@
-import axios from 'axios';
+import apiClient from '@/data/apiClient';
+// import axios from 'axios';
 const defaultThumb = 'https://media.istockphoto.com/id/922745190/photo/blogging-blog-concepts-ideas-with-worktable.jpg?s=612x612&w=0&k=20&c=xR2vOmtg-N6Lo6_I269SoM5PXEVRxlgvKxXUBMeMC_A=';
 
 export interface IViewListArticle {
@@ -17,7 +18,7 @@ export interface IViewListArticle {
 
 export const getViewListArticle = async (): Promise<IViewListArticle[]> => {
     try {
-        const response = await axios.get('https://elepla-be-production.up.railway.app/api/Article/GetAllArticle', {
+        const response = await apiClient.get('Article/GetAllArticle', {
             params: {
                 pageIndex: 0,
                 pageSize: 10,
@@ -64,7 +65,7 @@ export interface IViewDetailArticle {
 
 export const getArticleById = async (articleId: string): Promise<IViewDetailArticle | null> => {
     try {
-        const response = await axios.get(`https://elepla-be-production.up.railway.app/api/Article/GetArticleById?id=${articleId}`, {
+        const response = await apiClient.get(`Article/GetArticleById?id=${articleId}`, {
             headers: {
                 'accept': '*/*',
             },

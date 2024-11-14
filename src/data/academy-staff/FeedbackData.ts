@@ -1,4 +1,5 @@
-import axios from 'axios';
+import apiClient from '@/data/apiClient';
+// import axios from 'axios';
 
 export interface IViewListFeedback {
     id: string;
@@ -13,7 +14,7 @@ export interface IViewListFeedback {
 
 export const fetchPlanBookFeedbackList = async (): Promise<IViewListFeedback[]> => {
     try {
-        const response = await axios.get('https://elepla-be-production.up.railway.app/api/Feedback/GetPlanbookFeedback?pageIndex=0&pageSize=100');
+        const response = await apiClient.get('Feedback/GetPlanbookFeedback?pageIndex=0&pageSize=100');
         if (response.data.success) {
             return response.data.data.items.map((feedback: any) => ({
                 id: feedback.feedbackId,
@@ -35,7 +36,7 @@ export const fetchPlanBookFeedbackList = async (): Promise<IViewListFeedback[]> 
 
 export const fetchSystemFeedbackList = async (): Promise<IViewListFeedback[]> => {
     try {
-        const response = await axios.get('https://elepla-be-production.up.railway.app/api/Feedback/GetSystemFeedback?pageIndex=0&pageSize=10');
+        const response = await apiClient.get('Feedback/GetSystemFeedback?pageIndex=0&pageSize=10');
         if (response.data.success) {
             return response.data.data.items.map((feedback: any) => ({
                 id: feedback.feedbackId,
@@ -57,7 +58,7 @@ export const fetchSystemFeedbackList = async (): Promise<IViewListFeedback[]> =>
 
 export const deleteFeedback = async (feedbackId: string): Promise<boolean> => {
     try {
-        const response = await axios.delete(`https://elepla-be-production.up.railway.app/api/Feedback/HardDeleteFeedback?feedbackId=${feedbackId}`);
+        const response = await apiClient.delete(`Feedback/HardDeleteFeedback?feedbackId=${feedbackId}`);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error deleting feedback:', error);

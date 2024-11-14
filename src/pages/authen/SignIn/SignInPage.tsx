@@ -15,6 +15,7 @@ interface ApiResponse {
     message: string;
     accessToken: string | null;
     refreshToken: string | null;
+    role: string | null;
 }
 
 const loginApi = async (username: string, password: string): Promise<ApiResponse> => {
@@ -35,14 +36,14 @@ const loginApi = async (username: string, password: string): Promise<ApiResponse
             // Kiểm tra xem có phản hồi từ server không
             if (error.response) {
                 // Nếu có phản hồi từ API nhưng có lỗi logic
-                return { success: false, message: error.response.data.message || 'Đã xảy ra lỗi, vui lòng thử lại sau.', accessToken: null, refreshToken: null };
+                return { success: false, message: error.response.data.message || 'Đã xảy ra lỗi, vui lòng thử lại sau.', accessToken: null, refreshToken: null, role: null };
             } else if (error.request) {
                 // Nếu không có phản hồi nào từ server
-                return { success: false, message: 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.', accessToken: null, refreshToken: null };
+                return { success: false, message: 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.', accessToken: null, refreshToken: null, role: null };
             }
         }
         // Bắt tất cả các lỗi khác
-        return { success: false, message: 'Đã xảy ra lỗi, vui lòng thử lại sau.', accessToken: null, refreshToken: null };
+        return { success: false, message: 'Đã xảy ra lỗi, vui lòng thử lại sau.', accessToken: null, refreshToken: null, role: null };
     }
 };
 
@@ -61,7 +62,25 @@ const SignInPage: React.FC = () => {
                 if (response.accessToken && response.refreshToken) {
                     localStorage.setItem('accessToken', response.accessToken);
                     localStorage.setItem('refreshToken', response.refreshToken);
-                    navigate('/'); // Điều hướng đến trang chủ sau khi đăng nhập thành công
+                    localStorage.setItem('userRole', response.role || 'Guest');
+                    navigate('/');
+                    // switch (response.role) {
+                    //     case 'Admin':
+                    //         navigate('/admin');
+                    //         break;
+                    //     case 'Manager':
+                    //         navigate('/manager');
+                    //         break;
+                    //     case 'AcademicStaff':
+                    //         navigate('/academy-staff');
+                    //         break;
+                    //     case 'Teacher':
+                    //         navigate('/teacher');
+                    //         break;
+                    //     default:
+                    //         navigate('/');
+                    //         break;
+                    // }
                 } else {
                     message.error('Không có accessToken trong phản hồi.');
                 }

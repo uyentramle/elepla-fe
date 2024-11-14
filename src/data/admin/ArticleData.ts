@@ -1,4 +1,4 @@
-import axios from 'axios';
+import apiClient from '@/data/apiClient';
 const defaultThumb = 'https://media.istockphoto.com/id/922745190/photo/blogging-blog-concepts-ideas-with-worktable.jpg?s=612x612&w=0&k=20&c=xR2vOmtg-N6Lo6_I269SoM5PXEVRxlgvKxXUBMeMC_A=';
 
 export interface IViewListArticle {
@@ -20,7 +20,7 @@ export interface IViewListArticle {
 
 export const getViewListArticle = async (): Promise<IViewListArticle[]> => {
     try {
-        const response = await axios.get('https://elepla-be-production.up.railway.app/api/Article/GetAllArticle', {
+        const response = await apiClient.get('Article/GetAllArticle', {
             params: {
                 pageIndex: 0,
                 pageSize: 10,
@@ -74,7 +74,7 @@ export interface IViewDetailArticle {
 
 export const getArticleById = async (articleId: string): Promise<IViewDetailArticle | null> => {
     try {
-        const response = await axios.get(`https://elepla-be-production.up.railway.app/api/Article/GetArticleById?id=${articleId}`, {
+        const response = await apiClient.get(`Article/GetArticleById?id=${articleId}`, {
             headers: {
                 'accept': '*/*',
             },
@@ -115,7 +115,7 @@ export interface ICreateArticle {
 
 export const createArticle = async (article: ICreateArticle): Promise<boolean> => {
     try {
-        const response = await axios.post('https://elepla-be-production.up.railway.app/api/Article/CreateArticle', {
+        const response = await apiClient.post('Article/CreateArticle', {
             title: article.title,
             slug: article.slug,
             content: article.content,
@@ -147,7 +147,7 @@ export interface IUpdateArticle {
 
 export const updateArticle = async (article: IUpdateArticle): Promise<boolean> => {
     try {
-        const response = await axios.put('https://elepla-be-production.up.railway.app/api/Article/UpdateArticle', {
+        const response = await apiClient.put('Article/UpdateArticle', {
             id: article.id,
             title: article.title,
             slug: article.slug,
@@ -170,7 +170,7 @@ export const updateArticle = async (article: IUpdateArticle): Promise<boolean> =
 
 export const deleteArticle = async (articleId: string): Promise<boolean> => {
     try {
-        const response = await axios.delete(`https://elepla-be-production.up.railway.app/api/Article/DeleteArticle?id=${articleId}`, {
+        const response = await apiClient.delete(`Article/DeleteArticle?id=${articleId}`, {
             headers: {
                 'accept': '*/*',
             },

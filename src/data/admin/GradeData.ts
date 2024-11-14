@@ -1,4 +1,5 @@
-import axios from 'axios';
+import apiClient from '@/data/apiClient';
+// import axios from 'axios';
 
 export interface IViewListGrade {
     id: string;
@@ -16,7 +17,7 @@ export interface IViewListGrade {
 
 export const fetchGradeList = async (): Promise<IViewListGrade[]> => {
     try {
-        const response = await axios.get('https://elepla-be-production.up.railway.app/api/Grade/GetAllGrade?pageIndex=0&pageSize=10');
+        const response = await apiClient.get('Grade/GetAllGrade?pageIndex=0&pageSize=10');
         if (response.data.success) {
             return response.data.data.items.map((grade: any) => ({
                 id: grade.gradeId,
@@ -40,7 +41,7 @@ export const fetchGradeList = async (): Promise<IViewListGrade[]> => {
 
 export const deleteGrade = async (gradeId: string): Promise<boolean> => {
     try {
-        const response = await axios.delete(`https://elepla-be-production.up.railway.app/api/Grade/DeleteGrade?gradeId=${gradeId}`);
+        const response = await apiClient.delete(`Grade/DeleteGrade?gradeId=${gradeId}`);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error deleting grade:', error);
@@ -56,7 +57,7 @@ export interface IGradeForm {
 
 export const createGrade = async (grade: IGradeForm): Promise<boolean> => {
     try {
-        const response = await axios.post('https://elepla-be-production.up.railway.app/api/Grade/CreateGrade', grade);
+        const response = await apiClient.post('Grade/CreateGrade', grade);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error creating grade:', error);
@@ -66,7 +67,7 @@ export const createGrade = async (grade: IGradeForm): Promise<boolean> => {
 
 export const updateGrade = async (grade: IGradeForm): Promise<boolean> => {
     try {
-        const response = await axios.put('https://elepla-be-production.up.railway.app/api/Grade/UpdateGrade', grade);
+        const response = await apiClient.put('Grade/UpdateGrade', grade);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error updating grade:', error);
