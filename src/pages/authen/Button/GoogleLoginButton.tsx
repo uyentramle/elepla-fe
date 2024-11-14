@@ -21,7 +21,7 @@ const CustomGoogleLoginButton: React.FC = () => {
 
     const callGoogleLoginApi = async (googleToken: string) => {
         try {
-            const response = await fetch('https://elepla-be-production.up.railway.app/api/Auth/GoogleLogin', {
+            const response = await fetch('https://localhost:44314/api/Auth/GoogleLogin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

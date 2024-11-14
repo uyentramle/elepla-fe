@@ -1,5 +1,5 @@
 import axios from 'axios';
-import blog2Thumb_1 from "/assets/img/blog/4.png";
+const defaultThumb = 'https://media.istockphoto.com/id/922745190/photo/blogging-blog-concepts-ideas-with-worktable.jpg?s=612x612&w=0&k=20&c=xR2vOmtg-N6Lo6_I269SoM5PXEVRxlgvKxXUBMeMC_A=';
 
 export interface IViewListArticle {
     id: string;
@@ -36,7 +36,7 @@ export const getViewListArticle = async (): Promise<IViewListArticle[]> => {
             title: article.title,
             excerpt: article.excerpt,
             status: article.status,
-            thumb: article.thumb || 'blog2Thumb_1',
+            thumb: article.thumb || defaultThumb,
             created_at: article.createdAt,
             created_by: article.createdBy || '',
             updated_at: article.updatedAt || undefined,
@@ -86,7 +86,7 @@ export const getArticleById = async (articleId: string): Promise<IViewDetailArti
             title: response.data.data.title,
             content: response.data.data.content,
             status: response.data.data.status,
-            thumb: response.data.data.thumb || 'blog2Thumb_1',
+            thumb: response.data.data.thumb || defaultThumb,
             categories: response.data.data.categories || [],
             created_at: response.data.data.createdAt,
             created_by: response.data.data.createdBy || '',
@@ -183,7 +183,7 @@ export const deleteArticle = async (articleId: string): Promise<boolean> => {
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+import blog2Thumb_1 from "/assets/img/blog/4.png";
 import blog2Thumb_2 from "/assets/img/blog/5.png";
 import blog2Thumb_3 from "/assets/img/blog/6.png";
 import blog2Thumb_4 from "/assets/img/blog/7.png";

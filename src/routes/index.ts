@@ -15,8 +15,8 @@ import { DefaultLayoutProps } from '../types/layout.type';
 import SignInPage from '../pages/authen/SignIn/SignInPage';
 import SignUpPage from '../pages/authen/SignUp/SignUpPage';
 import ForgotPasswordPage from '@/pages/authen/ForgotPassword/ForgotPasswordPage';
-import ListArticlePage from '@/pages/client/ListArticlePage/ListArticlePage';
-import ArticleDetailPage from '@/pages/client/ArticleDetailPage/ArticleDetailPage';
+import ListArticlePage from '@/pages/client/Article/ListArticlePage';
+import ArticleDetailPage from '@/pages/client/Article/ArticleDetailPage';
 
 // Admin
 import DashBoardPage from '../pages/admin/DashBoard/DashBoardPage';
@@ -47,7 +47,7 @@ import PlanbookFeedbackManagementPage from '@/pages/academy-staff/FeedbackManage
 import SystemFeedbackManagementPage from '@/pages/academy-staff/FeedbackManagement/SystemFeedbackManagementPage';
 
 // Teacher
-import ProfilePage from '@/pages/teacher/User/ProfilePage';
+import UserProfilePage from '@/pages/teacher/User/UserProfilePage';
 import ChangePasswordPage from '@/pages/teacher/User/ChangePasswordPage';
 import AccountSettingsPage from '@/pages/teacher/User/AccountSettingsPage';
 import PaymentHistoryPage from '@/pages/teacher/User/PaymentHistoryPage';
@@ -70,11 +70,11 @@ const publicRoutes: RouteProps[] = [
     { path: '/sign-up', component: SignUpPage, layout: DefaultAuthenLayout },
     { path: '/forgot-password', component: ForgotPasswordPage, layout: DefaultAuthenLayout },
     { path: '/coming-soon', component: ComingSoonPage, layout: DefaultClientLayout },
-    { path: '/list-article', component: ListArticlePage, layout: DefaultClientLayout },
+    { path: '/articles', component: ListArticlePage, layout: DefaultClientLayout },
     { path: '/planbook-library', component: PlanbookLibraryPage, layout: DefaultClientLayout },
     { path: '/planbook-detail/:id', component: PlanbookDetailPage, layout: DefaultClientLayout },
     { path: '/package-detail', component: PackageDetailPage, layout: DefaultClientLayout },
-    { path: '/article-detail/:id', component: ArticleDetailPage, layout: DefaultClientLayout }
+    { path: '/articles/:id', component: ArticleDetailPage, layout: DefaultClientLayout }
 ];
 
 const privateRoutes: RouteProps[] = [];
@@ -117,7 +117,7 @@ const academyStaffRoutes: RouteProps[] = [
 ];
 
 const teacherRoutes: RouteProps[] = [
-    { path: '/teacher/profile', component: ProfilePage, layout: DefaultClientLayout },
+    { path: '/teacher/profile', component: UserProfilePage, layout: DefaultClientLayout },
     { path: '/teacher/change-password', component: ChangePasswordPage, layout: DefaultClientLayout },
     { path: '/teacher/account-settings', component: AccountSettingsPage, layout: DefaultClientLayout },
     { path: '/teacher/payment-history', component: PaymentHistoryPage, layout: DefaultClientLayout },
