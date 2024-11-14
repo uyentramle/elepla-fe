@@ -51,11 +51,13 @@ export default function MySider() {
         return [
             getItem('Bảng thống kê', '1', <LineChartOutlined />),
             getItem('Quản lý môn học trong chương trình', '2', <FileTextOutlined />),
-            getItem('Quản lý kế hoạch bài dạy', '3', <AuditOutlined />),
-            getItem('Quản lý ngân hàng câu hỏi', '4', <QuestionCircleOutlined />),
-            getItem('Đánh giá - phản hồi', '5', <CommentOutlined />, [
-                getItem('Kế hoạch giảng dạy', '5-1', <CaretRightOutlined />),
-                getItem('Hệ thống', '5-2', <CaretRightOutlined />),
+            getItem('Quản lý chương', '3', <FileTextOutlined />),
+            getItem('Quản lý bài học', '4', <FileTextOutlined />),
+            getItem('Quản lý kế hoạch bài dạy', '5', <AuditOutlined />),
+            getItem('Quản lý ngân hàng câu hỏi', '6', <QuestionCircleOutlined />),
+            getItem('Đánh giá - phản hồi', '7', <CommentOutlined />, [
+                getItem('Kế hoạch bài dạy', '7-1', <CaretRightOutlined />),
+                getItem('Hệ thống', '7-2', <CaretRightOutlined />),
             ]),
         ];
     };
@@ -64,10 +66,12 @@ export default function MySider() {
         .set('1', '/academy-staff/')
         .set('2', '/academy-staff/subject-in-curriculum')
         .set('3', '#')
-        .set('4', '/academy-staff/question-banks/')
+        .set('4', '#')
         .set('5', '#')
-        .set('5-1', '/academy-staff/feedbacks/planbook/')
-        .set('5-2', '/academy-staff/feedbacks/system/');
+        .set('6', '/academy-staff/question-banks/')
+        .set('7', '#')
+        .set('7-1', '/academy-staff/feedbacks/planbook/')
+        .set('7-2', '/academy-staff/feedbacks/system/');
 
     return (
         <>
