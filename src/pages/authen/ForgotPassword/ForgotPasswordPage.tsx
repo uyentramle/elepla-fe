@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Steps, Form, Input, Button, message, GetProp, } from 'antd';
+import axios from "axios";
+import { /*Steps,*/ Form, Input, Button, message, GetProp } from 'antd';
 import {
     LockOutlined,
     // MailOutlined,
@@ -11,24 +12,11 @@ import {
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import type { OTPProps } from 'antd/es/input/OTP';
+import CustomStep from "../Button/CustomStep";
+import { obfuscateContactInfo } from "@/utils/ObfuscateInfo";
+import { translateErrorToVietnamese } from "@/utils/TranslateError";
 
-const { Step } = Steps;
-
-const obfuscateContactInfo = (phoneNumberOrEmail: string) => {
-    if (!phoneNumberOrEmail) return '';
-
-    if (phoneNumberOrEmail.includes('@')) {
-        // Nếu là email
-        const [name, domain] = phoneNumberOrEmail.split('@');
-        if (name.length <= 2) return phoneNumberOrEmail;
-        return name[0] + '*'.repeat(name.length - 3) + name.slice(-2) + '@' + domain;
-    } else {
-        // Nếu là số điện thoại
-        const countryCode = '+84'; // Giả sử mã quốc gia luôn là +84
-        const localNumber = phoneNumberOrEmail.slice(1); // Bỏ mã quốc gia từ chuỗi số điện thoại
-        return `(${countryCode})${localNumber.slice(0, 3)}****${localNumber.slice(-2)}`;
-    }
-};
+// const { Step } = Steps;
 
 const ForgotPasswordPage: React.FC = () => {
     const [currentStep, setCurrentStep] = useState(0);
@@ -40,24 +28,15 @@ const ForgotPasswordPage: React.FC = () => {
         console.log('Success:', values);
 
         if (currentStep === 0) {
-            // Handle username/email submission
-
-            // message.success('Tên người dùng đã gửi');
-            // setCurrentStep(1);
+            // Handle phonenumber/email submission
             setPhoneNumberOrEmail(values.phoneNumberOrEmail);
             sendVerificationCode(values.phoneNumberOrEmail);
             setCountdown(60);
         } else if (currentStep === 1) {
             // Handle verification code submission
-
-            // message.success('Đã gửi mã xác minh');
-            // setCurrentStep(2);
             verifyForgotPasswordCode(phoneNumberOrEmail, values.verificationCode);
         } else if (currentStep === 2) {
             // Handle password reset
-
-            // message.success('Đặt lại mật khẩu thành công');
-            // setCurrentStep(3);
             resetPasswordUser(values);
         }
     };
@@ -86,7 +65,28 @@ const ForgotPasswordPage: React.FC = () => {
     };
 
     const sendVerificationCode = async (phoneNumberOrEmail: any) => {
-        setCurrentStep(1);
+        try {
+            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/SendForgotPasswordVerificationCode', {
+                phoneNumberOrEmail,
+            });
+            if (response.data.success) {
+                message.success('Đã gửi mã xác minh');
+                setCurrentStep(1);
+            } else {
+                message.error(response.data.message);
+            }
+        } catch (error: any) {
+            // message.error('Đã xảy ra lỗi khi gửi mã xác minh.');
+            // Xử lý các trường hợp lỗi cụ thể
+            switch (error.response.data.message) {
+                case 'User not found.':
+                    message.error('Không tìm thấy người dùng.');
+                    break;
+                default:
+                    message.error('Đã xảy ra lỗi khi gửi mã xác minh.');
+                    break;
+            }
+        }
     };
 
     const handleResendVerificationCode = () => {
@@ -100,13 +100,72 @@ const ForgotPasswordPage: React.FC = () => {
     };
 
     const verifyForgotPasswordCode = async (phoneNumberOrEmail: any, verificationCode: any) => {
-        //setResetPasswordToken();
-        setPhoneNumberOrEmail(phoneNumberOrEmail);
-        setCurrentStep(2);
+        try {
+            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/VerifyForgotPasswordCode', {
+                phoneNumberOrEmail,
+                verificationCode
+            });
+            if (response.data.success) {
+                message.success('Xác minh thành công');
+                // form.setFieldsValue({ resetPasswordToken: response.data.data.resetToken });
+                setResetPasswordToken(response.data.data.resetToken);
+                setPhoneNumberOrEmail(phoneNumberOrEmail);
+                // console.log(response.data.data.token);
+                // console.log(phoneNumberOrEmail);
+                setCurrentStep(2);
+            } else {
+                message.error(response.data.message);
+            }
+        } catch (error: any) {
+            // message.error('Failed to verify code');
+            switch (error.response.data.message) {
+                case 'Invalid verification code.':
+                    message.error('Mã xác minh không hợp lệ.');
+                    break;
+                default:
+                    message.error('Đã xảy ra lỗi. Vui lòng thử lại.');
+                    break;
+            }
+        }
     };
 
     const resetPasswordUser = async (values: any) => {
-        setCurrentStep(3);
+        try {
+            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/ResetPassword', {
+                phoneNumberOrEmail: phoneNumberOrEmail,
+                resetPasswordToken: resetPasswordToken,
+                newPassword: values.newPassword,
+            });
+            if (response.data.success) {
+                message.success('Thiết lập mật khẩu mới thành công');
+                setCurrentStep(3);
+            } else {
+                message.error(response.data.message);
+            }
+        } catch (error: any) {
+            // message.error('Failed to register');
+            switch (error.response.data.message) {
+                case 'Invalid or expired reset token.':
+                    message.error('Phiên thực hiện không hợp lệ hoặc đã hết hạn. Vui lòng thực hiện lại chức năng.');
+                    // trở về bước đầu tiên
+                    setCurrentStep(0);
+                    break;
+                case 'User not found.':
+                    message.error('Không tìm thấy người dùng.');
+                    break;
+                case 'Password is not in correct format.':
+                    if (error.response.data.errors && error.response.data.errors.length > 0) {
+                        error.response.data.errors.forEach((err: string) => {
+                            const errorMessage = translateErrorToVietnamese(err);
+                            message.error(errorMessage);
+                        });
+                    }
+                    break;
+                default:
+                    message.error('Đã xảy ra lỗi, vui lòng thử lại sau.');
+                    break;
+            }
+        }
     };
 
     return (
@@ -115,61 +174,56 @@ const ForgotPasswordPage: React.FC = () => {
                 backgroundImage: `url('../assets/img/bg-2.png')`, // Đường dẫn tới ảnh PNG
             }}
         >
-            <div className="bg-white p-8 rounded w-full max-w-md shadow-md ">
+            <div className="bg-white p-8 rounded w-full max-w-md shadow-md" style={{ boxShadow: 'rgba(99, 99, 99, 0.2) 0px 2px 8px 0px', width: '100%', maxWidth: '500px', minHeight: '500px' }}>
                 <h2 className="text-2xl font-bold mb-6 text-center text-blue-500">Quên mật khẩu</h2>
                 {/* <Steps current={currentStep} className="mb-8 custom-steps">
           <Step title={currentStep == 0 ? <>Nhập tài khoản <LineOutlined className="ml-4 text-blue-500" /></> : <LineOutlined className="ml-4 text-blue-500" />} />
           <Step title={currentStep == 1 ? <>Xác Minh Bảo Mật <LineOutlined className="ml-4 text-blue-500" /></> : <LineOutlined className="ml-4 text-blue-500" />} />
           <Step title={currentStep == 2 ? "Thiết lập mật khẩu" : ""} />
         </Steps> */}
-                {/* <div className="steps mb-8 custom-steps flex justify-between text-sm">
-      <CustomStep
-        icon={<LineOutlined />}
-        title={"Nhập tài khoản"}
-      />
-      <CustomStep
-        icon={<LineOutlined />}
-        title="Xác Minh Bảo Mật"
-      />
-      <CustomStep
-        icon={<LineOutlined />}
-        title="Thiết lập mật khẩu"
-      />
-    </div> */}
-
+                <div className="steps mb-8 custom-steps flex justify-between text-sm">
+                    <CustomStep icon={<span>1</span>} title="Nhập tài khoản" isActive={currentStep >= 0} />
+                    <LineOutlined className="text-blue-500" style={{ fontSize: '35px' }} />
+                    <CustomStep icon={<span>2</span>} title="Xác minh bảo mật" isActive={currentStep >= 1} />
+                    <LineOutlined className="text-blue-500" style={{ fontSize: '35px' }} />
+                    <CustomStep icon={<span>3</span>} title="Thiết lập mật khẩu" isActive={currentStep >= 2} />
+                </div>
                 <Form form={form} onFinish={onFinish} initialValues={{ remember: true }}
                 >
                     {currentStep === 0 && (
-                        <Form.Item
-                            name="phoneNumberOrEmail"
-                            className="mb-10"
-                            // rules={[{ required: true, message: 'Tài khoản không được để trống' }]}
-                            rules={[
-                                {
-                                    validator: (_, value) => {
-                                        if (!value) {
-                                            return Promise.reject('Vui lòng nhập số điện thoại hoặc email');
-                                        }
-                                        const isPhone = /^[0-9]+$/.test(value) || /^\+84\s?\d{9,10}$/.test(value);
-                                        const isEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value);
-                                        if (!isPhone && !isEmail) {
-                                            return Promise.reject('Định dạng số điện thoại hoặc email không hợp lệ');
-                                        }
-                                        return Promise.resolve();
+                        <>
+                            <p className="mb-10 text-center">Vui lòng nhập số điện thoại hoặc email đã đăng ký tài khoản, hệ thống sẽ gửi mã xác thực đến cho bạn.</p>
+                            <Form.Item
+                                name="phoneNumberOrEmail"
+                                className="mb-10"
+                                // rules={[{ required: true, message: 'Tài khoản không được để trống' }]}
+                                rules={[
+                                    {
+                                        validator: (_, value) => {
+                                            if (!value) {
+                                                return Promise.reject('Vui lòng nhập số điện thoại hoặc email');
+                                            }
+                                            const isPhone = /^[0-9]+$/.test(value) || /^\+84\s?\d{9,10}$/.test(value);
+                                            const isEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value);
+                                            if (!isPhone && !isEmail) {
+                                                return Promise.reject('Định dạng số điện thoại hoặc email không hợp lệ');
+                                            }
+                                            return Promise.resolve();
+                                        },
                                     },
-                                },
-                            ]}
-                        >
-                            <Input
-                                prefix={<UserOutlined />}
-                                placeholder="Số điện thoại/Email"
-                                className=""
-                            />
-                        </Form.Item>
+                                ]}
+                            >
+                                <Input
+                                    prefix={<UserOutlined />}
+                                    placeholder="Số điện thoại/Email"
+                                    className=""
+                                />
+                            </Form.Item>
+                        </>
                     )}
                     {currentStep === 1 && (
                         <>
-                            <p className="mb-4 text-center">Vui lòng nhập mã xác nhận số điện thoại hoặc email để xác minh danh tính</p>
+                            <p className="mb-4 text-center">Vui lòng nhập mã xác nhận từ số điện thoại hoặc email của bạn để xác minh danh tính.</p>
                             {/* <p className="mb-4 text-center">mi****02@gmail.com</p> */}
                             <p className="mb-4 text-center">{obfuscateContactInfo(phoneNumberOrEmail)}</p>
                             <Form.Item
@@ -199,7 +253,7 @@ const ForgotPasswordPage: React.FC = () => {
                     )}
                     {currentStep === 2 && (
                         <>
-                            <p className="mb-4 text-center">Vui lòng thiết lập mật khẩu tương đối mạnh</p>
+                            <p className="mb-4 text-center">Vui lòng thiết lập mật khẩu tương đối mạnh.</p>
                             <Form.Item
                                 name="newPassword"
                                 rules={[{ required: true, message: 'Mật khẩu không được để trống' }]}
@@ -249,6 +303,7 @@ const ForgotPasswordPage: React.FC = () => {
                             {currentStep < 3 ? 'Tiếp' : <Link to="/sign-in">Đăng nhập ngay</Link>}
                         </Button>
                     </Form.Item>
+                    <Button type="default" className="w-full" href="/sign-in">Trở về đăng nhập</Button>
                 </Form>
             </div>
         </div>

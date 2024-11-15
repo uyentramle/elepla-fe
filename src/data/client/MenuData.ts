@@ -19,13 +19,7 @@ const menu_data: MenuItem[] = [
    {
       id: 2,
       has_dropdown: false,
-      title: "Gói dịch vụ",
-      link: "/package-detail",
-   },
-   {
-      id: 3,
-      has_dropdown: false,
-      title: "Thư Viện",
+      title: "Kho kế hoạch bài dạy",
       link: "/planbook-library",
       sub_menus: [
          { link: "/course", title: "Course" },
@@ -33,9 +27,26 @@ const menu_data: MenuItem[] = [
       ],
    },
    {
+      id: 3,
+      has_dropdown: false,
+      title: "Gói dịch vụ",
+      link: "/package-detail",
+   },
+   {
       id: 4,
       has_dropdown: false,
-      title: "Hướng Dẫn",
+      title: " Bài viết ",
+      link: "/articles",
+      sub_menus: [
+         { link: "/blog", title: "Blog" },
+         { link: "/blog-grid", title: "Blog Grid" },
+         { link: "/blog-details", title: "Blog-Details", },
+      ],
+   },
+   {
+      id: 5,
+      has_dropdown: false,
+      title: "Hướng dẫn",
       link: "#",
       sub_menus: [
          { link: "/about", title: "About Us" },
@@ -50,14 +61,12 @@ const menu_data: MenuItem[] = [
       ],
    },
    {
-      id: 4,
+      id: 5,
       has_dropdown: false,
-      title: " Blog ",
-      link: "/article",
+      title: "Liên hệ",
+      link: "#",
       sub_menus: [
-         { link: "/blog", title: "Blog" },
-         { link: "/blog-grid", title: "Blog Grid" },
-         { link: "/blog-details", title: "Blog-Details", },
+         { link: "/about", title: "About Us" },
       ],
    },
 ];

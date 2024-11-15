@@ -1,6 +1,12 @@
-import { MenuOutlined, FormOutlined, SnippetsOutlined, } from '@ant-design/icons';
-import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
-import AnalyticsOutlinedIcon from '@mui/icons-material/AnalyticsOutlined';
+import {
+    LineChartOutlined,
+    MenuOutlined,
+    FileTextOutlined,
+    AuditOutlined,
+    QuestionCircleOutlined,
+    CommentOutlined,
+    CaretRightOutlined,
+} from '@ant-design/icons';
 import { Menu, MenuProps } from 'antd';
 import Sider from 'antd/es/layout/Sider';
 import React, { useEffect, useState } from 'react';
@@ -43,18 +49,29 @@ export default function MySider() {
 
     const getConditionalItems = (): MenuItem[] => {
         return [
-            getItem('Bảng thống kê', '1', <AnalyticsOutlinedIcon />),
-            getItem('Quản lý bài viết', '2', <FormOutlined />),
-            getItem('Quản lý danh mục bài viết', '3', <SnippetsOutlined />),
-            getItem('Quản lý tài khoản', '4', <ManageAccountsOutlinedIcon />),
+            getItem('Bảng thống kê', '1', <LineChartOutlined />),
+            getItem('Quản lý môn học trong chương trình', '2', <FileTextOutlined />),
+            getItem('Quản lý chương', '3', <FileTextOutlined />),
+            getItem('Quản lý bài học', '4', <FileTextOutlined />),
+            getItem('Quản lý kế hoạch bài dạy', '5', <AuditOutlined />),
+            getItem('Quản lý ngân hàng câu hỏi', '6', <QuestionCircleOutlined />),
+            getItem('Đánh giá - phản hồi', '7', <CommentOutlined />, [
+                getItem('Kế hoạch bài dạy', '7-1', <CaretRightOutlined />),
+                getItem('Hệ thống', '7-2', <CaretRightOutlined />),
+            ]),
         ];
     };
     const navUrl = new Map<string, string>();
     navUrl
-        .set('1', '#')
-        .set('2', '#')
-        .set('3', '#')
-        .set('4', '#');
+        .set('1', '/academy-staff/')
+        .set('2', '/academy-staff/subject-in-curriculum')
+        .set('3', '/academy-staff/chapters')
+        .set('4', '#')
+        .set('5', '#')
+        .set('6', '/academy-staff/question-banks/')
+        .set('7', '#')
+        .set('7-1', '/academy-staff/feedbacks/planbook/')
+        .set('7-2', '/academy-staff/feedbacks/system/');
 
     return (
         <>

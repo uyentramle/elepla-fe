@@ -1,5 +1,5 @@
 // HomePage.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Typography, Row, Col } from 'antd';
 import { Button } from 'antd';
 import {
@@ -15,40 +15,30 @@ import features from '@/data/client/FeatureData';
 import packages from '@/data/client/PackageData';
 import work_data from '@/data/client/WorkAreaData';
 import feedback_data from '@/data/client/FeedbackData';
-import article_data from '@/data/client/ArticleData';
+import { getViewListArticle, IViewListArticle } from '@/data/client/ArticleData';
 
 const { Title, Text } = Typography;
 
-interface DataType {
-    id: number;
-    date: JSX.Element;
-    title: string;
-}[];
-
-const article_sidebar: DataType[] = [
-    {
-        id: 1,
-        date: (<><span>JAN</span> <br />20</>),
-        title: "Duis pretium gravida enim maximus"
-    },
-    {
-        id: 2,
-        date: (<><span>JAN</span> <br />28</>),
-        title: "Maecenas interdum lorem eleifend"
-    },
-    {
-        id: 3,
-        date: (<><span>FEB</span> <br /> 02</>),
-        title: "Nunc scelerisque tincidunt elit."
-    },
-    {
-        id: 4,
-        date: (<><span>FEB</span> <br /> 01</>),
-        title: "Nunc scelerisque tincidunt elit."
-    },
-];
-
 const HomePage: React.FC = () => {
+    const [articles, setArticles] = useState<IViewListArticle[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+        const fetchArticles = async () => {
+            try {
+                const data = await getViewListArticle();
+                setArticles(data);
+            } catch (error) {
+                console.error('Failed to load articles', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchArticles();
+    }, []);
+    const mainArticles = articles.slice(0, 2);
+    const sidebarArticles = articles.slice(2, 6);
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const feedbacks = feedback_data.filter((item) => item.page === "home_1");
@@ -70,19 +60,19 @@ const HomePage: React.FC = () => {
                         <div className="lg:w-6/12 order-first lg:order-1 flex items-center">
                             <div className="text-center lg:text-left mt-5 lg:mt-0">
                                 <Title level={4} className="text-xl font-semibold mb-2 animate-fadeIn">
-                                    DISCOVER RESEARCH
+                                    ELEPLA
                                 </Title>
                                 <div className="text-6xl font-bold mb-4 animate-fadeIn">
                                     <Title level={1}>
-                                        A better learning future starts here
+                                        Tạo kế hoạch bài dạy bậc THPT theo chuẩn Bộ Giáo Dục và Đào Tạo Việt Nam
                                     </Title>
                                 </div>
                                 <div className="space-x-4 animate-fadeIn">
                                     <Link href="#">
-                                        <Button type="primary" className="mb-3">Get A Quote</Button>
+                                        <Button type="primary" className="mb-3">Khám phá kho kế hoạch bài dạy</Button>
                                     </Link>
                                     <Link href="#">
-                                        <Button type="default" className="mb-3">Read More</Button>
+                                        <Button type="default" className="mb-3">Soạn kế hoạch bài dạy miễn phí </Button>
                                     </Link>
                                 </div>
                             </div>
@@ -106,14 +96,14 @@ const HomePage: React.FC = () => {
                             <div className="flex flex-wrap">
                                 <div className="w-full lg:w-1/3 text-center lg:text-left">
                                     <div className="intro-title p-8">
-                                        <Title level={3} style={{ color: '#fff' }}>Vivamus maximus</Title>
-                                        <p className="text-white mb-5">Lorem ipsum dolor sadipscing elitr, sed diam nonum</p>
+                                        <Title level={3} style={{ color: '#fff' }}>Nền tảng Giáo dục số</Title>
+                                        <p className="text-white mb-5">Soạn kế hoạch bài dạy cho tất cả các môn học trên một nền tảng duy nhât</p>
                                         <ul className="list-none p-0 m-0">
                                             <li className="text-white mb-2 flex items-center">
-                                                <CheckOutlined className="mr-2" /> Nullam est
+                                                <CheckOutlined className="mr-2" /> Đơn giản
                                             </li>
                                             <li className="text-white flex items-center">
-                                                <CheckOutlined className="mr-2" /> Mattis dictum nunc
+                                                <CheckOutlined className="mr-2" /> Tiện lợi
                                             </li>
                                         </ul>
                                     </div>
@@ -145,9 +135,9 @@ const HomePage: React.FC = () => {
             <div className="work-area py-10">
                 <section className="container mx-auto px-6">
                     <div className="section-title text-center">
-                        <Title level={2} className="title text-3xl">Elepla hoạt động như thế nào?</Title>
+                        <Title level={2} className="title text-3xl">Elepla hoạt động như thế nào để có một kế hoạch bài dạy theo chuẩn Bộ Giáo Dục?</Title>
                         <Text className="mt-6 lg:mt-0 text-gray-600">
-                            The quick, brown fox jumps over a lazy dog. DJs flock by when MTV ax quiz prog. Junk MTV quiz graced by fox whelps. Bawds jog, flick quartz, vex nymphs when MTV ax quiz.
+                            Công cụ số hóa tạo kế hoạch bài dạy siêu đơn giản, chỉnh sửa nhanh chóng các mẫu kế hoạch bài dạy từ kho bài giảng đa dạng, đảm bảo đúng theo khung kế hoạch giảng dạy theo quy định của Bộ Giáo Dục và Đào tạo
                         </Text>
                     </div>
                     <Row gutter={[16, 16]} className="mt-8">
@@ -162,10 +152,10 @@ const HomePage: React.FC = () => {
                                     </div>
                                     <div className="details mt-4">
                                         <h5 className="text-xl font-semibold">{item.title}</h5>
-                                        <p className="text-gray-500">{item.description}</p>
-                                        <Link href="#" className="text-blue-500 inline-flex items-center mt-2">
+                                        {/* <p className="text-gray-500">{item.description}</p> */}
+                                        {/* <Link href="#" className="text-blue-500 inline-flex items-center mt-2">
                                             Read More <RightOutlined className='mx-1' style={{ fontSize: '10px' }} />
-                                        </Link>
+                                        </Link> */}
                                     </div>
                                 </div>
                             </Col>
@@ -250,76 +240,78 @@ const HomePage: React.FC = () => {
                 <div className="container mx-auto">
                     <div className="flex justify-center">
                         <div className="text-center">
-                            <Title level={4} className="sub-title text-sm text-gray-500 uppercase">Latest News</Title>
-                            <Title level={2} className="title text-3xl">Our Insights & Articles</Title>
+                            <Title level={4} className="sub-title text-sm text-gray-500 uppercase">Bài đăng mới nhất</Title>
+                            <Title level={2} className="title text-3xl">Bài viết - công văn - tổng hợp</Title>
                         </div>
                     </div>
                     <div className="flex flex-wrap">
                         {/* Sidebar Article List */}
                         <div className="w-full lg:w-1/3">
-                            <ul className="single-blog-list-wrap shadow-lg p-6 rounded-lg">
-                                {article_sidebar.map((sidebar) => (
-                                    <li key={sidebar.id} className="border-b pb-4 mb-4 last:border-none last:mb-0 last:pb-0">
-                                        <div className="flex items-center">
-                                            <div className="date bg-blue-500 text-white text-center p-2 rounded-md w-16 h-16 flex items-center justify-center text-lg">
-                                                {sidebar.date}
-                                            </div>
-                                            <div className="details ml-4">
-                                                <ul className="blog-meta text-sm text-gray-600 my-2">
-                                                    <li className="inline mr-4">
-                                                        <UserOutlined className="mr-1" /> BY ADMIN
-                                                    </li>
-                                                    <li className="inline">
-                                                        <FolderOpenOutlined className="mr-1" /> Air transport
-                                                    </li>
-                                                </ul>
-                                                <Link href="#">
-                                                    <Title level={5} className="text-lg font-semibold">
-                                                        {sidebar.title}
-                                                    </Title>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* Article Content */}
-                        <div className="w-full lg:w-2/3">
-                            <div className="flex flex-wrap justify-center">
-                                {article_data
-                                    .filter((items) => items.page === 'home_1')
-                                    .map((item) => (
-                                        <div key={item.id} className="w-full md:w-1/2 p-4">
-                                            <div className="single-blog-inner shadow-lg rounded-lg overflow-hidden">
-                                                <div className="thumb relative">
-                                                    <img src={item.thumb} alt="img" className="w-full h-60 object-cover" />
-                                                    <span className="date bg-blue-700 text-white text-sm py-1 px-3 absolute bottom-4 left-4 rounded-full">
-                                                        {item.date}
-                                                    </span>
+                            {loading ? (
+                                <p>Đang tải...</p>
+                            ) : (
+                                <ul className="single-blog-list-wrap shadow-lg p-6 rounded-lg">
+                                    {sidebarArticles.map((article) => (
+                                        <li key={article.id} className="border-b pb-4 mb-4 last:border-none last:mb-0 last:pb-0">
+                                            <div className="flex items-center">
+                                                <div className="date bg-blue-500 text-white text-center p-2 rounded-md w-16 h-16 flex items-center justify-center text-lg">
+                                                    {new Date(article.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
                                                 </div>
-                                                <div className="details p-6">
-                                                    <ul className="blog-meta text-sm text-gray-600 mb-2">
+                                                <div className="details ml-4">
+                                                    <ul className="blog-meta text-sm text-gray-600 my-2">
                                                         <li className="inline mr-4">
-                                                            <UserOutlined className="mr-1" /> BY ADMIN
+                                                            <UserOutlined className="mr-1" /> Đăng bởi Admin
                                                         </li>
                                                         <li className="inline">
                                                             <FolderOpenOutlined className="mr-1" /> Air transport
                                                         </li>
                                                     </ul>
-                                                    <Link href="#">
-                                                        <Title level={4} className="mb-2">
-                                                            {item.title}
+                                                    <Link href={`/articles/${article.id}`}>
+                                                        <Title level={5} className="text-lg font-semibold">
+                                                            {article.title}
                                                         </Title>
-                                                    </Link>
-                                                    <Link href="#" className="read-more-text text-primary font-semibold hover:underline">
-                                                        READ MORE <RightOutlined className="ml-1" />
                                                     </Link>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </li>
                                     ))}
+                                </ul>
+                            )}
+                        </div>
+
+                        {/* Article Content */}
+                        <div className="w-full lg:w-2/3">
+                            <div className="flex flex-wrap justify-center">
+                                {mainArticles.map((article) => (
+                                    <div key={article.id} className="w-full md:w-1/2 p-4">
+                                        <div className="single-blog-inner shadow-lg rounded-lg overflow-hidden">
+                                            <div className="thumb relative">
+                                                <img src={article.thumb} alt="img" className="w-full h-60 object-cover" />
+                                                <span className="date bg-blue-700 text-white text-sm py-1 px-3 absolute bottom-4 left-4 rounded-full">
+                                                    {new Date(article.created_at).toLocaleDateString('vi-VN')}
+                                                </span>
+                                            </div>
+                                            <div className="details p-6">
+                                                <ul className="blog-meta text-sm text-gray-600 mb-2">
+                                                    <li className="inline mr-4">
+                                                        <UserOutlined className="mr-1" /> Đăng bởi ADMIN
+                                                    </li>
+                                                    <li className="inline">
+                                                        <FolderOpenOutlined className="mr-1" /> Air transport
+                                                    </li>
+                                                </ul>
+                                                <Link href={`/articles/${article.id}`}>
+                                                    <Title level={4} className="mb-2">
+                                                        {article.title}
+                                                    </Title>
+                                                </Link>
+                                                <Link href={`/articles/${article.id}`} className="read-more-text text-primary font-semibold hover:underline">
+                                                    XEM THÊM <RightOutlined className="ml-1" />
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>

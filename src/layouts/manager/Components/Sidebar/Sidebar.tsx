@@ -53,7 +53,7 @@ export default function MySider({
         .set('2', '/manager/service-packages')
         .set('2-1', '/manager/service-packages')
         .set('2-2', '/manager/user-services')
-        .set('3', '#');
+        .set('3', '/manager/payments');
 
     return (
         <div className="fixed top-0 left-0 h-full bg-white z-50">

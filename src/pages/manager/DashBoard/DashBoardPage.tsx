@@ -1,6 +1,6 @@
-import React from 'react';
-import { Row, Col, Card, Statistic, List, Avatar, Typography, Image } from 'antd';
-import { UserOutlined, StarFilled } from '@ant-design/icons';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Row, Col, Card, Statistic, List, Typography, Select, message, } from 'antd';
+import { CaretRightOutlined } from '@ant-design/icons';
 import {
     XAxis,
     YAxis,
@@ -14,166 +14,208 @@ import {
     BarChart,
     Bar,
 } from 'recharts';
+import dayjs from 'dayjs';
+import { Link } from 'react-router-dom';
+import { IViewListPayment, fetchListPayment, fetchRevenueByMonth, fetchRevenueByQuarter, fetchRevenueByYear } from "@/data/manager/UserPaymentData";
+import { IViewListUserPackage, fetchUserPackageList } from "@/data/manager/UserPackageData";
 
-const COLORS = ['#55bfc7', '#00C49F', '#FFBB28', '#9e5493', '#e8744c', '#FF6666'];
-
-const revenueProductType = [
-    { name: 'Sữa bột', value: 812 },
-    { name: 'Sữa tươi', value: 256 },
-    { name: 'Sữa bột pha sẵn', value: 375 },
-    { name: 'Sữa hạt dinh dưỡng', value: 872 },
-    { name: 'Thức uống dinh dưỡng', value: 541 },
-];
-
-const orderRate = [
-    {
-        name: 'Tháng 3',
-        order: 99,
-        preOrder: 11
-    },
-    {
-        name: 'Tháng 4',
-        order: 72,
-        preOrder: 20
-    },
-    {
-        name: 'Tháng 5',
-        order: 122,
-        preOrder: 10
-    },
-    {
-        name: 'Tháng 6',
-        order: 276,
-        preOrder: 89
-    },
-];
-
-const simpleData = [
-    {
-        name: 'AAA',
-        value: 356
-    },
-    {
-        name: 'BBB',
-        value: 287
-    },
-    {
-        name: 'CCC',
-        value: 53
-    },
-];
-
-const { Text } = Typography;
-
-const bestSellingProduct = [
-    {
-        name: 'Sữa Vinamilk Yoko Gold 1 850g (0-1 tuổi)',
-        image: "https://cdn1.concung.com/2024/04/44603-1714120962-trans.png",
-        count: 142,
-        rate: 4.9,
-        price: 449000,
-    },
-    {
-        name: 'Vinamilk Optimum Gold 1, 800g (0 - 6 tháng)',
-        image: "https://cdn1.concung.com/2022/05/57283-88154-large_mobile/vinamilk-optimum-gold-1-800g.png",
-        count: 122,
-        rate: 4.3,
-        price: 395000,
-    },
-    {
-        name: 'Vinamilk Optimum Gold 3, 850g, 1-2 tuổi',
-        image: "https://cdn1.concung.com/2022/05/57286-88164-large_mobile/vinamilk-optimum-gold-3-850g-1-2-tuoi.png",
-        count: 92,
-        rate: 4.8,
-        price: 369000,
-    },
-];
-
-const newUsersData = [
-    { name: 'Vũ Lan Anh', time: 'Tham gia 12 giờ trước' },
-    { name: 'Võ Tấn Ngọc Dũng', time: 'Tham gia 17 giờ trước' },
-    { name: 'Vũ Lê Đức Lợi', time: 'Tham gia 19 giờ trước' },
-    { name: 'Lê Hoàng Bảo Trân', time: 'Tham gia 25 giờ trước' },
-];
-
-const recentFeedbacksData = [
-    {
-        product: 'Vinamilk Optimum Gold 1, 800g (0 - 6 tháng)',
-        image: "https://cdn1.concung.com/2022/05/57283-88154-large_mobile/vinamilk-optimum-gold-1-800g.png",
-        name: 'Vũ Lan Anh',
-        feedback: 'Sữa chất lượng, con tôi rất thích',
-        rating: 5
-    },
-    {
-        product: 'Vinamilk Optimum Gold 1, 800g (0 - 6 tháng)',
-        image: "https://cdn1.concung.com/2022/05/57283-88154-large_mobile/vinamilk-optimum-gold-1-800g.png",
-        name: 'Võ Tấn Ngọc Dũng',
-        feedback: 'Quá là tuyệt vời lun',
-        rating: 5
-    },
-    {
-        product: 'Vinamilk Optimum Gold 1, 800g (0 - 6 tháng)',
-        image: "https://cdn1.concung.com/2022/05/57283-88154-large_mobile/vinamilk-optimum-gold-1-800g.png",
-        name: 'Vũ Lê Đức Lợi',
-        feedback: 'Giá cả bán sữa cho mẹ bầu ở đây ổn áp hơn so với nhiều chỗ khác',
-        rating: 5
-    },
-    {
-        product: 'Vinamilk Optimum Gold 1, 800g (0 - 6 tháng)',
-        image: "https://cdn1.concung.com/2022/05/57283-88154-large_mobile/vinamilk-optimum-gold-1-800g.png",
-        name: 'Lê Hoàng Bảo Trân',
-        feedback: 'Shop bán hàng chất lượng, không sợ pha ke',
-        rating: 5
-    },
-];
+const { Title, Text } = Typography;
+const COLORS = ['#FFBB28', '#55bfc7', '#e8744c', '#00C49F', '#9e5493', '#FF6666'];
+const { Option } = Select;
 
 const DashBoardManagerPage: React.FC = () => {
+    const [userPayments, setUserPayments] = useState<IViewListPayment[]>([]);
+    const [userServices, setUserServices] = useState<IViewListUserPackage[]>([]);
+    const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([]);
+    const [timeFrame, setTimeFrame] = useState("month");
+
+    const handleTimeFrameChange = (value: string) => {
+        setTimeFrame(value);
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const payments = await fetchListPayment();
+                const services = await fetchUserPackageList();
+                setUserPayments(payments);
+                setUserServices(services);
+
+                let revenueResponse;
+                const year = dayjs().year();
+                if (timeFrame === "month") {
+                    revenueResponse = await fetchRevenueByMonth(year);
+                } else if (timeFrame === "quarter") {
+                    revenueResponse = await fetchRevenueByQuarter(year);
+                } else if (timeFrame === "year") {
+                    revenueResponse = await fetchRevenueByYear();
+                }
+                setRevenueData(revenueResponse || []);
+            } catch (error) {
+                message.error('Lỗi khi tải dữ liệu từ server.');
+            }
+        };
+
+        fetchData();
+    }, [timeFrame]);
+
+    const packageDistribution = useMemo(() => {
+        const counts = { Free: 0, Basic: 0, Premium: 0 };
+        userServices.forEach(service => {
+            const serviceDate = dayjs(service.startDate);
+            if (
+                (timeFrame === "month" && serviceDate.isSame(dayjs(), "month")) ||
+                (timeFrame === "quarter" && serviceDate.isAfter(dayjs().subtract(3, "month"))) ||
+                (timeFrame === "year" && serviceDate.isAfter(dayjs().subtract(6, "month")))
+            ) {
+                if (service.packageName === 'Gói miễn phí') counts.Free++;
+                if (service.packageName === 'Gói cơ bản') counts.Basic++;
+                if (service.packageName === 'Gói cao cấp') counts.Premium++;
+            }
+        });
+        const total = counts.Free + counts.Basic + counts.Premium;
+        return [
+            { name: 'Gói miễn phí', value: (counts.Free / total) * 100 },
+            { name: 'Gói cơ bản', value: (counts.Basic / total) * 100 },
+            { name: 'Gói cao cấp', value: (counts.Premium / total) * 100 },
+        ];
+    }, [userServices, timeFrame]);
+
+    // const revenueData = useMemo(() => {
+    //     if (timeFrame === "month") {
+    //         const lastMonths = Array.from({ length: 1 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
+    //         return lastMonths.map(month => ({
+    //             month,
+    //             revenue: userPayments
+    //                 .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
+    //                 .reduce((sum, payment) => sum + payment.totalAmount, 0)
+    //         }));
+    //     } else if (timeFrame === "quarter") {
+    //         const lastThreeMonths = Array.from({ length: 3 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
+    //         return lastThreeMonths.map(month => ({
+    //             month,
+    //             revenue: userPayments
+    //                 .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
+    //                 .reduce((sum, payment) => sum + payment.totalAmount, 0)
+    //         }));
+    //     } else if (timeFrame === "year") {
+    //         const lastSixMonths = Array.from({ length: 6 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
+    //         return lastSixMonths.map(month => ({
+    //             month,
+    //             revenue: userPayments
+    //                 .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
+    //                 .reduce((sum, payment) => sum + payment.totalAmount, 0)
+    //         }));
+    //     }
+    // }, [userPayments, timeFrame]);
+
+    const serviceStatus = useMemo(() => {
+        const activeServices = userServices.filter(
+            (service) =>
+            ((timeFrame === "month" && dayjs(service.startDate).isSame(dayjs(), "month")) ||
+                (timeFrame === "quarter" && dayjs(service.startDate).isAfter(dayjs().subtract(3, "month"))) ||
+                (timeFrame === "year" && dayjs(service.startDate).isAfter(dayjs().subtract(6, "month"))))
+        );
+        return [
+            { name: "Đang sử dụng", value: activeServices.filter((service) => service.isActivated).length },
+            { name: "Đã hết hạn", value: activeServices.filter((service) => !service.isActivated && dayjs(service.endDate).isBefore(dayjs())).length },
+            { name: "Đã hủy", value: 0 },
+        ];
+    }, [userServices, timeFrame]);
+
+    const packageStatistics = useMemo(() => {
+        const packageCount: { [key: string]: { name: string; count: number; price: number } } = {};
+
+        userServices.forEach((service) => {
+            if (!packageCount[service.packageId]) {
+                const packageInfo = userPayments.find(p => p.packageId === service.packageId);
+                packageCount[service.packageId] = {
+                    name: service.packageName,
+                    count: 1,
+                    price: packageInfo?.totalAmount || 0,
+                };
+            } else {
+                packageCount[service.packageId].count++;
+            }
+        });
+
+        return Object.values(packageCount).sort((a, b) => b.count - a.count);
+    }, [userServices, userPayments]);
 
     return (
         <>
-            <h2 className="my-4 text-2xl font-bold">Bảng điều khiển</h2>
-            <Row gutter={[16, 16]} className="mb-6">
+            <Title level={2} className="my-4">Bảng điều khiển</Title>
+
+            <Row gutter={[16, 16]} className="mb-6 pt-2">
+                <Col span={8}>
+                    <Card className="shadow-md bg-green-100">
+                        <Statistic
+                            title="Dịch vụ khách hàng đang sử dụng"
+                            value={
+                                userServices.filter(service =>
+                                    service.isActivated).length
+                            } />
+                        <div className="mt-2 flex items-center justify-between">
+                            <Link to={"/manager/user-services"} ><CaretRightOutlined /> Xem chi tiết</Link>
+                        </div>
+                    </Card>
+                </Col>
                 <Col span={8}>
                     <Card className="shadow-md bg-purple-100">
-                        <Statistic title="Đơn hàng" value={2040} />
+                        <Statistic
+                            title="Người dùng mua gói trong tháng"
+                            value={
+                                userPayments.filter(payment =>
+                                    dayjs(payment.paymentDate)
+                                        .isSame(dayjs(), 'month')).length
+                            } />
                         <div className="mt-2 flex items-center justify-between">
-                            <span className="text-red-500">Giảm 4.3% so với tháng trước</span>
+                            {/* <span className="text-green-500">Tăng 1.3% so với tuần trước</span> */}
+                            <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link>
                         </div>
                     </Card>
                 </Col>
                 <Col span={8}>
-                    <Card className="shadow-md bg-pink-100">
-                        <Statistic title="Sản phẩm" value={1293} />
+                    <Card className="shadow-md bg-red-100">
+                        <Statistic
+                            title="Gói sắp hết hạn trong tháng"
+                            value={
+                                userServices.filter(service =>
+                                    dayjs(service.endDate).isSame(dayjs(), 'month')
+                                    && service.isActivated).length
+                            } />
                         <div className="mt-2 flex items-center justify-between">
-                            <span className="text-green-500">Tăng 1.3% so với tuần trước</span>
-                        </div>
-                    </Card>
-                </Col>
-                <Col span={8}>
-                    <Card className="shadow-md bg-blue-100">
-                        <Statistic title="Người dùng" value={589} />
-                        <div className="mt-2 flex items-center justify-between">
-                            <span className="text-green-500">Tăng 8.5% so với tuần trước</span>
+                            <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link>
                         </div>
                     </Card>
                 </Col>
             </Row>
-
             <Row gutter={[16, 16]} className="mb-6">
+                <Col span={24} className="mt-2">
+                    <span className='mr-2'>Thống kê theo:</span>
+                    <Select
+                        defaultValue="month"
+                        onChange={handleTimeFrameChange}
+                        style={{ width: 200 }}
+                    >
+                        <Option value="month">1 tháng</Option>
+                        <Option value="quarter">3 tháng</Option>
+                        <Option value="year">năm</Option>
+                    </Select>
+                </Col>
                 <Col span={8}>
-                    <Card title="Đơn hàng theo nhóm hàng">
+                    <Card title="Tỉ lệ gói dịch vụ">
                         <ResponsiveContainer width="100%" height={300}>
                             <PieChart>
                                 <Pie
-                                    data={revenueProductType}
+                                    data={packageDistribution}
                                     cx="50%"
                                     cy="50%"
                                     outerRadius={80}
-                                    fill="#069912"
                                     dataKey="value"
                                     label
                                 >
-                                    {revenueProductType.map((_, index) => (
+                                    {packageDistribution.map((_, index) => (
                                         <Cell
                                             key={`cell-${index}`}
                                             fill={COLORS[index % COLORS.length]}
@@ -187,31 +229,30 @@ const DashBoardManagerPage: React.FC = () => {
                 </Col>
 
                 <Col span={8}>
-                    <Card title="Tỉ lệ loại đơn hàng theo tháng">
+                    <Card title="Thống kê doanh thu">
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart
-                                data={orderRate}
+                                data={revenueData}
                                 margin={{
                                     top: 5, right: 5, left: 0, bottom: 0
                                 }}
                             >
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" />
+                                <XAxis dataKey="month" />
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="order" fill={COLORS[3]} />
-                                <Bar dataKey="preOrder" fill={COLORS[2]} />
+                                <Bar dataKey="revenue" fill="#82ca9d" />
                             </BarChart>
                         </ResponsiveContainer>
                     </Card>
                 </Col>
                 <Col span={8}>
-                    <Card title="Tỉ lệ...">
+                    <Card title="Trạng thái dịch vụ">
                         <ResponsiveContainer width="100%" height={300}>
                             <PieChart>
                                 <Pie
-                                    data={simpleData}
+                                    data={serviceStatus}
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={60}
@@ -221,10 +262,10 @@ const DashBoardManagerPage: React.FC = () => {
                                     dataKey="value"
                                     label
                                 >
-                                    {simpleData.map((_, index) => (
+                                    {serviceStatus.map((_, index) => (
                                         <Cell
                                             key={`cell-${index}`}
-                                            fill={COLORS[index % COLORS.length]}
+                                            fill={COLORS[index % COLORS.length + 3]}
                                         />
                                     ))}
                                 </Pie>
@@ -235,11 +276,11 @@ const DashBoardManagerPage: React.FC = () => {
                 </Col>
             </Row>
 
-            <Row gutter={[16, 16]} className="mb-6">
+            <Row gutter={[16, 16]} className="mt-2">
                 <Col span={24}>
                     <Card
-                        title="Sản phẩm bán chạy"
-                    // extra={<a href="#">Xem thêm</a>}
+                        title="Thống kê gói dịch vụ bán chạy"
+                        extra={<a href="/manager/service-packages"><CaretRightOutlined /> Quản lý gói dịch vụ</a>}
                     >
                         <List.Item>
                             <div
@@ -250,36 +291,28 @@ const DashBoardManagerPage: React.FC = () => {
                                 }}
                             >
                                 <div style={{ flex: '1 1 30px' }}>
-                                    <Text strong># </Text>
+                                    <Text strong>No. </Text>
                                 </div>
                                 <div style={{ flex: '1 1 350px' }}>
-                                    <Text strong>Tên sản phẩm</Text>
+                                    <Text strong>Tên gói</Text>
                                 </div>
                                 <div style={{ flex: '1 1 150px' }}>
                                     <Text strong>Giá</Text>
                                 </div>
                                 <div style={{ flex: '1 1 150px' }}>
-                                    <Text strong>Số lượng đã bán</Text>
-                                </div>
-                                <div style={{ flex: '1 1 150px' }}>
-                                    <Text strong>Điểm đánh giá</Text>
+                                    <Text strong>Số lượng người dùng</Text>
                                 </div>
                             </div>
                         </List.Item>
+                        {/* {packageStatistics.length > 0 ? ( */}
                         <List
                             itemLayout="vertical"
-                            dataSource={bestSellingProduct}
-                            renderItem={(item) => (
+                            dataSource={packageStatistics}
+                            renderItem={(item, index) => (
                                 <List.Item>
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            width: '100%',
-                                            alignItems: 'center',
-                                        }}
-                                    >
+                                    <div style={{ display: 'flex', width: '100%', }}>
                                         <div style={{ flex: '0 1 30px' }}>
-                                            <img src={item.image} alt={item.name} style={{ width: '100%' }} />
+                                            <Text strong>{index + 1}</Text>
                                         </div>
                                         <div style={{ flex: '1 1 350px', paddingLeft: '10px' }}>
                                             <Text strong>{item.name}</Text>
@@ -287,66 +320,16 @@ const DashBoardManagerPage: React.FC = () => {
                                         <div style={{ flex: '1 1 150px' }}>
                                             {item.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                                         </div>
-                                        <div style={{ flex: '1 1 150px' }}>{item.count}</div>
                                         <div style={{ flex: '1 1 150px' }}>
-                                            <StarFilled style={{ color: '#fadb14' }} /> {item.rate}/5
-                                            {/* {[...Array(Math.floor(item.rate))].map((_, i) => (
-                                                <StarFilled key={i} style={{ color: '#fadb14', marginLeft: '5px' }} />
-                                            ))} */}
+                                            {item.count}
                                         </div>
                                     </div>
                                 </List.Item>
                             )}
                         />
-                    </Card>
-                </Col>
-            </Row>
-
-            <Row gutter={[16, 16]} className="mb-6">
-                <Col span={12}>
-                    <Card title="Người dùng mới" extra={<a href="#">Xem thêm</a>}>
-                        <List
-                            itemLayout="horizontal"
-                            dataSource={newUsersData}
-                            renderItem={(item) => (
-                                <List.Item>
-                                    <List.Item.Meta
-                                        avatar={<Avatar icon={<UserOutlined />} />}
-                                        title={<Text strong>{item.name}</Text>}
-                                        description={item.time}
-                                    />
-                                    <div>
-                                        <Text type="success">Đã xác thực số điện thoại</Text>
-                                    </div>
-                                </List.Item>
-                            )}
-                        />
-                    </Card>
-                </Col>
-                <Col span={12}>
-                    <Card title="Phản hồi gần đây" extra={<a href="#">Xem thêm</a>}>
-                        <List
-                            itemLayout="horizontal"
-                            dataSource={recentFeedbacksData}
-                            renderItem={(item) => (
-                                <List.Item>
-                                    <List.Item.Meta
-                                        avatar={
-                                            <Image src={item.image} width={'30px'} />
-                                        }
-                                        title={<Text strong>{item.product}</Text>}
-                                        description={
-                                            <div dangerouslySetInnerHTML={{ __html: `<strong>${item.name}</strong><br/> ${item.feedback}` }} />
-                                        }
-                                    />
-                                    <div>
-                                        {[...Array(item.rating)].map((_, i) => (
-                                            <StarFilled key={i} style={{ color: '#fadb14' }} />
-                                        ))}
-                                    </div>
-                                </List.Item>
-                            )}
-                        />
+                        {/* ) : (
+                            <Text>Không có dữ liệu.</Text>
+                        )} */}
                     </Card>
                 </Col>
             </Row>

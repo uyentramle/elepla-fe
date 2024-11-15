@@ -1,42 +1,39 @@
 import React, { ChangeEvent, useEffect } from "react";
-import { Button, Form, Input, Typography } from "antd";
+import { Button, Form, Input, message, Typography } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
 
-import service_packages_data, { IServicePackage } from "@/data/manager/ServicePackageData";
+import { fetchServicePackage, IServicePackageForm, createServicePackage, updateServicePackage } from "@/data/manager/ServicePackageData";
 
 const { Title } = Typography;
 
 const ServicePackageFormPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [form] = Form.useForm();
-    const [formData, setFormData] = React.useState<IServicePackage>({
+    const [formData, setFormData] = React.useState<IServicePackageForm>({
         packageId: "",
         packageName: "",
         description: "",
         price: 0,
         discount: 0,
-        duration: 0,
-        maxPlanbook: 0,
-
-        createdAt: new Date(),
-        createdBy: "",
-        updatedAt: null,
-        updatedBy: null,
-        deletedAt: null,
-        deletedBy: null,
-        isDelete: false,
+        startDate: "",
+        endDate: "",
+        maxLessonPlans: 0,
     });
     const navigate = useNavigate();
 
     // Fetch service package data if editing
     useEffect(() => {
         if (id) {
-            const servicePackage = service_packages_data.find((servicePackage) => servicePackage.packageId === id);
-            if (servicePackage) {
-                setFormData(servicePackage);
-                form.setFieldsValue(servicePackage);
-            }
+            fetchServicePackage(id).then((data) => {
+                if (data) {
+                    setFormData(data);
+                    form.setFieldsValue(data);
+                }
+            }).catch((error) => {
+                console.error("Error fetching service package:", error);
+                message.error("Lỗi lấy dữ liệu.");
+            });
         }
     }, [id, form]);
 
@@ -55,22 +52,30 @@ const ServicePackageFormPage: React.FC = () => {
         }));
     };
 
-    const handleSubmit = () => {
-        if (id) {
-            const updatedServicePackages = service_packages_data.map((servicePackage) =>
-                servicePackage.packageId === id
-                    ? { ...servicePackage, ...formData }
-                    : servicePackage
-            );
-
-            console.log("Updating service package:", updatedServicePackages);
-        } else {
-            const newServicePackage: IServicePackage = {
-                ...formData,
-            };
-            console.log("Adding new service package:", newServicePackage);
+    const handleSubmit = async () => {
+        try {
+            let success = false;
+            if (id) {
+                success = await updateServicePackage(formData);
+                if (success) {
+                    message.success("Cập nhật gói dịch vụ thành công");
+                } else {
+                    message.error("Lỗi khi cập nhật gói dịch vụ.");
+                }
+            } else {
+                success = await createServicePackage(formData);
+                if (success) {
+                    message.success("Thêm mới gói dịch vụ thành công");
+                } else {
+                    message.error("Lỗi khi thêm gói dịch vụ.");
+                }
+            }
+            if (success)
+                navigate('/manager/service-packages');
+        } catch (error) {
+            console.error("Failed to submit service package form:", error);
+            message.error("Lỗi khi thêm gói dịch vụ.");
         }
-        navigate('/manager/service-packages');
     };
 
     return (
@@ -110,7 +115,7 @@ const ServicePackageFormPage: React.FC = () => {
                                 <ReactQuill
                                     value={formData.description}
                                     onChange={handleContentChange}
-                                    className="h-60 mb-4"
+                                    className="h-80 mb-4"
                                 />
                             </Form.Item>
                         </div>
@@ -148,13 +153,29 @@ const ServicePackageFormPage: React.FC = () => {
 
                             <div className="">
                                 <Form.Item
-                                    label="Thời hạn"
-                                    name="duration"
+                                    label="Bắt đầu"
+                                    name="startDate"
+                                    rules={[{ required: true, message: "Vui lòng chọn ngày bắt đầu!" }]}
                                 >
                                     <Input
-                                        id="duration"
-                                        name="duration"
-                                        value={formData.duration}
+                                        id="startDate"
+                                        name="startDate"
+                                        // type="date"
+                                        value={formData.startDate ? formData.startDate.split('T')[0] : ''}
+                                        onChange={handleChange}
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="Kết thúc"
+                                    name="endDate"
+                                    rules={[{ required: true, message: "Vui lòng chọn ngày kết thúc!" }]}
+                                >
+                                    <Input
+                                        id="endDate"
+                                        name="endDate"
+                                        // type="date"
+                                        value={formData.endDate ? formData.endDate.split('T')[0] : ''}
                                         onChange={handleChange}
                                     />
                                 </Form.Item>
@@ -162,13 +183,14 @@ const ServicePackageFormPage: React.FC = () => {
 
                             <div className="">
                                 <Form.Item
-                                    label="Số lượng tạo KHGD"
-                                    name="maxPlanbook"
+                                    label="Số lượng tạo Kế hoạch giảng dạy"
+                                    name="maxLessonPlans"
+                                    rules={[{ required: true, message: "Vui lòng nhập số lượng!" }]}
                                 >
                                     <Input
-                                        id="maxPlanbook"
-                                        name="maxPlanbook"
-                                        value={formData.maxPlanbook}
+                                        id="maxLessonPlans"
+                                        name="maxLessonPlans"
+                                        value={formData.maxLessonPlans}
                                         onChange={handleChange}
                                     />
                                 </Form.Item>

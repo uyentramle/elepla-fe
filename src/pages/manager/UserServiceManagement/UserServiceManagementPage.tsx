@@ -1,25 +1,67 @@
-import React, { useState } from "react";
-import { SearchOutlined, } from '@ant-design/icons';
-import { Input, Table, Select, Typography } from 'antd';
+import React, { useEffect, useState } from "react";
+import {
+    SearchOutlined,
+    // CaretRightOutlined, 
+} from '@ant-design/icons';
+import { Input, Table, Select, Typography, Row, Col, Card, Statistic, Spin } from 'antd';
+// import { Link } from "react-router-dom";
+import dayjs from 'dayjs';
 
-import user_services_data from "@/data/manager/UserPackageData";
+import { fetchUserPackageList, IViewListUserPackage } from "@/data/manager/UserPackageData";
+import { fetchListPayment, IViewListPayment } from "@/data/manager/UserPaymentData";
+import { fetchServicePackages, IViewListServicePackage } from '@/data/manager/ServicePackageData';
 
 const { Option } = Select;
 const { Title } = Typography;
 
 const UserServiceManagementPage: React.FC = () => {
-    const [userServices] = useState(user_services_data);
+    const [userServices, setUserServices] = useState<IViewListUserPackage[]>([]);
+    const [userPayments, setUserPayments] = useState<IViewListPayment[]>([]);
+    const [servicePackages, setServicePackages] = useState<IViewListServicePackage[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<'Active' | 'Inactive' | 'All'>('All');
+    const [filterPackage, setFilterPackage] = useState('All');
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const fetchedUserServices = await fetchUserPackageList();
+                const fetchedUserPayments = await fetchListPayment();
+                const packages = await fetchServicePackages();
+
+                if (Array.isArray(fetchedUserServices)) {
+                    setUserServices(fetchedUserServices);
+                }
+
+                if (fetchedUserPayments) {
+                    setUserPayments(fetchedUserPayments);
+                }
+
+                if (packages) {
+                    setServicePackages(packages);
+                }
+            } catch (error) {
+                console.error("Failed to fetch data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
     const filteredUserServices = userServices.filter((c) => {
-        const matchesSearch = `${c.username}`.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = `${c.fullName}`.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus =
             filterStatus === 'All' ||
             (filterStatus === 'Active' && c.isActivated) ||
             (filterStatus === 'Inactive' && !c.isActivated);
 
-        return matchesSearch && matchesStatus;
+        const matchesPackage =
+            filterPackage === 'All' ||
+            servicePackages.some(pkg => filterPackage === pkg.packageName && c.packageName === pkg.packageName);
+
+        return matchesSearch && matchesStatus && matchesPackage;
     });
 
     const columns = [
@@ -30,8 +72,9 @@ const UserServiceManagementPage: React.FC = () => {
         },
         {
             title: 'Tên khách hàng',
-            dataIndex: 'username',
-            key: 'username',
+            dataIndex: 'fullName',
+            key: 'fullName',
+            render: (text: string) => <span className="font-semibold">{text}</span>,
         },
         {
             title: 'Tên gói',
@@ -42,27 +85,81 @@ const UserServiceManagementPage: React.FC = () => {
             title: 'Ngày bắt đầu',
             dataIndex: 'startDate',
             key: 'startDate',
+            render: (startDate: string) => (
+                <span>{dayjs(startDate).format('DD/MM/YYYY')}</span>
+            ),
         },
         {
             title: 'Ngày kết thúc',
             dataIndex: 'endDate',
             key: 'endDate',
+            render: (endDate: string) => (
+                <span>{dayjs(endDate).format('DD/MM/YYYY')}</span>
+            ),
         },
         {
             title: 'Trạng thái',
             dataIndex: 'isActivated',
             key: 'isActivated',
-            render: (isActivated: boolean) => (
-                <span style={{ color: isActivated ? 'green' : 'red' }}>
-                    {isActivated ? 'Đang sử dụng' : 'Đã hủy'}
+            render: (isActivated: boolean, _record: any) => (
+                <span style={{ color: isActivated ? 'green' : dayjs().isAfter(dayjs(_record.endDate)) ? 'gray' : 'red' }}>
+                    {isActivated ? 'Đang sử dụng' : dayjs().isAfter(dayjs(_record.endDate)) ? 'Hết hạn' : 'Đã hủy'}
                 </span>
             ),
         },
     ];
 
+    if (loading) {
+        return <Spin size="large" className="flex justify-center mt-20" />;
+    }
+
     return (
         <>
             <Title level={2} className="my-4">Tất cả dịch vụ khách hàng mua</Title>
+
+            <Row gutter={[16, 16]} className="mb-6 pt-2">
+                <Col span={8}>
+                    <Card className="shadow-md bg-green-100">
+                        <Statistic
+                            title="Dịch vụ khách hàng đang sử dụng"
+                            value={userServices.filter(service => service.isActivated).length} />
+                        <div className="mt-2 flex items-center justify-between">
+                            {/* <Link to={"#userlist"} ><CaretRightOutlined /> Xem chi tiết</Link> */}
+                        </div>
+                    </Card>
+                </Col>
+                <Col span={8}>
+                    <Card className="shadow-md bg-purple-100">
+                        <Statistic
+                            title="Người dùng mua gói trong tháng"
+                            value={
+                                userPayments.filter(payment =>
+                                    dayjs(payment.paymentDate)
+                                        .isSame(dayjs(), 'month')).length
+                            } />
+                        <div className="mt-2 flex items-center justify-between">
+                            {/* <span className="text-green-500">Tăng 1.3% so với tuần trước</span> */}
+                            {/* <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link> */}
+                        </div>
+                    </Card>
+                </Col>
+                <Col span={8}>
+                    <Card className="shadow-md bg-red-100">
+                        <Statistic
+                            title="Gói sắp hết hạn trong tháng"
+                            value={
+                                userServices.filter(service =>
+                                    dayjs(service.endDate).isSame(dayjs(), 'month')
+                                    && service.isActivated).length
+                            } />
+                        <div className="mt-2 flex items-center justify-between">
+                            {/* <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link> */}
+                        </div>
+                    </Card>
+                </Col>
+            </Row>
+
+            <Title level={4} id="userlist" className="pt-4">Dịch vụ khách hàng sử dụng</Title>
             <div className="my-4 flex justify-between">
                 <div className="flex">
                     <div className="relative mr-4">
@@ -74,14 +171,31 @@ const UserServiceManagementPage: React.FC = () => {
                             suffix={<SearchOutlined />}
                         />
                     </div>
-                    <div>
+
+                    <div className="mr-4">
+                        <Select
+                            id="package-filter"
+                            className="w-48"
+                            value={filterPackage}
+                            onChange={(value) => setFilterPackage(value)}
+                        >
+                            <Option value="All">Tất cả các gói</Option>
+                            {servicePackages.map(pkg => (
+                                <Option key={pkg.packageId} value={pkg.packageName}>
+                                    {pkg.packageName}
+                                </Option>
+                            ))}
+                        </Select>
+                    </div>
+
+                    <div className="mr-4">
                         <Select
                             id="status-filter"
                             className="w-48"
                             value={filterStatus}
                             onChange={(value) => setFilterStatus(value as 'Active' | 'Inactive' | 'All')}
                         >
-                            <Option value="All">Tất cả</Option>
+                            <Option value="All">Tất cả trạng thái</Option>
                             <Option value="Active">Đang sử dụng</Option>
                             <Option value="Inactive">Đã hủy</Option>
                         </Select>
@@ -90,7 +204,12 @@ const UserServiceManagementPage: React.FC = () => {
             </div>
 
             <div className="overflow-x-auto">
-                <Table columns={columns} dataSource={filteredUserServices} rowKey="id" />
+                <Table
+                    columns={columns}
+                    dataSource={filteredUserServices}
+                    rowKey={(record) => record.userId}
+                    pagination={{ pageSize: 10 }}
+                />
             </div>
         </>
     );

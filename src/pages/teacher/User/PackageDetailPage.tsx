@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Card } from 'antd';
 import { CheckCircleOutlined, CrownOutlined, RocketOutlined } from '@ant-design/icons';
 
-const PackageDetialPage: React.FC = () => {
+const PackageDetailPage: React.FC = () => {
 
   return (
     <div className="container mx-auto py-12 px-4">
@@ -64,4 +64,4 @@ const PackageDetialPage: React.FC = () => {
   );
 };
 
-export default PackageDetialPage;
+export default PackageDetailPage;

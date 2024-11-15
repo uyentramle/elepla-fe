@@ -1,3 +1,189 @@
+import apiClient from '@/data/apiClient';
+// import apiclient from 'apiclient';
+const defaultThumb = 'https://media.istockphoto.com/id/922745190/photo/blogging-blog-concepts-ideas-with-worktable.jpg?s=612x612&w=0&k=20&c=xR2vOmtg-N6Lo6_I269SoM5PXEVRxlgvKxXUBMeMC_A=';
+
+export interface IViewListArticle {
+    id: string;
+    url: string;
+    title: string;
+    excerpt: string;
+    status: string;
+    thumb: string;
+
+    created_at: string;
+    created_by: string;
+    updated_at: string | undefined;
+    updated_by: string | undefined;
+    deleted_at: string | undefined;
+    deleted_by: string | undefined;
+    isDelete: boolean;
+}
+
+export const getViewListArticle = async (): Promise<IViewListArticle[]> => {
+    try {
+        const response = await apiClient.get('/Article/GetAllArticle', {
+            params: {
+                pageIndex: 0,
+                pageSize: 10,
+            },
+            headers: {
+                'accept': '*/*',
+            },
+        });
+
+        const articles = response.data.data.items.map((article: any) => ({
+            id: article.articleId,
+            url: article.url,
+            title: article.title,
+            excerpt: article.excerpt,
+            status: article.status,
+            thumb: article.thumb || defaultThumb,
+            created_at: article.createdAt,
+            created_by: article.createdBy || '',
+            updated_at: article.updatedAt || undefined,
+            updated_by: article.updatedBy || undefined,
+            deleted_at: article.deletedAt || undefined,
+            deleted_by: article.deletedBy || undefined,
+            isDelete: article.isDelete,
+        }));
+
+        return articles;
+    } catch (error) {
+        console.error('Error fetching articles:', error);
+        return [];
+    }
+};
+
+export interface IViewDetailArticle {
+    id: string;
+    slug: string;
+    title: string;
+    content: string;
+    status: string;
+    thumb: string;
+
+    categories: string[] | undefined;
+
+    created_at: string;
+    created_by: string;
+    updated_at: string | undefined;
+    updated_by: string | undefined;
+    deleted_at: string | undefined;
+    deleted_by: string | undefined;
+    isDelete: boolean;
+}
+
+export const getArticleById = async (articleId: string): Promise<IViewDetailArticle | null> => {
+    try {
+        const response = await apiClient.get(`/Article/GetArticleById?id=${articleId}`, {
+            headers: {
+                'accept': '*/*',
+            },
+        });
+
+        const article = {
+            id: response.data.data.articleId,
+            slug: response.data.data.url,
+            title: response.data.data.title,
+            content: response.data.data.content,
+            status: response.data.data.status,
+            thumb: response.data.data.thumb || defaultThumb,
+            categories: response.data.data.categories || [],
+            created_at: response.data.data.createdAt,
+            created_by: response.data.data.createdBy || '',
+            updated_at: response.data.data.updatedAt || undefined,
+            updated_by: response.data.data.updatedBy || undefined,
+            deleted_at: response.data.data.deletedAt || undefined,
+            deleted_by: response.data.data.deletedBy || undefined,
+            isDelete: response.data.data.isDelete,
+        };
+
+        return article;
+    } catch (error) {
+        console.error('Error fetching article:', error);
+        return null;
+    }
+};
+
+export interface ICreateArticle {
+    title: string;
+    slug: string | null;
+    content: string | null;
+    status: string;
+    thumb: string | null;
+    categories: string[] | null;
+}
+
+export const createArticle = async (article: ICreateArticle): Promise<boolean> => {
+    try {
+        const response = await apiClient.post('/Article/CreateArticle', {
+            title: article.title,
+            slug: article.slug,
+            content: article.content,
+            status: article.status,
+            thumb: article.thumb,
+            categories: article.categories,
+        }, {
+            headers: {
+                'accept': '*/*',
+            },
+        });
+
+        return response.status === 200;
+    } catch (error) {
+        console.error('Error creating article:', error);
+        return false;
+    }
+};
+
+export interface IUpdateArticle {
+    id: string;
+    title: string;
+    slug: string | null;
+    content: string | null;
+    status: string;
+    thumb: string | null;
+    categories: string[] | null;
+}
+
+export const updateArticle = async (article: IUpdateArticle): Promise<boolean> => {
+    try {
+        const response = await apiClient.put('/Article/UpdateArticle', {
+            id: article.id,
+            title: article.title,
+            slug: article.slug,
+            content: article.content,
+            status: article.status,
+            thumb: article.thumb,
+            categories: article.categories,
+        }, {
+            headers: {
+                'accept': '*/*',
+            },
+        });
+
+        return response.status === 200;
+    } catch (error) {
+        console.error('Error updating article:', error);
+        return false;
+    }
+};
+
+export const deleteArticle = async (articleId: string): Promise<boolean> => {
+    try {
+        const response = await apiClient.delete(`/Article/DeleteArticle?id=${articleId}`, {
+            headers: {
+                'accept': '*/*',
+            },
+        });
+        return response.status === 200;
+    } catch (error) {
+        console.error('Error deleting article:', error);
+        return false;
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 import blog2Thumb_1 from "/assets/img/blog/4.png";
 import blog2Thumb_2 from "/assets/img/blog/5.png";
 import blog2Thumb_3 from "/assets/img/blog/6.png";
@@ -18,14 +204,41 @@ export interface IArticle {
     deletedAt: Date | null;
     deletedBy: string | null;
     isDelete: boolean;
+    categoryId: string;
 }
 
 const article_data: IArticle[] = [
     {
         id: "1",
-        title: "Flock by when MTV ax quiz prog quiz graced",
+        title: "Hầu Hết Mọi Người Đều Mắc Phải Những Sai Lầm Sau Khi Thiết Kế Bài Giảng Trực Tuyến",
         url: "inner-blog-2",
-        content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
+        content: `Nội dung bài giảng là một trong những yếu tố then chốt quyết định tới sự thành công của bài học. Để tạo được một bài giảng e-learning không hề khó nhưng để có thể khiến nó trở nên thu hút thì không phải chuyện đơn giản. Hầu hết các giáo viên khi mới tập làm quen thiết kế bài giảng e-learning đều vấp phải những sai lầm sau.
+
+1. Nội dung bài giảng không thống nhất
+Sai lầm đầu tiên mà rất nhiều người mắc phải đó là thiết kế các bài giảng e-learning không thống nhất, nội dung không có tính liên kết giữa các phần dẫn đến tình trạng học viên không hiểu bài, khó tiếp thu và khó theo được bài giảng.
+
+Để tránh được tình trạng rời rạc trong nội dung bài học, thầy cô cần xâu chuỗi, đảm bảo các phần trong bài học có tính liên kết, tạo nên một tổng thể hoàn chỉnh. Cố gắng hạn chế không truyền đạt quá nhiều thông tin bên lề, không quan trọng hoặc không liên quan tới nội dung bài giảng.
+
+2. Quá nhiều chữ (text) trong một bài giảng
+Sai lầm thứ hai trong thiết kế bài giảng trực tuyến mà rất nhiều người mắc phải đó là vẫn “bê nguyên” cách học truyền thống thông thường: cố gắng cho học sinh viết nhiều chữ nhất có thể. Nội dung bài giảng e-learning là sự kết hợp giữa các slide với những hình ảnh, âm thanh, text khác nhau.
+
+Bạn chỉ nên điền một lượng text vừa phải, ghi lại những thông tin trọng tâm và quan trọng nhất của bài giảng rồi dùng hình ảnh, âm thanh...để phụ trợ cho bài học. Điều này không chỉ giúp cho học viên ghi nhớ bài giảng nhanh hơn, mà còn tạo nên sự sôi nổi trong lớp học, hữu ích hơn nhiều so với việc soạn thảo bài giảng với các đoạn text dài nhàm chán.
+
+3. Bài giảng thiếu tính năng tương tác
+Khi soạn bài giảng e-learning rất nhiều thầy cô chỉ mải chú trọng tới câu chữ, hình ảnh trong bài giảng mà quên việc tạo nên những câu hỏi quiz và các hình thức tương tác trực tuyến khác trong lớp học. Dù kiến thức trong bài giảng có hay tới mấy nếu như bạn chỉ chăm chăm nói một chiều thì cũng khó có thể biết được học viên có thực sự hiểu bài và hứng thú với bài giảng đó hay không.
+
+Do vậy, để tạo nên được một bài giảng trực tuyến hấp dẫn cần phải có tính tương tác hai chiều giữa người dạy học, và ngược lại. Khi thiết kế bài giảng, thầy cô nên có thêm mọt số phần tương tác như: gọi học viên lên bảng làm bài tập, tạo câu hỏi trắc nghiệm,...
+
+4. Bài giảng dài dòng, khó hiểu
+Thêm một lỗi nữa khi soạn giảng e-learning mà nhiều thầy cô mắc phải đó là bài giảng quá dài dòng, khó hiểu. Để hạn chế được điều này thầy cô chỉ nên đưa ra những thông tin trọng tâm trong bài giảng để học viên có thể dễ dàng ghi nhớ.
+
+Ngoài ra, câu cú nên mạch lạc, tránh sai lỗi chính tả, sử dụng từ ngữ địa phương, từ tối nghĩa (trừ trường hợp bắt buộc phải sử dụng từ ngữ chuyên ngành) để học viên có thể dễ dàng nắm bắt.
+
+Và điều quan trọng nhất, các thầy cô nên sử dụng những phần mềm dạy học trực tuyến tích hợp cả chức năng dạy học và soạn giảng đi kèm, để có thể hỗ trợ công việc soạn giảng tốt nhất.
+
+Tìm hiểu thông tin về phần mềm dạy học trực tuyến e-learning: TẠI ĐÂY
+
+Trên đây là một số lỗi sai cơ bản khi thiết kế bài giảng e-learning. Hy vọng bài viết vừa rồi đã cung cấp cho bạn thêm những thông tin hữu ích. Nếu như bạn vẫn còn băn khoăn thắc mắc nào liên quan đến dạy học trực tuyến thì đừng ngần ngại nhấc máy lên gọi cho chúng tôi đễ được hỗ trợ tốt nhất nhé!`,
         status: "Public",
         thumb: blog2Thumb_1,
         createdAt: new Date("2020-01-28"),
@@ -35,6 +248,7 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "1",
     },
     {
         id: "2",
@@ -50,6 +264,8 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "1",
+
     },
     {
         id: "3",
@@ -65,6 +281,8 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "1",
+
     },
     {
         id: "4",
@@ -80,6 +298,7 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "1",
     },
     {
         id: "5",
@@ -95,6 +314,8 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "1",
+
     },
     {
         id: "6",
@@ -110,6 +331,8 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "1",
+
     },
     {
         id: "7",
@@ -125,6 +348,8 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "1",
+
     },
     {
         id: "8",
@@ -140,10 +365,12 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "2",
+
     },
     {
         id: "9",
-        title: "When MTV ax quiz prog Flock by graced",
+        title: "When MTV ax quiz prog Flock by graced 2",
         url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
@@ -155,6 +382,8 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "2",
+
     },
     {
         id: "10",
@@ -170,6 +399,8 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "2",
+
     },
     {
         id: "11",
@@ -185,10 +416,12 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "2",
+
     },
     {
         id: "12",
-        title: "When MTV ax quiz prog Flock by graced",
+        title: "When MTV ax quiz prog Flock by graced 2 ",
         url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
@@ -200,10 +433,12 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "2",
+
     },
     {
         id: "13",
-        title: "Flock by when MTV ax quiz prog quiz graced",
+        title: "Flock by when MTV ax quiz prog quiz graced 2",
         url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
@@ -215,6 +450,8 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "2",
+
     },
     {
         id: "14",
@@ -230,10 +467,11 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "3",
     },
     {
         id: "15",
-        title: "When MTV ax quiz prog Flock by graced",
+        title: "When MTV ax quiz prog Flock by graced 3",
         url: "inner-blog-2",
         content: "Lorem ipsum dolor sit amet sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
         status: "Public",
@@ -245,6 +483,8 @@ const article_data: IArticle[] = [
         deletedAt: null,
         deletedBy: null,
         isDelete: false,
+        categoryId: "3",
+
     },
 ];
 

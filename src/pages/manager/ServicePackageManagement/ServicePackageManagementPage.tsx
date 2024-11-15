@@ -1,24 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Button, Input, Table, Modal, message, Typography } from 'antd';
 import { Link } from "react-router-dom";
 
-import service_packages_data, { IServicePackage } from "@/data/manager/ServicePackageData";
+import { IViewListServicePackage, fetchServicePackages, deleteServicePackage } from "@/data/manager/ServicePackageData";
 
 const { Title } = Typography;
 
 const ServicePackageManagementPage: React.FC = () => {
-    const [servicePackages, setServicePackages] = useState(service_packages_data);
+    const [servicePackages, setServicePackages] = useState<IViewListServicePackage[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-    const [servicePackageToDelete, setServicePackageToDelete] = useState<IServicePackage | null>(null);
+    const [servicePackageToDelete, setServicePackageToDelete] = useState<IViewListServicePackage | null>(null);
+
+    useEffect(() => {
+        const fetchPackages = async () => {
+            try {
+                const data = await fetchServicePackages();
+                setServicePackages(data);
+            } catch (error) {
+                message.error('Không thể tải danh sách gói dịch vụ');
+                console.error('Lỗi khi tải danh sách gói dịch vụ:', error);
+            }
+        };
+
+        fetchPackages();
+    }, []);
 
     const filteredServicePackages = servicePackages.filter((c) => {
         const matchesSearch = `${c.packageName}`.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesSearch;
     });
 
-    const handleDeleteModal = (servicePackage: IServicePackage) => {
+    const handleDeleteModal = (servicePackage: IViewListServicePackage) => {
         setServicePackageToDelete(servicePackage);
         setDeleteModalVisible(true);
     };
@@ -29,8 +43,8 @@ const ServicePackageManagementPage: React.FC = () => {
             setDeleteModalVisible(false);
 
             // Simulating API response success
-            const response = { data: { success: true } };
-            if (response.data.success) {
+            const isDeleted = await deleteServicePackage(servicePackageToDelete.packageId);
+            if (isDeleted) {
                 message.success('Đã xóa gói dịch vụ thành công');
                 const updatedPackages = servicePackages.filter((servicePackage) => servicePackage.packageId !== servicePackageToDelete.packageId);
                 setServicePackages(updatedPackages);
@@ -52,13 +66,14 @@ const ServicePackageManagementPage: React.FC = () => {
         {
             title: 'No.',
             dataIndex: '1',
+            key: 'packageId',
             render: (_text: any, _record: any, index: number) => index + 1,
         },
         {
             title: 'Tên gói',
             dataIndex: 'packageName',
             key: 'packageName',
-            render: (text: string, _record: IServicePackage) => (
+            render: (text: string, _record: IViewListServicePackage) => (
                 <Link to={`/manager/service-packages/edit/${_record.packageId}`}>
                     <span className="font-semibold">{text}</span>
                 </Link>
@@ -74,18 +89,30 @@ const ServicePackageManagementPage: React.FC = () => {
             title: 'Giảm giá',
             dataIndex: 'discount',
             key: 'discount',
-            render: (text: number) => <span className="font-">{text.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>,
+            render: (text: number) => <span>{text} %</span>,
         },
         {
-            title: 'Thời hạn (ngày)',
-            dataIndex: 'duration',
-            key: 'duration',
+            title: 'Số lượng KHBD',
+            dataIndex: 'maxLessonPlans',
+            key: 'maxLessonPlans',
             render: (text: number) => <span className="">{text}</span>,
+        },
+        {
+            title: 'Bắt đầu',
+            dataIndex: 'startDate',
+            key: 'startDate',
+            render: (text: number) => <span className="">{new Date(text).toLocaleDateString('vi-VN')}</span>,
+        },
+        {
+            title: 'Kết thúc',
+            dataIndex: 'endDate',
+            key: 'endDate',
+            render: (text: number) => <span className="">{new Date(text).toLocaleDateString('vi-VN')}</span>,
         },
         {
             title: 'Cập nhật',
             key: 'update',
-            render: (_text: any, _record: IServicePackage) => (
+            render: (_text: any, _record: IViewListServicePackage) => (
                 <Link to={`/manager/service-packages/edit/${_record.packageId}`}>
                     <Button type="primary" icon={<EditOutlined />} className="bg-blue-500">
                         Cập nhật
@@ -96,7 +123,7 @@ const ServicePackageManagementPage: React.FC = () => {
         {
             title: 'Xóa',
             key: 'delete',
-            render: (_text: any, record: IServicePackage) => (
+            render: (_text: any, record: IViewListServicePackage) => (
                 <Button
                     type="primary"
                     danger

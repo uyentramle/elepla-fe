@@ -2,15 +2,11 @@ import React, { useState, useEffect } from 'react';
 import SidebarMenu from './SidebarMenu';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Input, message } from 'antd';
-import {
-    UserOutlined,
-    MailOutlined,
-    PhoneOutlined,
-    KeyOutlined,
-    TwitterOutlined,
-    GoogleOutlined,
-    // FacebookFilled,
-} from '@ant-design/icons';
+import { UserOutlined, MailOutlined, PhoneOutlined, KeyOutlined, TwitterOutlined, GoogleOutlined } from '@ant-design/icons';
+import { obfuscateUsername, obfuscateEmail, obfuscatePhoneNumber } from '@/utils/ObfuscateInfo';
+import { translateErrorToVietnamese } from '@/utils/TranslateError';
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 interface LinkedAccountProps {
     username: string;
@@ -30,7 +26,7 @@ interface NewEmailDTO {
 interface VerifyEmailDTO {
     userId: string;
     newEmail: string;
-    code: string;
+    verificationCode: string;
 }
 
 interface LinkedPhoneProps {
@@ -38,61 +34,42 @@ interface LinkedPhoneProps {
     setPhoneNumber: (newPhoneNumber: string) => void; // Hàm để cập nhật số điện thoại mới, dòng này có thể bỏ do dùng để test
 }
 
-const obfuscateUsername = (username: string) => {
-    if (!username) return '';
-    return username[0] + '*'.repeat(username.length - 3) + username.slice(-2);
-};
-
-const obfuscateEmail = (email: string) => {
-    if (!email) return '';
-    const [name, domain] = email.split('@');
-    if (name.length <= 2) return email;
-    return name[0] + '*'.repeat(name.length - 3) + name.slice(-2) + '@' + domain;
-};
-
-const obfuscatePhoneNumber = (phoneNumber: string) => {
-    if (!phoneNumber) return '';
-    const countryCode = '+84'; // Giả sử mã quốc gia luôn là +84
-    const localNumber = phoneNumber.slice(1); // Bỏ mã quốc gia từ chuỗi số điện thoại
-    return `(${countryCode})${localNumber.slice(0, 3)}****${localNumber.slice(-2)}`;
-};
-
 const getUserIdFromToken = () => {
-    // const accessToken = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem('accessToken');
 
-    // if (!accessToken) {
-    //     throw new Error('Access token not found.');
-    // }
+    if (!accessToken) {
+        throw new Error('Access token not found.');
+    }
 
-    // const decodedToken: any = jwtDecode(accessToken);
-    // return decodedToken.userId;
+    const decodedToken: any = jwtDecode(accessToken);
+    return decodedToken.userId;
 };
 
 const getUserProfile = async (): Promise<any> => {
-    // const accessToken = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem('accessToken');
 
-    // if (!accessToken) {
-    //     throw new Error('Access token not found.');
-    // }
+    if (!accessToken) {
+        throw new Error('Access token not found.');
+    }
 
-    // try {
-    //     const decodedToken: any = jwtDecode(accessToken);
-    //     const userId = decodedToken.userId;
+    try {
+        const decodedToken: any = jwtDecode(accessToken);
+        const id = decodedToken.userId;
 
-    //     const response = await axios.get(`https://localhost:44329/api/Account/GetUserProfile?userId=${userId}`, {
-    //         headers: {
-    //             'accept': '*/*',
-    //             'authorization': `Bearer ${accessToken}`
-    //         }
-    //     });
+        const response = await axios.get(`https://elepla-be-production.up.railway.app/api/Account/GetUserProfile?userId=${id}`, {
+            headers: {
+                'accept': '*/*',
+                'authorization': `Bearer ${accessToken}`
+            }
+        });
 
-    //     const { id, phoneNumber, userName, email, googleEmail, facebookEmail } = response.data.data;
+        const { userId, phoneNumber, username, email, googleEmail, facebookEmail } = response.data.data;
 
-    //     return { id, phoneNumber, userName, email, googleEmail, facebookEmail };
-    // } catch (error) {
-    //     console.error('Error fetching user profile:', error);
-    //     throw new Error('Failed to fetch user profile.');
-    // }
+        return { userId, phoneNumber, username, email, googleEmail, facebookEmail };
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        throw new Error('Failed to fetch user profile.');
+    }
 };
 
 const AccountSettingsPage: React.FC = () => {
@@ -114,7 +91,7 @@ const AccountSettingsPage: React.FC = () => {
         const fetchData = async () => {
             try {
                 const userData = await getUserProfile();
-                setUsername(obfuscateUsername(userData.userName));
+                setUsername(obfuscateUsername(userData.username));
                 setEmail(obfuscateEmail(userData.email));
                 setPhoneNumber(obfuscatePhoneNumber(userData.phoneNumber));
                 setGoogleEmail(obfuscateEmail(userData.googleEmail));
@@ -129,7 +106,7 @@ const AccountSettingsPage: React.FC = () => {
     }, []);
 
     return (
-        <div className="container mx-auto p-4 pt-10">
+        <div className="container mx-auto w-4/5 p-4 pt-10">
             <div className="flex flex-col gap-10 lg:flex-row">
                 {' '}
                 <SidebarMenu onLogout={handleLogout} />
@@ -154,18 +131,12 @@ const AccountSettingsPage: React.FC = () => {
                                         <KeyOutlined style={{ fontSize: '20px' }} />
                                     </div>
                                     <div>
-                                        <div className="text-gray-700">Đổi Mật Khẩu</div>
+                                        <div className="text-gray-700">Đổi mật khẩu</div>
                                     </div>
                                 </div>
-                                {/* <a
-                                    href="/change-password"
-                                    className="rounded bg-gray-300 px-3 py-1 text-sm text-gray-700"
-                                >
-                                    Đổi
-                                </a> */}
                                 {username ? (
                                     <a
-                                        href="/change-password"
+                                        href="/teacher/change-password"
                                         className="rounded bg-gray-300 px-3 py-1 text-sm text-gray-700"
                                     >
                                         Đổi
@@ -255,64 +226,72 @@ const LinkedAccount: React.FC<LinkedAccountProps> = ({ username, setUsername }) 
     };
 
     const handleOk = async () => {
-        // if (password !== confirmPassword) {
-        //     message.error('Mật khẩu không khớp. Vui lòng thử lại.');
-        //     return;
-        // }
+        if (password !== confirmPassword) {
+            message.error('Mật khẩu không khớp. Vui lòng thử lại.');
+            return;
+        }
 
-        // try {
-        //     const accessToken = localStorage.getItem('accessToken');
-        //     if (!accessToken) {
-        //         throw new Error('Access token not found.');
-        //     }
+        try {
+            const accessToken = localStorage.getItem('accessToken');
+            if (!accessToken) {
+                throw new Error('Access token not found.');
+            }
 
-        //     const decodedToken: any = jwtDecode(accessToken);
-        //     const userId = decodedToken.userId;
+            const decodedToken: any = jwtDecode(accessToken);
+            const userId = decodedToken.userId;
 
-        //     const data = {
-        //         userId,
-        //         userName: newUsername,
-        //         password
-        //     };
+            const data = {
+                userId,
+                userName: newUsername,
+                password
+            };
 
-        //     const response = await axios.put('https://localhost:44329/api/Account/LinkAccountWithUserName', data, {
-        //         headers: {
-        //             'accept': '*/*',
-        //             'Content-Type': 'application/json',
-        //             'Authorization': `Bearer ${accessToken}`
-        //         }
-        //     });
+            const response = await axios.put('https://elepla-be-production.up.railway.app/api/Account/LinkAccountWithUserName', data, {
+                headers: {
+                    'accept': '*/*',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
 
-        //     if (response.data.success) {
-        //         message.success('Liên kết tài khoản thành công.');
-        //         setUsername(newUsername); // Update the username in the parent component
-        //         setIsModalVisible(false);
-        //         setNewUsername(''); // Clear the input field
-        //         setPassword(''); // Clear the input field
-        //         setConfirmPassword(''); // Clear the input field
-        //     } else {
-        //         // Handle general failure
-        //         message.error(response.data.message || 'Liên kết tài khoản thất bại.');
-        //     }
-        // } catch (error: any) {
-        //     if (error.response && error.response.status === 400) {
-        //         // Handle specific errors based on server response
-        //         switch (error.response.data.message) {
-        //             case 'Username is already taken.':
-        //                 message.error('Tên người dùng đã tồn tại. Vui lòng chọn tên khác.');
-        //                 break;
-        //             case 'Failed to reset password.':
-        //                 message.error('Mật khẩu phải có ít nhất 6 ký tự và bao gồm ít nhất một ký tự viết hoa và một ký tự đặc biệt.');
-        //                 break;
-        //             default:
-        //                 message.error(error.response.data.message || 'Liên kết tài khoản thất bại.');
-        //                 break;
-        //         }
-        //     } else {
-        //         // Handle other types of errors
-        //         message.error('Liên kết tài khoản thất bại.');
-        //     }
-        // }
+            if (response.data.success) {
+                message.success('Liên kết tài khoản thành công.');
+                setUsername(newUsername); // Update the username in the parent component
+                setIsModalVisible(false);
+                setNewUsername(''); // Clear the input field
+                setPassword(''); // Clear the input field
+                setConfirmPassword(''); // Clear the input field
+            } else {
+                // Handle general failure
+                message.error(response.data.message || 'Liên kết tài khoản thất bại.');
+            }
+        } catch (error: any) {
+            if (error.response && error.response.status === 400) {
+                // Handle specific errors based on server response
+                switch (error.response.data.message) {
+                    case 'Username must be between 6 and 20 characters long.':
+                        message.error('Tên người dùng phải từ 6 đến 20 ký tự.');
+                        break;
+                    case 'Username is already taken.':
+                        message.error('Tên người dùng đã tồn tại. Vui lòng chọn tên khác.');
+                        break;
+                    case 'Password is not in correct format.':
+                        if (error.response.data.errors && error.response.data.errors.length > 0) {
+                            error.response.data.errors.forEach((err: string) => {
+                                const errorMessage = translateErrorToVietnamese(err);
+                                message.error(errorMessage);
+                            });
+                        }
+                        break;
+                    default:
+                        message.error(error.response.data.message || 'Liên kết tài khoản thất bại.');
+                        break;
+                }
+            } else {
+                // Handle other types of errors
+                message.error('Liên kết tài khoản thất bại.');
+            }
+        }
     };
 
     const handleCancel = () => {
@@ -327,7 +306,7 @@ const LinkedAccount: React.FC<LinkedAccountProps> = ({ username, setUsername }) 
                         <UserOutlined style={{ fontSize: '20px' }} />
                     </div>
                     <div>
-                        <div className="text-gray-700">Tên Người Dùng</div>
+                        <div className="text-gray-700">Tên người dùng</div>
                         <div className="text-gray-500">{isLinked ? username : 'Chưa liên kết'}</div>
                     </div>
                 </div>
@@ -427,9 +406,6 @@ export const LinkedEmail: React.FC<LinkedEmailProps> = ({ email, setEmail }) => 
                 setEmailError('Địa chỉ email không hợp lệ.');
                 return;
             }
-            // Gửi yêu cầu xác thực email mới
-            // console.log('Gửi yêu cầu xác thực cho email:', newEmail);
-            // setEmailSent(true);
             try {
                 await sendVerificationCodeEmail(newEmail);
             } catch (error: any) {
@@ -438,18 +414,6 @@ export const LinkedEmail: React.FC<LinkedEmailProps> = ({ email, setEmail }) => 
         } else {
             // Xử lý khi người dùng nhập xong mã xác thực và ấn nút xác nhận
             const code = verificationCode.join('');
-            // if (code === '123456') {
-            //     console.log('Xác nhận mã xác thực thành công:', code);
-            //     setIsModalVisible(false);
-            //     // Thực hiện đổi email ở đây
-            //     // Ví dụ:
-            //     // setEmail(newEmail);
-            //     setEmail(newEmail);
-
-            //     message.success('Liên kết email thành công');
-            // } else {
-            //     message.error('Mã xác thực không đúng. Vui lòng thử lại.');
-            // }
             try {
                 await verifyNewEmail(newEmail, code);
                 message.success('Liên kết email thành công');
@@ -478,60 +442,61 @@ export const LinkedEmail: React.FC<LinkedEmailProps> = ({ email, setEmail }) => 
     };
 
     const sendVerificationCodeEmail = async (newEmail: string) => {
-        // try {
-        //     const accessToken = localStorage.getItem('accessToken');
-        //     const userId = getUserIdFromToken();
-        //     const data: NewEmailDTO = {
-        //         userId,
-        //         newEmail
-        //     };
+        try {
+            const accessToken = localStorage.getItem('accessToken');
+            const userId = getUserIdFromToken();
+            const data: NewEmailDTO = {
+                userId,
+                newEmail
+            };
 
-        //     const response = await axios.post('https://localhost:44329/api/Account/SendVerificationCodeEmail', data, {
-        //         headers: {
-        //             'accept': '*/*',
-        //             'Content-Type': 'application/json',
-        //             'Authorization': `Bearer ${accessToken}`
-        //         }
-        //     });
+            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Account/SendVerificationCodeEmail', data, {
+                headers: {
+                    'accept': '*/*',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
 
-        //     // Check the success field in the response
-        //     if (response.data.success) {
-        //         // If successful, show success message and update state
-        //         message.success('Mã xác thực đã được gửi đến email của bạn.');
-        //         setEmailSent(true);
-        //     }
-        //     // else {
-        //     //     // If not successful, show error message based on the message from API
-        //     //     message.error(response.data.message);
-        //     // }
-        // } catch (error: any) {
-        //     // Handle other errors, e.g., network error
-        //     if (error.response && error.response.status === 400 && error.response.data.message === 'Email is already in use.') {
-        //         message.error('Email đã được sử dụng. Vui lòng nhập một địa chỉ email khác.');
-        //     } else {
-        //         message.error('Gửi mã xác thực thất bại.');
-        //     }
-        // }
+            // Check the success field in the response
+            if (response.data.success) {
+                // If successful, show success message and update state
+                message.success('Mã xác thực đã được gửi đến email của bạn.');
+                setEmailSent(true);
+            }
+        } catch (error: any) {
+            // Handle other errors, e.g., network error
+            if (error.response && error.response.status === 400 && error.response.data.message === 'Email is already in use.') {
+                message.error('Email đã được sử dụng. Vui lòng nhập một địa chỉ email khác.');
+            } else {
+                message.error('Gửi mã xác thực thất bại.');
+            }
+        }
     };
 
-    const verifyNewEmail = async (newEmail: string, code: string) => {
-        // const accessToken = localStorage.getItem('accessToken');
+    const verifyNewEmail = async (newEmail: string, verificationCode: string) => {
+        const accessToken = localStorage.getItem('accessToken');
 
-        // const userId = getUserIdFromToken();
-        // const data: VerifyEmailDTO = {
-        //     userId,
-        //     newEmail,
-        //     code
-        // };
-        // await axios.post('https://localhost:44329/api/Account/VerifyNewEmail', data,
-        //     {
-        //         headers: {
-        //             'accept': '*/*',
-        //             'Content-Type': 'application/json',
-        //             'Authorization': `Bearer ${accessToken}`
-        //         }
-        //     }
-        // );
+        const userId = getUserIdFromToken();
+
+        console.log('userId', userId);
+        console.log('newEmail', newEmail);
+        console.log('verificationCode', verificationCode);
+
+        const data: VerifyEmailDTO = {
+            userId,
+            newEmail,
+            verificationCode
+        };
+        await axios.put('https://elepla-be-production.up.railway.app/api/Account/VerifyAndUpdateNewEmail', data,
+            {
+                headers: {
+                    'accept': '*/*',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            }
+        );
     };
 
     return (
@@ -618,13 +583,11 @@ export const LinkedPhone: React.FC<LinkedPhoneProps> = ({ phoneNumber, setPhoneN
     const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
     const [phoneNumberError, setPhoneNumberError] = useState('');
 
-
     const showModal = () => {
         setIsModalVisible(true);
         setPhoneNumberSent(false); // Reset state khi mở modal
         setVerificationCode(['', '', '', '', '', '']); // Reset state khi mở modal
         setPhoneNumberError(''); // Reset state khi mở modal
-
         setNewPhoneNumber('');
     };
 
@@ -634,9 +597,6 @@ export const LinkedPhone: React.FC<LinkedPhoneProps> = ({ phoneNumber, setPhoneN
                 setPhoneNumberError('Số điện thoại không hợp lệ.');
                 return;
             }
-            // Gửi yêu cầu xác thực sdt mới
-            // console.log('Gửi yêu cầu xác thực cho số điện thoại:', newPhoneNumber);
-            // setPhoneNumberSent(true);
             try {
                 await sendVerificationCode(newPhoneNumber);
                 message.success('Mã xác thực đã được gửi đến số điện thoại của bạn.');
@@ -645,20 +605,6 @@ export const LinkedPhone: React.FC<LinkedPhoneProps> = ({ phoneNumber, setPhoneN
                 message.error('Gửi mã xác thực thất bại.');
             }
         } else {
-            // Xử lý khi người dùng nhập xong mã xác thực và ấn nút xác nhận
-            // const code = verificationCode.join('');
-            // if (code === '123456') {
-            //     console.log('Xác nhận mã xác thực thành công:', code);
-            //     setIsModalVisible(false);
-            //     // Thực hiện đổi email ở đây
-            //     // Ví dụ:
-            //     // setEmail(newEmail);
-            //     setPhoneNumber(newPhoneNumber);
-
-            //     message.success('Liên kết số điện thoại thành công');
-            // } else {
-            //     message.error('Mã xác thực không đúng. Vui lòng thử lại.');
-            // }
             const code = verificationCode.join('');
             try {
                 await verifyNewPhoneNumber(newPhoneNumber, code);
@@ -689,46 +635,46 @@ export const LinkedPhone: React.FC<LinkedPhoneProps> = ({ phoneNumber, setPhoneN
     };
 
     const sendVerificationCode = async (newPhoneNumber: string) => {
-        // try {
-        //     const accessToken = localStorage.getItem('accessToken');
-        //     const userId = getUserIdFromToken();
-        //     const data = {
-        //         userId,
-        //         newPhoneNumber
-        //     };
+        try {
+            const accessToken = localStorage.getItem('accessToken');
+            const userId = getUserIdFromToken();
+            const data = {
+                userId,
+                newPhoneNumber
+            };
 
-        //     await axios.post('https://localhost:44329/api/Account/SendVerificationCode', data, {
-        //         headers: {
-        //             'accept': '*/*',
-        //             'Content-Type': 'application/json',
-        //             'Authorization': `Bearer ${accessToken}`
-        //         }
-        //     });
-        // } catch (error) {
-        //     throw new Error('Gửi mã xác thực thất bại.');
-        // }
+            await axios.post('https://elepla-be-production.up.railway.app/api/Account/SendVerificationCode', data, {
+                headers: {
+                    'accept': '*/*',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+        } catch (error) {
+            throw new Error('Gửi mã xác thực thất bại.');
+        }
     };
 
-    const verifyNewPhoneNumber = async (newPhoneNumber: string, code: string) => {
-        // try {
-        //     const accessToken = localStorage.getItem('accessToken');
-        //     const userId = getUserIdFromToken();
-        //     const data = {
-        //         newPhoneNumber,
-        //         code,
-        //         userId
-        //     };
+    const verifyNewPhoneNumber = async (newPhoneNumber: string, verificationCode: string) => {
+        try {
+            const accessToken = localStorage.getItem('accessToken');
+            const userId = getUserIdFromToken();
+            const data = {
+                userId,
+                newPhoneNumber,
+                verificationCode
+            };
 
-        //     await axios.post('https://localhost:44329/api/Account/VerifyNewPhoneNumber', data, {
-        //         headers: {
-        //             'accept': '*/*',
-        //             'Content-Type': 'application/json',
-        //             'Authorization': `Bearer ${accessToken}`
-        //         }
-        //     });
-        // } catch (error) {
-        //     throw new Error('Xác nhận số điện thoại thất bại.');
-        // }
+            await axios.put('https://elepla-be-production.up.railway.app/api/Account/VerifyAndUpdateNewPhoneNumber', data, {
+                headers: {
+                    'accept': '*/*',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+        } catch (error) {
+            throw new Error('Xác nhận số điện thoại thất bại.');
+        }
     };
 
     return (

@@ -16,22 +16,22 @@ const intro_data: DataType[] = [
         id: 1,
         page: "home_1",
         icon: icon_1,
-        title: "Postgraduate",
-        desc: "Lorem ipsum dolor"
+        title: "Công cụ số hóa siêu đơn giản",
+        desc: "Chỉnh sửa nhanh chóng các mẫu giáo án có sẵn từ thư viện giáo án"
     },
     {
         id: 2,
         page: "home_1",
         icon: icon_2,
-        title: "Engineering",
-        desc: "Lorem ipsum dolor"
+        title: "Quản lý thời khóa biểu hàng tuần",
+        desc: "Giáo viên chuẩn bị các giáo án của lớp học theo lịch dạy của mình trong tuần"
     },
     {
         id: 3,
         page: "home_1",
         icon: icon_3,
-        title: "Accounting",
-        desc: "Lorem ipsum dolor"
+        title: "kênh thông tin văn bản công văn",
+        desc: "Cập nhập các thông tin, văn bản công văn về lĩnh vực giáo dục"
     },
 ];
 

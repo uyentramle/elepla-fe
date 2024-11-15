@@ -1,4 +1,4 @@
-import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { HomeOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Dropdown, MenuProps, Modal, Spin } from 'antd';
 import { Header } from 'antd/es/layout/layout';
 import { Link } from 'react-router-dom';
@@ -19,6 +19,9 @@ export default function MyHeader() {
 
     return (
         <Header className="fixed z-50 flex w-full justify-between border-b border-gray-200 bg-white px-5">
+            <Link to={'/'}>
+                <HomeOutlined />  Trang chủ
+            </Link>
             <Dropdown menu={{ items }} placement="bottomRight" trigger={['click']} arrow>
                 <Avatar
                     className="fixed right-4 top-3 cursor-pointer"
