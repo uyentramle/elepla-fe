@@ -1,4 +1,5 @@
-import axios from 'axios';
+import apiClient from '@/data/apiClient';
+// import apiclient from 'apiclient';
 
 export interface IViewListChapter {
     id: string;
@@ -16,7 +17,7 @@ export interface IViewListChapter {
 
 export const fetchChapterList = async (): Promise<IViewListChapter[]> => {
     try {
-        const response = await axios.get('https://elepla-be-production.up.railway.app/api/Chapter/GetAllChapter?pageIndex=0&pageSize=50');
+        const response = await apiClient.get('/Chapter/GetAllChapter?pageIndex=0&pageSize=50');
         if (response.data.success) {
             return response.data.data.items.map((chapter: any) => ({
                 id: chapter.chapterId,
@@ -40,7 +41,7 @@ export const fetchChapterList = async (): Promise<IViewListChapter[]> => {
 
 export const fetchChaptersBySubjectInCurriculumId = async (subjectInCurriculumId: string): Promise<IViewListChapter[]> => {
     try {
-        const response = await axios.get(`https://elepla-be-production.up.railway.app/api/Chapter/GetAllChapterBySubjectInCurriculumId?subjectInCurriculumId=${subjectInCurriculumId}`);
+        const response = await apiClient.get(`/Chapter/GetAllChapterBySubjectInCurriculumId?subjectInCurriculumId=${subjectInCurriculumId}`);
         if (response.data.success) {
             return response.data.data.items.map((chapter: any) => ({
                 id: chapter.chapterId,
@@ -64,7 +65,7 @@ export const fetchChaptersBySubjectInCurriculumId = async (subjectInCurriculumId
 
 export const deleteChapter = async (chapterId: string): Promise<boolean> => {
     try {
-        const response = await axios.delete(`https://elepla-be-production.up.railway.app/api/Chapter/DeleteChapter?chapterId=${chapterId}`);
+        const response = await apiClient.delete(`/Chapter/DeleteChapter?chapterId=${chapterId}`);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error deleting chapter:', error);
@@ -80,7 +81,7 @@ export interface IChapterForm {
 
 export const createChapter = async (chapter: IChapterForm): Promise<boolean> => {
     try {
-        const response = await axios.post('https://elepla-be-production.up.railway.app/api/Chapter/CreateChapter', chapter);
+        const response = await apiClient.post('/Chapter/CreateChapter', chapter);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error creating chapter:', error);
@@ -90,7 +91,7 @@ export const createChapter = async (chapter: IChapterForm): Promise<boolean> => 
 
 export const updateChapter = async (chapter: IChapterForm): Promise<boolean> => {
     try {
-        const response = await axios.put('https://elepla-be-production.up.railway.app/api/Chapter/UpdateChapter', chapter);
+        const response = await apiClient.put('/Chapter/UpdateChapter', chapter);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error updating chapter:', error);

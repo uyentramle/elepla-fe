@@ -1,4 +1,5 @@
-import axios from 'axios';
+import apiClient from '@/data/apiClient';
+// import apiclient from 'apiclient';
 
 export interface IViewListCurriculum {
     curriculumId: string;
@@ -16,7 +17,7 @@ export interface IViewListCurriculum {
 
 export const fetchCurriculumList = async (): Promise<IViewListCurriculum[]> => {
     try {
-        const response = await axios.get('https://elepla-be-production.up.railway.app/api/CurriculumFramework/GetAllCurriculumFramework?pageIndex=0&pageSize=10');
+        const response = await apiClient.get('/CurriculumFramework/GetAllCurriculumFramework?pageIndex=0&pageSize=10');
         if (response.data.success) {
             return response.data.data.items.map((curriculum: any) => ({
                 curriculumId: curriculum.curriculumId,
@@ -40,7 +41,7 @@ export const fetchCurriculumList = async (): Promise<IViewListCurriculum[]> => {
 
 export const deleteCurriculum = async (curriculumId: string): Promise<boolean> => {
     try {
-        const response = await axios.delete(`https://elepla-be-production.up.railway.app/api/CurriculumFramework/DeleteCurriculumFramework?curriculumFrameworkId=${curriculumId}`);
+        const response = await apiClient.delete(`/CurriculumFramework/DeleteCurriculumFramework?curriculumFrameworkId=${curriculumId}`);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error deleting curriculum:', error);
@@ -56,7 +57,7 @@ export interface ICurriculumFrameworkForm {
 
 export const createCurriculum = async (curriculum: ICurriculumFrameworkForm): Promise<boolean> => {
     try {
-        const response = await axios.post('https://elepla-be-production.up.railway.app/api/CurriculumFramework/CreateCurriculumFramework', curriculum);
+        const response = await apiClient.post('/CurriculumFramework/CreateCurriculumFramework', curriculum);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error creating curriculum:', error);
@@ -66,7 +67,7 @@ export const createCurriculum = async (curriculum: ICurriculumFrameworkForm): Pr
 
 export const updateCurriculum = async (curriculum: ICurriculumFrameworkForm): Promise<boolean> => {
     try {
-        const response = await axios.put('https://elepla-be-production.up.railway.app/api/CurriculumFramework/UpdateCurriculumFramework', curriculum);
+        const response = await apiClient.put('/CurriculumFramework/UpdateCurriculumFramework', curriculum);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error updating curriculum:', error);
