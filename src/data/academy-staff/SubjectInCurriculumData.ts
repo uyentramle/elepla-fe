@@ -1,4 +1,5 @@
-import axios from 'axios';
+import apiClient from '@/data/apiClient';
+// import apiclient from 'apiclient';
 
 export interface IViewListSubjectInCurriculum {
     id: string;
@@ -20,7 +21,7 @@ export interface IViewListSubjectInCurriculum {
 
 export const fetchSubjectInCurriculumList = async (): Promise<IViewListSubjectInCurriculum[]> => {
     try {
-        const response = await axios.get('https://elepla-be-production.up.railway.app/api/SubjectInCurriculum/GetAllSubjectInCurriculum?pageIndex=0&pageSize=50');
+        const response = await apiClient.get('/SubjectInCurriculum/GetAllSubjectInCurriculum?pageIndex=0&pageSize=50');
         if (response.data.success) {
             return response.data.data.items.map((subject: any) => ({
                 id: subject.subjectId,
@@ -48,7 +49,7 @@ export const fetchSubjectInCurriculumList = async (): Promise<IViewListSubjectIn
 
 export const deleteSubjectInCurriculum = async (subjectId: string): Promise<boolean> => {
     try {
-        const response = await axios.delete(`https://elepla-be-production.up.railway.app/api/SubjectInCurriculum/DeleteSubjectInCurriculum?subjectInCurriculumId=${subjectId}`);
+        const response = await apiClient.delete(`/SubjectInCurriculum/DeleteSubjectInCurriculum?subjectInCurriculumId=${subjectId}`);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error deleting subject in curriculum:', error);
@@ -64,7 +65,7 @@ export interface ISubjectInCurriculumForm {
 
 export const createSubjectInCurriculum = async (subject: ISubjectInCurriculumForm): Promise<boolean> => {
     try {
-        const response = await axios.post('https://elepla-be-production.up.railway.app/api/SubjectInCurriculum/CreateSubjectInCurriculum', subject);
+        const response = await apiClient.post('/SubjectInCurriculum/CreateSubjectInCurriculum', subject);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error creating subject in curriculum:', error);
@@ -74,7 +75,7 @@ export const createSubjectInCurriculum = async (subject: ISubjectInCurriculumFor
 
 export const updateSubjectInCurriculum = async (subject: ISubjectInCurriculumForm): Promise<boolean> => {
     try {
-        const response = await axios.put('https://elepla-be-production.up.railway.app/api/SubjectInCurriculum/UpdateSubjectInCurriculum', subject);
+        const response = await apiClient.put('/SubjectInCurriculum/UpdateSubjectInCurriculum', subject);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error updating subject in curriculum:', error);
