@@ -1,3 +1,135 @@
+import apiClient from '@/data/apiClient';
+
+export interface IViewListPayment {
+    paymentId: string;
+    totalAmount: number;
+    status: string;
+    userId: string;
+    fullName: string; // cần API BE thêm filed này
+    packageId: string;
+    packageName: string;
+    // transactionCode: string; 
+    paymentDate: Date;
+}
+
+export const fetchListPayment = async (): Promise<IViewListPayment[]> => {
+    try {
+        const response = await apiClient.get('Payment/GetAllUserPaymentHistory/GetAllPayments', {
+            params: {
+                pageIndex: 0,
+                pageSize: 100,
+            },
+        });
+        const payment = response.data.data.items.map((item: any) => ({
+            paymentId: item.paymentId,
+            totalAmount: item.totalAmount,
+            status: item.status,
+            userId: item.teacherId,
+            fullName: item.fullName,
+            packageId: item.packageId,
+            packageName: item.packageName,
+            paymentDate: item.createdAt,
+        }));
+        return payment;
+    } catch (error) {
+        console.error('Failed to fetch list payment:', error);
+        return [];
+    }
+};
+
+export interface IViewDetailPayment {
+    paymentId: string;
+    totalAmount: number;
+    status: string;
+    userId: string;
+    fullName: string; // cần API BE thêm filed này
+    packageId: string;
+    packageName: string;
+    packageDescription: string;
+    paymentDate: Date;
+}
+
+export const fetchPaymentDetail = async (paymentId: string): Promise<IViewDetailPayment | null> => {
+    try {
+        const response = await apiClient.get(`Payment/GetPaymentDetails/${paymentId}`);
+        const item = response.data.data;
+        return {
+            paymentId: item.paymentId,
+            totalAmount: item.totalAmount,
+            status: item.status,
+            userId: item.teacherId,
+            fullName: item.fullName,
+            packageId: item.packageId,
+            packageName: item.packageName,
+            packageDescription: item.packageDescription,
+            paymentDate: item.createdAt,
+        };
+    } catch (error) {
+        console.error('Failed to fetch detail payment:', error);
+        return null;
+    }
+};
+
+export const fetchUserPaymentHistory = async (userId: string): Promise<IViewListPayment[]> => {
+    try {
+        const response = await apiClient.get(`Payment/GetUserPaymentHistory/history/${userId}`, {
+            params: {
+                pageIndex: 0,
+                pageSize: 20,
+            },
+        });
+        const payment = response.data.data.items.map((item: any) => ({
+            paymentId: item.paymentId,
+            totalAmount: item.totalAmount,
+            status: item.status,
+            userId: item.teacherId,
+            fullName: item.fullName,
+            packageId: item.packageId,
+            packageName: item.packageName,
+            paymentDate: item.createdAt,
+        }));
+        return payment;
+    } catch (error) {
+        console.error('Failed to fetch user payment history:', error);
+        return [];
+    }
+};
+
+export const fetchRevenueByMonth = async (year: number): Promise<any[]> => {
+    try {
+        const response = await apiClient.get(`Payment/GetRevenueByMonth/RevenueByMonth/${year}`);
+        const revenue = response.data.data;
+        return revenue;
+    } catch (error) {
+        console.error('Failed to fetch revenue by month:', error);
+        return [];
+    }
+};
+
+export const fetchRevenueByQuarter = async (year: number): Promise<any[]> => {
+    try {
+        const response = await apiClient.get(`Payment/GetRevenueByQuarter/RevenueByQuarter/${year}`);
+        const revenue = response.data.data;
+        return revenue;
+    } catch (error) {
+        console.error('Failed to fetch revenue by quarter:', error);
+        return [];
+    }
+};
+
+export const fetchRevenueByYear = async (): Promise<any[]> => {
+    try {
+        const response = await apiClient.get('Payment/GetRevenueByYear/RevenueByYear');
+        const revenue = response.data.data;
+        return revenue;
+    } catch (error) {
+        console.error('Failed to fetch revenue by year:', error);
+        return [];
+    }
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export interface IUserPayment {
     paymentId: string;
     userId: string;
