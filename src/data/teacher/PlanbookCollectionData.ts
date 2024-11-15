@@ -18,24 +18,7 @@ const collection_data: CollectionItem[] = [
         createDay: new Date("2024-01-04"),
         updateDay: new Date("2024-02-04")
     },
-    {
-        collectionId: "3",
-        name: "Giáo án môn hóa học",
-        createDay: new Date("2024-03-04"),
-        updateDay: new Date("2024-06-04")
-    },
-    {
-        collectionId: "4",
-        name: "Giáo án môn sinh học",
-        createDay: new Date("2024-10-04"),
-        updateDay: new Date("2024-12-04")
-    },
-    {
-        collectionId: "5",
-        name: "Giáo án môn lịch sử",
-        createDay: new Date("2024-01-04"),
-        updateDay: new Date("2024-02-04")
-    }
+
 ];
 
 export default collection_data;

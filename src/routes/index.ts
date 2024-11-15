@@ -56,8 +56,8 @@ import WeeklySchedulePage from '@/pages/teacher/Schedule/WeeklySchedulePage';
 import ListCollection from '@/pages/teacher/ListPlanbook/ListCollection';
 import PackageDetailPage from '@/pages/teacher/User/PackageDetailPage';
 import ListPlanbook from '@/pages/teacher/ListPlanbook/ListPlanbook';
-import PlanbookContent from '@/layouts/teacher/PlanbookContent/PlanbookContent';
-
+// import PlanbookContent from '@/layouts/teacher/PlanbookContent/PlanbookContent';
+import LessonPlanner from '@/layouts/teacher/Components/CreatePlanbook/CreateLesson'
 interface RouteProps {
     path: string;
     component: FC<{}>;
@@ -125,7 +125,8 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/schedule/weekly', component: WeeklySchedulePage, layout: DefaultTeacherLayout },
     { path: '/teacher/list-collection', component: ListCollection, layout: DefaultTeacherLayout },
     { path: '/teacher/list-collection/list-planbook/:id', component: ListPlanbook, layout: DefaultTeacherLayout },
-    { path: '/teacher/list-collection/planbook-content', component: PlanbookContent, layout: DefaultClientLayout },
+    // { path: '/teacher/list-collection/planbook-content', component: PlanbookContent, layout: DefaultClientLayout },
+    { path: '/teacher/LessonPlanner', component: LessonPlanner, layout: DefaultClientLayout },
 
 ];
 
