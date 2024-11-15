@@ -2,7 +2,8 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-    baseURL: "https://elepla-be-production.up.railway.app/api/",
+    // baseURL: "https://elepla-be-production.up.railway.app/api/",
+    baseURL: "https://localhost:44314/api/",
 });
 
 // Thêm interceptor để thêm `accessToken` vào tất cả các request
