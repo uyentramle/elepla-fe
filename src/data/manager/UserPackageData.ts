@@ -21,7 +21,7 @@ export interface IViewListUserPackage {
     isDelete: boolean;
 }
 
-export const fetchUserPackageList = async (): Promise<IViewListUserPackage | null> => {
+export const fetchUserPackageList = async (): Promise<IViewListUserPackage[]> => {
     try {
         const response = await apiClient.get(`UserPackage/GetAllUserPackages`, {
             params: {
@@ -52,7 +52,7 @@ export const fetchUserPackageList = async (): Promise<IViewListUserPackage | nul
         return userPackage;
     } catch (error) {
         console.error('Failed to fetch user package:', error);
-        return null;
+        return [];
     }
 };
 

@@ -6,6 +6,7 @@ export interface IViewListPayment {
     status: string;
     userId: string;
     fullName: string; // cần API BE thêm filed này
+    packageId: string;
     packageName: string;
     // transactionCode: string; 
     paymentDate: Date;
@@ -25,6 +26,7 @@ export const fetchListPayment = async (): Promise<IViewListPayment[]> => {
             status: item.status,
             userId: item.teacherId,
             fullName: item.fullName,
+            packageId: item.packageId,
             packageName: item.packageName,
             paymentDate: item.createdAt,
         }));
@@ -41,6 +43,7 @@ export interface IViewDetailPayment {
     status: string;
     userId: string;
     fullName: string; // cần API BE thêm filed này
+    packageId: string;
     packageName: string;
     packageDescription: string;
     paymentDate: Date;
@@ -56,6 +59,7 @@ export const fetchPaymentDetail = async (paymentId: string): Promise<IViewDetail
             status: item.status,
             userId: item.teacherId,
             fullName: item.fullName,
+            packageId: item.packageId,
             packageName: item.packageName,
             packageDescription: item.packageDescription,
             paymentDate: item.createdAt,
@@ -80,6 +84,7 @@ export const fetchUserPaymentHistory = async (userId: string): Promise<IViewList
             status: item.status,
             userId: item.teacherId,
             fullName: item.fullName,
+            packageId: item.packageId,
             packageName: item.packageName,
             paymentDate: item.createdAt,
         }));
