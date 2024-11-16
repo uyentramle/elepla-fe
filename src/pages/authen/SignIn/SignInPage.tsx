@@ -9,6 +9,7 @@ import {
 } from '@react-oauth/google';
 import CustomGoogleLoginButton from '../Button/GoogleLoginButton';
 import CustomFacebookLoginButton from "../Button/FacebookLoginButton";
+import { jwtDecode } from 'jwt-decode';
 
 interface ApiResponse {
     success: boolean;
@@ -17,9 +18,18 @@ interface ApiResponse {
     refreshToken: string | null;
 }
 
+// Định nghĩa kiểu dữ liệu cho JWT payload
+interface JwtPayload {
+    userId: string;  // Giả sử userID là một chuỗi
+    role: string;    // Giả sử role là một chuỗi
+    [key: string]: any; // Nếu có các thuộc tính khác, bạn có thể thêm chúng vào đây
+}
+
 const loginApi = async (username: string, password: string): Promise<ApiResponse> => {
+
     try {
-        const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/Login', {
+        const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/Login', {  //link deploy
+        //     const response = await axios.post('http://localhost/api/Auth/Login', {
             username,
             password
         }, {
@@ -30,7 +40,8 @@ const loginApi = async (username: string, password: string): Promise<ApiResponse
         });
 
         return response.data;
-    } catch (error) {
+    }
+    catch (error) {
         if (axios.isAxiosError(error)) {
             // Kiểm tra xem có phản hồi từ server không
             if (error.response) {
@@ -49,19 +60,51 @@ const loginApi = async (username: string, password: string): Promise<ApiResponse
 const SignInPage: React.FC = () => {
     const navigate = useNavigate();
 
+
     const onFinish = async (values: any) => {
         try {
             const response = await loginApi(values.username, values.password);
-
+        
             if (response.success) {
-                console.log('Login Success');
                 message.success('Đăng nhập thành công');
-
-                // Lưu trữ accessToken vào localStorage
+        
+                // Lưu trữ accessToken và refreshToken vào localStorage
                 if (response.accessToken && response.refreshToken) {
                     localStorage.setItem('accessToken', response.accessToken);
                     localStorage.setItem('refreshToken', response.refreshToken);
-                    navigate('/'); // Điều hướng đến trang chủ sau khi đăng nhập thành công
+        
+                    // Giải mã JWT token
+                    try {
+                        const decodedToken = jwtDecode<JwtPayload>(response.accessToken); // Sử dụng kiểu JwtPayload
+        
+                        const userId = decodedToken.userId; // Lấy userId từ JWT token
+                        const role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']; // Lấy role
+                        console.log('userID:', decodedToken.userId); // In ra userID
+    
+                        // Lưu userId vào localStorage
+                        localStorage.setItem('userId', userId); // Lưu userId vào localStorage
+    
+                        // Kiểm tra quyền truy cập dựa trên role
+                        if (role === 'Teacher') {
+                            // Điều hướng đến trang dành cho Teacher
+                            navigate('/teacher/list-collection');
+                        } else if (role === 'Admin') {
+                            // Điều hướng đến trang dành cho Admin
+                            navigate('/admin/');
+                        } else if (role === 'Manager') {
+                            // Điều hướng đến trang dành cho Manager
+                            navigate('/manager');
+                        } else if (role === 'AcademicStaff') {
+                            // Điều hướng đến trang dành cho AcademicStaff
+                            navigate('/academy-staff');
+                        } else {
+                            // Điều hướng đến trang mặc định nếu không có quyền phù hợp
+                            navigate('/');
+                        }
+        
+                    } catch (error) {
+                        console.error('Không thể giải mã token:', error);
+                    }
                 } else {
                     message.error('Không có accessToken trong phản hồi.');
                 }
@@ -83,11 +126,10 @@ const SignInPage: React.FC = () => {
                 }
             }
         } catch (error) {
-            // console.error('Login Error:', error);
             message.error('Đã xảy ra lỗi, vui lòng thử lại sau.');
         }
     };
-
+    
     const onFinishFailed = (errorInfo: any) => {
         console.log('Login Failed:', errorInfo);
     };
