@@ -2,17 +2,26 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Button, Input, Table, Select, Modal, message, Typography } from 'antd';
-import category_data, { ICategory } from "@/data/admin/CategoryData";
+import { fetchListCategory, deleteCategory, IViewListCategory } from "@/data/admin/CategoryData";
 
 const { Option } = Select;
 const { Title } = Typography;
 
 const CategoryManagementPage: React.FC = () => {
-    const [categories, setCategorys] = useState(category_data);
+    const [categories, setCategorys] = useState<IViewListCategory[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<'Active' | 'Inactive' | 'All'>('All');
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-    const [categoryToDelete, setCategoryToDelete] = useState<ICategory | null>(null);
+    const [categoryToDelete, setCategoryToDelete] = useState<IViewListCategory | null>(null);
+
+    const fetchCategories = async () => {
+        const categoriesData = await fetchListCategory();
+        setCategorys(categoriesData);
+    };
+
+    React.useEffect(() => {
+        fetchCategories();
+    }, []);
 
     const filteredCategorys = categories.filter((c) => {
         const matchesSearch = `${c.name}`.toLowerCase().includes(searchTerm.toLowerCase());
@@ -23,24 +32,48 @@ const CategoryManagementPage: React.FC = () => {
         return matchesSearch && matchesStatus;
     });
 
-    const handleDeleteModal = (category: ICategory) => {
+    const handleDeleteModal = (category: IViewListCategory) => {
         setCategoryToDelete(category);
         setDeleteModalVisible(true);
+    };
+
+    const handleDeleteCategory = async () => {
+    try {
+        if (!categoryToDelete) return;
+        setDeleteModalVisible(false);
+
+        const isDeleted = await deleteCategory(categoryToDelete.id);
+        if (isDeleted) {
+            message.success('Đã xóa danh mục bài viết thành công');
+            const updatedCategorys = categories.filter((category) => category.id !== categoryToDelete.id);
+            setCategorys(updatedCategorys);
+        } else {
+            message.error('Không xóa được danh mục bài viết');
+        }
+    } catch (error) {
+        console.error('Lỗi khi xóa danh mục bài viết:', error);
+        message.error('Không xóa được danh mục bài viết');
+    }
+};
+
+    const handleCancelDeleteModal = () => {
+        setDeleteModalVisible(false);
+        setCategoryToDelete(null);
     };
 
     const columns = [
         {
             title: 'No.',
             dataIndex: '1',
-            // key: 'id',
+            key: 'id',
             render: (_text: any, _record: any, index: number) => index + 1,
         },
-        {
-            title: 'Hình ảnh',
-            dataIndex: 'thumb',
-            key: 'thumb',
-            render: (text: string) => <img src={text} alt="category" className="w-16 h-auto" />,
-        },
+        // {
+        //     title: 'Hình ảnh',
+        //     dataIndex: 'thumb',
+        //     key: 'thumb',
+        //     render: (text: string) => <img src={text} alt="category" className="w-16 h-auto" />,
+        // },
         {
             title: 'Tiêu đề',
             dataIndex: 'name',
@@ -49,8 +82,8 @@ const CategoryManagementPage: React.FC = () => {
         },
         {
             title: 'Ngày tạo',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
+            dataIndex: 'created_at',
+            key: 'created_at',
             render: (text: Date) => <span className="font-semibold">{new Date(text).toLocaleDateString()}</span>,
         },
         {
@@ -62,7 +95,7 @@ const CategoryManagementPage: React.FC = () => {
         {
             title: 'Cập nhật',
             key: 'update',
-            render: (_text: any, _record: ICategory) => (
+            render: (_text: any, _record: IViewListCategory) => (
                 <Link to={`/admin/categories/edit/${_record.id}`}>
                     <Button type="primary" icon={<EditOutlined />} className="bg-blue-500">
                         Cập nhật
@@ -73,7 +106,7 @@ const CategoryManagementPage: React.FC = () => {
         {
             title: 'Xóa',
             key: 'delete',
-            render: (_text: any, record: ICategory) => (
+            render: (_text: any, record: IViewListCategory) => (
                 <Button
                     type="primary"
                     danger
@@ -86,31 +119,6 @@ const CategoryManagementPage: React.FC = () => {
             ),
         },
     ];
-
-    const handleDeleteCategory = async () => {
-        try {
-            if (!categoryToDelete) return;
-            setDeleteModalVisible(false);
-
-            // Simulating API response success
-            const response = { data: { success: true } };
-            if (response.data.success) {
-                message.success('Đã xóa danh mục bài viết thành công');
-                const updatedCategorys = categories.filter((category) => category.id !== categoryToDelete.id);
-                setCategorys(updatedCategorys);
-            } else {
-                message.error('Không xóa được danh mục bài viết');
-            }
-        } catch (error) {
-            console.error('Lỗi khi xóa danh mục bài viết:', error);
-            message.error('Không xóa được danh mục bài viết');
-        }
-    };
-
-    const handleCancelDeleteModal = () => {
-        setDeleteModalVisible(false);
-        setCategoryToDelete(null);
-    };
 
     return (
         <>

@@ -1,87 +1,78 @@
 import React from "react";
 import { Input, Table, Typography, Button, Modal, message } from 'antd';
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { IViewListSubject, fetchSubjectList, deleteSubject } from '@/data/admin/SubjectData';
 import { Link } from "react-router-dom";
+import { IViewListGrade, fetchGradeList, deleteGrade } from '@/data/admin/GradeData';
 
 const { Title } = Typography;
 
-const SubjectManagementPage: React.FC = () => {
-    const [subjects, setSubjects] = React.useState<IViewListSubject[]>([]);
+
+const GrademanagementPage: React.FC = () => {
+    const [grades, setGrades] = React.useState<IViewListGrade[]>([]);
     const [searchTerm, setSearchTerm] = React.useState('');
     const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
-    const [subjectToDelete, setCFToDelete] = React.useState<IViewListSubject | null>(null);
+    const [gradeToDelete, setGradeToDelete] = React.useState<IViewListGrade | null>(null);
 
-    const filteredSubjects = subjects.filter((subject) =>
-        subject.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredGrades = grades.filter((grade) =>
+        grade.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     React.useEffect(() => {
-        const fetchSubjects = async () => {
-            const subjectList = await fetchSubjectList();
-            setSubjects(subjectList);
+        const fetchGrades = async () => {
+            const gradeList = await fetchGradeList();
+            setGrades(gradeList);
         };
 
-        fetchSubjects();
+        fetchGrades();
     }, []);
 
-    const handleDeleteModal = (subject: IViewListSubject) => {
-        setCFToDelete(subject);
+    const handleDeleteModal = (grade: IViewListGrade) => {
+        setGradeToDelete(grade);
         setDeleteModalVisible(true);
     };
 
-    const handleDeleteSubject = async () => {
+    const handleDeleteGrade = async () => {
         try {
-            if (!subjectToDelete) return;
+            if (!gradeToDelete) return;
             setDeleteModalVisible(false);
 
-            const isDeleted = await deleteSubject(subjectToDelete.subjectId);
+            const isDeleted = await deleteGrade(gradeToDelete.id);
             if (isDeleted) {
-                message.success('Đã xóa môn học thành công');
-                const updatedSubjects = subjects.filter((subject) => subject.subjectId !== subjectToDelete.subjectId);
-                setSubjects(updatedSubjects);
+                message.success('Đã xóa khối lớp thành công');
+                const updatedGrades = grades.filter((grade) => grade.id !== gradeToDelete.id);
+                setGrades(updatedGrades);
             } else {
-                message.error('Không xóa được môn học');
+                message.error('Không xóa được khối lớp');
             }
         } catch (error) {
-            console.error('Lỗi khi xóa môn học:', error);
-            message.error('Không xóa được môn học');
+            console.error('Lỗi khi xóa khối lớp:', error);
+            message.error('Không xóa được khối lớp');
         }
     };
 
     const handleCancelDeleteModal = () => {
         setDeleteModalVisible(false);
-        setCFToDelete(null);
+        setGradeToDelete(null);
     };
 
     const columns = [
         {
             title: 'No.',
             dataIndex: '1',
-            key: 'subjectId',
+            key: 'gradeId',
             render: (_text: any, _record: any, index: number) => index + 1,
         },
         {
-            title: 'Tên môn học',
+            title: 'Khối lớp',
             dataIndex: 'name',
             key: 'name',
         },
-        // {
-        //     title: 'Kiểm duyệt',
-        //     dataIndex: 'is_approved',
-        //     key: 'is_approved',
-        //     render: (isApproved: boolean) => (
-        //         <span className={`text-${isApproved ? 'green' : 'red'}-500`}>
-        //             {isApproved ? 'Đã kiểm duyệt' : 'Chưa kiểm duyệt'}
-        //         </span>
-        //     ),
-        // },
         {
             title: 'Cập nhật',
             dataIndex: 'actions',
             key: 'actions',
-            render: (_text: any, _record: IViewListSubject) => (
-                <Link to={`/admin/subjects/edit/${_record.subjectId}`}>
+            render: (_text: any, _record: IViewListGrade) => (
+                <Link to={`/admin/grades/edit/${_record.id}`}>
                     <Button type="link"><EditOutlined /> Chỉnh sửa</Button>
                 </Link>
             ),
@@ -89,7 +80,7 @@ const SubjectManagementPage: React.FC = () => {
         {
             title: 'Xóa',
             key: 'delete',
-            render: (_text: any, record: IViewListSubject) => (
+            render: (_text: any, record: IViewListGrade) => (
                 <Button
                     type="primary"
                     danger
@@ -105,17 +96,16 @@ const SubjectManagementPage: React.FC = () => {
 
     return (
         <>
-            <Title level={2} className="my-4">Quản lý môn học</Title>
-
+            <Title level={2} className="my-4">Quản lý khối lớp</Title>
             <div className="mb-4 flex justify-between items-center">
                 <Input
-                    placeholder="Tìm kiếm môn học..."
+                    placeholder="Tìm kiếm khối lớp..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     suffix={<SearchOutlined />}
                     className="w-1/3"
                 />
-                <Link to="/admin/subjects/add-new">
+                <Link to="/admin/grades/add-new">
                     <Button type="primary" icon={<PlusOutlined />}>
                         Thêm mới
                     </Button>
@@ -125,24 +115,24 @@ const SubjectManagementPage: React.FC = () => {
             <div className="overflow-x-auto">
                 <Table
                     columns={columns}
-                    dataSource={filteredSubjects}
+                    dataSource={filteredGrades}
                     rowKey="id"
                 />
             </div>
 
             <Modal
-                title="Xác nhận xóa môn học"
+                title="Xác nhận xóa khối lớp"
                 open={deleteModalVisible}
-                onOk={handleDeleteSubject}
+                onOk={handleDeleteGrade}
                 onCancel={handleCancelDeleteModal}
                 okText="Xóa"
                 cancelText="Hủy"
                 okButtonProps={{ danger: true }}
             >
-                <p>Bạn có chắc chắn muốn xóa môn học này?</p>
+                <p>Bạn có chắc chắn muốn xóa khối lớp này?</p>
             </Modal>
         </>
     );
 };
 
-export default SubjectManagementPage;
+export default GrademanagementPage;

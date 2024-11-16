@@ -1,20 +1,29 @@
 import React from "react";
 import { Button, Input, Modal, Table, Typography, message, } from 'antd';
 import { SearchOutlined, FlagFilled, FlagTwoTone, FlagOutlined, DeleteOutlined, } from "@ant-design/icons";
-import feedbackData, { IFeedbackData } from "@/data/academy-staff/FeedbackData";
+import { IViewListFeedback, fetchPlanBookFeedbackList, deleteFeedback } from "@/data/academy-staff/FeedbackData";
 
 const { Title } = Typography;
 
 const PlanbookFeedbackManagementPage: React.FC = () => {
-    const [feedbacks, setFeedbacks] = React.useState<IFeedbackData[]>(feedbackData);
+    const [feedbacks, setFeedbacks] = React.useState<IViewListFeedback[]>([]);
     const [searchTerm, setSearchTerm] = React.useState('');
     const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
-    const [feedbackToDelete, setFeedbackToDelete] = React.useState<IFeedbackData | null>(null);
-    
+    const [feedbackToDelete, setFeedbackToDelete] = React.useState<IViewListFeedback | null>(null);
+
     const filteredFeedbacks = feedbacks.filter((f) => {
         const matchesSearch = `${f.planbookName} ${f.username}`.toLowerCase().includes(searchTerm.toLowerCase());
-        return f.type === 'planbook' && matchesSearch; 
-    });    
+        return matchesSearch;
+    });
+
+    React.useEffect(() => {
+        const fetchFeedbacks = async () => {
+            const feedbackList = await fetchPlanBookFeedbackList();
+            setFeedbacks(feedbackList);
+        };
+
+        fetchFeedbacks();
+    }, []);
 
     const handleFlagToggle = (id: string) => {
         setFeedbacks((prevFeedbacks) =>
@@ -29,8 +38,8 @@ const PlanbookFeedbackManagementPage: React.FC = () => {
             if (!feedbackToDelete) return;
             setDeleteModalVisible(false);
 
-            const response = { data: { success: true } };
-            if (response.data.success) {
+            const isDeleted = await deleteFeedback(feedbackToDelete.id);
+            if (isDeleted) {
                 message.success('Đã xóa đánh giá thành công');
                 const updatedFeedbacks = feedbacks.filter((feedback) => feedback.id !== feedbackToDelete.id);
                 setFeedbacks(updatedFeedbacks);
@@ -43,7 +52,7 @@ const PlanbookFeedbackManagementPage: React.FC = () => {
         }
     };
 
-    const handleDeleteModal = (feedback: IFeedbackData) => {
+    const handleDeleteModal = (feedback: IViewListFeedback) => {
         setFeedbackToDelete(feedback);
         setDeleteModalVisible(true);
     };
@@ -57,6 +66,7 @@ const PlanbookFeedbackManagementPage: React.FC = () => {
         {
             title: 'No.',
             dataIndex: '1',
+            key: 'id',
             render: (_text: any, _record: any, index: number) => index + 1,
         },
         {
@@ -93,7 +103,7 @@ const PlanbookFeedbackManagementPage: React.FC = () => {
             title: <FlagFilled />,
             dataIndex: 'isFlagged',
             key: 'isFlagged',
-            render: (text: boolean, record: IFeedbackData) => (
+            render: (text: boolean, record: IViewListFeedback) => (
                 <span onClick={() => handleFlagToggle(record.id)}>
                     {text ? <FlagTwoTone style={{ color: 'red' }} /> : <FlagOutlined />}
                 </span>
@@ -102,7 +112,7 @@ const PlanbookFeedbackManagementPage: React.FC = () => {
         {
             title: 'Xóa',
             key: 'delete',
-            render: (_text: any, record: IFeedbackData) => (
+            render: (_text: any, record: IViewListFeedback) => (
                 <Button
                     type="primary"
                     danger

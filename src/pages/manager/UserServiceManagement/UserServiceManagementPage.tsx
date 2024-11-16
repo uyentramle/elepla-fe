@@ -1,24 +1,57 @@
-import React, { useState } from "react";
-import { SearchOutlined, CaretRightOutlined, } from '@ant-design/icons';
-import { Input, Table, Select, Typography, Row, Col, Card, Statistic } from 'antd';
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import {
+    SearchOutlined,
+    // CaretRightOutlined, 
+} from '@ant-design/icons';
+import { Input, Table, Select, Typography, Row, Col, Card, Statistic, Spin } from 'antd';
+// import { Link } from "react-router-dom";
 import dayjs from 'dayjs';
 
-import user_services_data from "@/data/manager/UserPackageData";
-import payment_data from "@/data/manager/UserPaymentData";
+import { fetchUserPackageList, IViewListUserPackage } from "@/data/manager/UserPackageData";
+import { fetchListPayment, IViewListPayment } from "@/data/manager/UserPaymentData";
+import { fetchServicePackages, IViewListServicePackage } from '@/data/manager/ServicePackageData';
 
 const { Option } = Select;
 const { Title } = Typography;
 
 const UserServiceManagementPage: React.FC = () => {
-    const [userServices] = useState(user_services_data);
-    const [userPayments] = useState(payment_data);
+    const [userServices, setUserServices] = useState<IViewListUserPackage[]>([]);
+    const [userPayments, setUserPayments] = useState<IViewListPayment[]>([]);
+    const [servicePackages, setServicePackages] = useState<IViewListServicePackage[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<'Active' | 'Inactive' | 'All'>('All');
-    const [filterPackage, setFilterPackage] = useState<'All' | 'Free' | 'Basic' | 'Premium'>('All');
+    const [filterPackage, setFilterPackage] = useState('All');
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const fetchedUserServices = await fetchUserPackageList();
+                const fetchedUserPayments = await fetchListPayment();
+                const packages = await fetchServicePackages();
+
+                if (Array.isArray(fetchedUserServices)) {
+                    setUserServices(fetchedUserServices);
+                }
+
+                if (fetchedUserPayments) {
+                    setUserPayments(fetchedUserPayments);
+                }
+
+                if (packages) {
+                    setServicePackages(packages);
+                }
+            } catch (error) {
+                console.error("Failed to fetch data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
     const filteredUserServices = userServices.filter((c) => {
-        const matchesSearch = `${c.username}`.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = `${c.fullName}`.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus =
             filterStatus === 'All' ||
             (filterStatus === 'Active' && c.isActivated) ||
@@ -26,10 +59,8 @@ const UserServiceManagementPage: React.FC = () => {
 
         const matchesPackage =
             filterPackage === 'All' ||
-            (filterPackage === 'Free' && c.packageName === 'Gói miễn phí') ||
-            (filterPackage === 'Basic' && c.packageName === 'Gói cơ bản') ||
-            // (filterPackage === 'Standard' && c.packageName === 'Gói tiêu chuẩn') ||
-            (filterPackage === 'Premium' && c.packageName === 'Gói cao cấp');
+            servicePackages.some(pkg => filterPackage === pkg.packageName && c.packageName === pkg.packageName);
+
         return matchesSearch && matchesStatus && matchesPackage;
     });
 
@@ -41,8 +72,8 @@ const UserServiceManagementPage: React.FC = () => {
         },
         {
             title: 'Tên khách hàng',
-            dataIndex: 'username',
-            key: 'username',
+            dataIndex: 'fullName',
+            key: 'fullName',
             render: (text: string) => <span className="font-semibold">{text}</span>,
         },
         {
@@ -54,29 +85,33 @@ const UserServiceManagementPage: React.FC = () => {
             title: 'Ngày bắt đầu',
             dataIndex: 'startDate',
             key: 'startDate',
-            render: (startDate: Date) => (
-                <span>{new Date(startDate).toLocaleDateString()}</span>
+            render: (startDate: string) => (
+                <span>{dayjs(startDate).format('DD/MM/YYYY')}</span>
             ),
         },
         {
             title: 'Ngày kết thúc',
             dataIndex: 'endDate',
             key: 'endDate',
-            render: (endDate: Date) => (
-                <span>{new Date(endDate).toLocaleDateString()}</span>
+            render: (endDate: string) => (
+                <span>{dayjs(endDate).format('DD/MM/YYYY')}</span>
             ),
         },
         {
             title: 'Trạng thái',
             dataIndex: 'isActivated',
             key: 'isActivated',
-            render: (isActivated: boolean) => (
-                <span style={{ color: isActivated ? 'green' : 'red' }}>
-                    {isActivated ? 'Đang sử dụng' : 'Đã hủy'}
+            render: (isActivated: boolean, _record: any) => (
+                <span style={{ color: isActivated ? 'green' : dayjs().isAfter(dayjs(_record.endDate)) ? 'gray' : 'red' }}>
+                    {isActivated ? 'Đang sử dụng' : dayjs().isAfter(dayjs(_record.endDate)) ? 'Hết hạn' : 'Đã hủy'}
                 </span>
             ),
         },
     ];
+
+    if (loading) {
+        return <Spin size="large" className="flex justify-center mt-20" />;
+    }
 
     return (
         <>
@@ -89,7 +124,7 @@ const UserServiceManagementPage: React.FC = () => {
                             title="Dịch vụ khách hàng đang sử dụng"
                             value={userServices.filter(service => service.isActivated).length} />
                         <div className="mt-2 flex items-center justify-between">
-                            <Link to={"#userlist"} ><CaretRightOutlined /> Xem chi tiết</Link>
+                            {/* <Link to={"#userlist"} ><CaretRightOutlined /> Xem chi tiết</Link> */}
                         </div>
                     </Card>
                 </Col>
@@ -103,8 +138,8 @@ const UserServiceManagementPage: React.FC = () => {
                                         .isSame(dayjs(), 'month')).length
                             } />
                         <div className="mt-2 flex items-center justify-between">
-                            <span className="text-green-500">Tăng 1.3% so với tuần trước</span>
-                            <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link>
+                            {/* <span className="text-green-500">Tăng 1.3% so với tuần trước</span> */}
+                            {/* <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link> */}
                         </div>
                     </Card>
                 </Col>
@@ -118,7 +153,7 @@ const UserServiceManagementPage: React.FC = () => {
                                     && service.isActivated).length
                             } />
                         <div className="mt-2 flex items-center justify-between">
-                            <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link>
+                            {/* <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link> */}
                         </div>
                     </Card>
                 </Col>
@@ -136,19 +171,23 @@ const UserServiceManagementPage: React.FC = () => {
                             suffix={<SearchOutlined />}
                         />
                     </div>
+
                     <div className="mr-4">
                         <Select
                             id="package-filter"
                             className="w-48"
                             value={filterPackage}
-                            onChange={(value) => setFilterPackage(value as 'All' | 'Free' | 'Basic' | 'Premium')}
+                            onChange={(value) => setFilterPackage(value)}
                         >
                             <Option value="All">Tất cả các gói</Option>
-                            <Option value="Free">Gói miễn phí</Option>
-                            <Option value="Basic">Gói cơ bản</Option>
-                            <Option value="Premium">Gói cao cấp</Option>
+                            {servicePackages.map(pkg => (
+                                <Option key={pkg.packageId} value={pkg.packageName}>
+                                    {pkg.packageName}
+                                </Option>
+                            ))}
                         </Select>
                     </div>
+
                     <div className="mr-4">
                         <Select
                             id="status-filter"

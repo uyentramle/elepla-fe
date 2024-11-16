@@ -3,31 +3,31 @@ import { Button, Form, Input, message, Typography } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
-import { ISubjectForm, createSubject, updateSubject, fetchSubjectList } from "@/data/admin/SubjectData";
+import { IGradeForm, createGrade, updateGrade, fetchGradeList } from "@/data/admin/GradeData";
 
 const { Title } = Typography;
 
-const SubjectFormPage: React.FC = () => {
+const GradeFormPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [form] = Form.useForm();
-    const [formData, setFormData] = React.useState<ISubjectForm>({
-        subjectId: "",
+    const [formData, setFormData] = React.useState<IGradeForm>({
+        id: "",
         name: "",
         description: "",
     });
     const navigate = useNavigate();
 
-    // Fetch subject data if editing
+    // Fetch grade data if editing
     useEffect(() => {
         if (id) {
-            fetchSubjectList().then((subjectData) => {
-                const subject = subjectData.find((cr) => cr.subjectId === id);
-                if (subject) {
-                    setFormData(subject);
-                    form.setFieldsValue(subject);
+            fetchGradeList().then((gradeData) => {
+                const grade = gradeData.find((cr) => cr.id === id);
+                if (grade) {
+                    setFormData(grade);
+                    form.setFieldsValue(grade);
                 }
             }).catch((error) => {
-                console.error("Error fetching subject:", error);
+                console.error("Error fetching grade:", error);
                 message.error("Lỗi lấy dữ liệu.");
             });
         }
@@ -54,32 +54,32 @@ const SubjectFormPage: React.FC = () => {
         try {
             let success = false;
             if (id) {
-                success = await updateSubject(formData);
+                success = await updateGrade(formData);
                 if (success) {
-                    message.success("Cập nhật môn học thành công.");
+                    message.success("Cập nhật khối lớp thành công.");
                 } else {
-                    message.error("Lỗi cập nhật môn học.");
+                    message.error("Lỗi cập nhật khối lớp.");
                 }
             } else {
-                success = await createSubject(formData);
+                success = await createGrade(formData);
                 if (success) {
-                    message.success("Tạo môn học thành công.");
+                    message.success("Tạo khối lớp thành công.");
                 } else {
-                    message.error("Lỗi tạo môn học.");
+                    message.error("Lỗi tạo khối lớp.");
                 }
             }
             if (success) {
-                navigate('/admin/subjects');
+                navigate('/admin/grades');
             }
         } catch (error) {
-            console.error("Error creating subject:", error);
-            message.error("Lỗi tạo môn học.");
+            console.error("Error creating grade:", error);
+            message.error("Lỗi tạo khối lớp.");
         }
     };
 
     return (
         <>
-            <Title level={2} className="my-4">{id ? "Chỉnh sửa môn học" : "Thêm mới môn học"}</Title>
+            <Title level={2} className="my-4">{id ? "Chỉnh sửa khối lớp" : "Thêm mới khối lớp"}</Title>
 
             <Form
                 form={form}
@@ -88,9 +88,9 @@ const SubjectFormPage: React.FC = () => {
                 onFinish={handleSubmit}
             >
                 <Form.Item
-                    label="Tên môn học"
+                    label="Tên khối lớp"
                     name="name"
-                    rules={[{ required: true, message: "Vui lòng nhập tên môn học!" }]}
+                    rules={[{ required: true, message: "Vui lòng nhập tên khối lớp!" }]}
                 >
                     <Input
                         name="name"
@@ -127,7 +127,7 @@ const SubjectFormPage: React.FC = () => {
                         <Button type="primary" htmlType="submit">
                             {id ? "Cập nhật" : "Thêm mới"}
                         </Button>
-                        <Button type="default" onClick={() => navigate('/admin/subjects')}>
+                        <Button type="default" onClick={() => navigate('/admin/grades')}>
                             Quay lại
                         </Button>
                     </div>
@@ -137,4 +137,4 @@ const SubjectFormPage: React.FC = () => {
     );
 };
 
-export default SubjectFormPage;
+export default GradeFormPage;
