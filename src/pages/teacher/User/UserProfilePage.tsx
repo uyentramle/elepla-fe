@@ -141,7 +141,7 @@ const UserProfilePage: React.FC = () => {
                             {/* items-center */}
                             {/* Phần Avatar và Change Photo */}
                             <div className="mb-4 ml-6 mr-0 flex-shrink-0 sm:mb-0 sm:mr-4">
-                                <div className="flex h-44 w-44 items-center justify-center rounded-full bg-white">
+                                <div className="flex h-44 w-44 items-center justify-center rounded-full bg-white border-2">
                                     {avatar || userData?.avatar ? (
                                         <img src={avatar ?? userData?.avatar} alt="Avatar" className="h-40 w-40 rounded-full object-cover" />
                                     ) : (
@@ -350,9 +350,9 @@ const AvatarModal: React.FC<{ isOpen: boolean, onClose: () => void, /*onSave: (f
         return new Promise<string>((resolve, reject) => {
             uploadTask.on(
                 'state_changed',
-                // (snapshot) => {
-                //     // Handle progress if needed
-                // },
+                () => {
+                    // Handle progress if needed
+                },
                 (error) => {
                     console.error('Upload failed:', error);
                     reject(error);
