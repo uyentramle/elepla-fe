@@ -287,18 +287,19 @@ const DashBoardManagerPage: React.FC = () => {
                                 style={{
                                     display: 'flex',
                                     width: '100%',
-                                    alignItems: 'center',
+                                    // alignItems: 'center',
+                                    textAlign: 'left',
                                 }}
                             >
-                                <div style={{ flex: '1 1 30px' }}>
+                                <div style={{ flex: '0 1 30px' }}>
                                     <Text strong>No. </Text>
                                 </div>
-                                <div style={{ flex: '1 1 350px' }}>
+                                <div style={{ flex: '1 1 350px', paddingLeft: '20px' }}>
                                     <Text strong>Tên gói</Text>
                                 </div>
-                                <div style={{ flex: '1 1 150px' }}>
+                                {/* <div style={{ flex: '1 1 150px' }}>
                                     <Text strong>Giá</Text>
-                                </div>
+                                </div> */}
                                 <div style={{ flex: '1 1 150px' }}>
                                     <Text strong>Số lượng người dùng</Text>
                                 </div>
@@ -310,16 +311,16 @@ const DashBoardManagerPage: React.FC = () => {
                             dataSource={packageStatistics}
                             renderItem={(item, index) => (
                                 <List.Item>
-                                    <div style={{ display: 'flex', width: '100%', }}>
+                                    <div style={{ display: 'flex', width: '100%', textAlign: 'left' }}>
                                         <div style={{ flex: '0 1 30px' }}>
                                             <Text strong>{index + 1}</Text>
                                         </div>
-                                        <div style={{ flex: '1 1 350px', paddingLeft: '10px' }}>
+                                        <div style={{ flex: '1 1 350px', paddingLeft: '20px' }}>
                                             <Text strong>{item.name}</Text>
                                         </div>
-                                        <div style={{ flex: '1 1 150px' }}>
+                                        {/* <div style={{ flex: '1 1 150px' }}>
                                             {item.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                                        </div>
+                                        </div> */}
                                         <div style={{ flex: '1 1 150px' }}>
                                             {item.count}
                                         </div>
