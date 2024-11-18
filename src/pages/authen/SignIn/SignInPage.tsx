@@ -10,6 +10,8 @@ import {
 import CustomGoogleLoginButton from '../Button/GoogleLoginButton';
 import CustomFacebookLoginButton from "../Button/FacebookLoginButton";
 import { jwtDecode } from 'jwt-decode';
+import apiClient from "@/data/apiClient"; // Import your configured apiClient
+
 
 interface ApiResponse {
     success: boolean;
@@ -28,7 +30,7 @@ interface JwtPayload {
 const loginApi = async (username: string, password: string): Promise<ApiResponse> => {
 
     try {
-        const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/Login', {  //link deploy
+        const response = await apiClient.post('https://elepla-be-production.up.railway.app/api/Auth/Login', {  //link deploy
         //     const response = await axios.post('http://localhost/api/Auth/Login', {
             username,
             password
@@ -110,6 +112,22 @@ const SignInPage: React.FC = () => {
                 }
             } else {
                 console.error('Login Failed:', response.message);
+
+                switch (response.message) {
+                    case 'Wrong password!':
+                        message.error('Incorrect password.');
+                        break;
+                    case 'User not found!':
+                        message.error('Incorrect username.');
+                        break;
+                    case 'User account is blocked. Please contact support.':
+                        message.error('Your account is blocked. Please contact support.');
+                        break;
+                    default:
+                        message.error('An error occurred, please try again later.');
+                        break;
+                }
+
                 switch (response.message) {
                     case 'Wrong password!':
                         message.error('Mật khẩu không đúng.');

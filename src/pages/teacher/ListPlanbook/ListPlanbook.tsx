@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Select, Button, Card, Modal, Form, message } from 'antd';
+import { Input, Select, Button, Card, Modal, message } from 'antd';
 import { FileOutlined, PlusCircleOutlined, UnorderedListOutlined, AppstoreOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
+import apiClient from "@/data/apiClient"; // Import your configured apiClient
 import PlanbookContent from '@/layouts/teacher/PlanbookContent/PlanbookContent';
 import CreateLesson from '@/layouts/teacher/Components/CreatePlanbook/CreateLesson';
 import PlanbookForm from '@/layouts/teacher/Components/CreatePlanbook/PlanbookForm'
@@ -35,15 +36,15 @@ const ListPlanbook: React.FC = () => {
   const [filteredPlanbooks, setFilteredPlanbooks] = useState<Planbook[]>([]);
   const [selectedPlanbook, setSelectedPlanbook] = useState(null);
   const [isTeachingPlanFormVisible, setIsTeachingPlanFormVisible] = useState(false);
-  const [isLessonPlannerVisible, setIsLessonPlannerVisible] = useState(false); // New state for LessonPlanner
-  const [form] = Form.useForm();
+  // const [isLessonPlannerVisible, setIsLessonPlannerVisible] = useState(false); // New state for LessonPlanner
+  // const [form] = Form.useForm();
 
   useEffect(() => {
     console.log("Collection ID:", collectionId); // Debug
     const fetchPlanbooks = async () => {
       try {
         // const response = await axios.get('http://localhost/api/Planbook/GetPlanbookByCollectionId', {
-          const response = await axios.get('https://elepla-be-production.up.railway.app/api/Planbook/GetPlanbookByCollectionId', {
+          const response = await apiClient.get('https://elepla-be-production.up.railway.app/api/Planbook/GetPlanbookByCollectionId', {
           params: { collectionId },
         });
         console.log("Fetched Planbooks:", response.data.data.items); // Debug
@@ -62,7 +63,7 @@ const ListPlanbook: React.FC = () => {
   const fetchPlanbookById = async (planbookId: string) => {
     console.log("Fetching Planbook ID:", planbookId); // Kiểm tra ID được gửi đi
     // const response = await axios.get(`http://localhost/api/Planbook/GetPlanbookById?planbookId=${planbookId}`);
-    const response = await axios.get(`   https://elepla-be-production.up.railway.app/api/Planbook/GetPlanbookById?planbookId=${planbookId}`);
+    const response = await apiClient.get(`https://elepla-be-production.up.railway.app/api/Planbook/GetPlanbookById?planbookId=${planbookId}`);
     if (response.data.success) {
       console.log("Fetched Planbook Data:", response.data.data); // Kiểm tra dữ liệu trả về
       setSelectedPlanbook(response.data.data);
@@ -109,7 +110,7 @@ const ListPlanbook: React.FC = () => {
     const fetchPlanbooks = async () => {
       try {
         // const response = await axios.get('http://localhost/api/Planbook/GetPlanbookByCollectionId', {
-          const response = await axios.get('https://elepla-be-production.up.railway.app/api/Planbook/GetPlanbookByCollectionId', {
+          const response = await apiClient.get('https://elepla-be-production.up.railway.app/api/Planbook/GetPlanbookByCollectionId', {
           params: { collectionId },
         });
         setPlanbooks(response.data.data.items);

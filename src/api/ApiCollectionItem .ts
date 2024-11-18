@@ -1,7 +1,8 @@
 // src/api/fetchCollections.ts
-import axios from 'axios';
+// import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 import { CollectionItem } from '../data/teacher/PlanbookCollectionData'; // Cập nhật đường dẫn nếu cần
+import apiClient from "@/data/apiClient"; // Import your configured apiClient
 
 // Interface cho dữ liệu trả về từ API
 interface ApiCollectionItem {
@@ -28,7 +29,7 @@ const fetchCollections = async (): Promise<CollectionItem[]> => {
     if (!teacherId) throw new Error('User ID not found');
 
     // Gửi yêu cầu lấy dữ liệu từ API
-    const response = await axios.get<{
+    const response = await apiClient.get<{
       success: boolean;
       message: string;
       data: {

@@ -1,5 +1,5 @@
-import axios from 'axios';
-
+// import axios from 'axios';
+import apiClient from "@/data/apiClient"; // Import your configured apiClient
 // Interface for SubjectInCurriculumItem
 export interface SubjectInCurriculumItem {
     curriculumId: string;
@@ -16,11 +16,9 @@ const fetchSubjectsByGradeAndCurriculum = async (
     try {
         // Construct the API URL with query parameters
         // const url = `http://localhost/api/SubjectInCurriculum/GetAllSubjectInCurriculumByCurriculumAndGrade?curriculum=${curriculumId}&grade=${gradeId}`;
-        const url = ` https://elepla-be-production.up.railway.app/api/SubjectInCurriculum/GetAllSubjectInCurriculumByCurriculumAndGrade?curriculum=${curriculumId}&grade=${gradeId}`;
-
-       
+        const url = `https://elepla-be-production.up.railway.app/api/SubjectInCurriculum/GetAllSubjectInCurriculumByCurriculumAndGrade?curriculum=${curriculumId}&grade=${gradeId}`;
         // Make the GET request
-        const response = await axios.get<{
+        const response = await apiClient.get<{
             success: boolean;
             message: string;
             data: SubjectInCurriculumItem[];
