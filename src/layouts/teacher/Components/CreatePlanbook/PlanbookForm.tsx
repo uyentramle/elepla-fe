@@ -1,38 +1,36 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Form, Input, Button, Checkbox, InputNumber, message } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { createPlanbook } from '@/api/ApiPlanbook';
-import { PlanbookRequest } from '@/data/teacher/PlanbookData';
 import axios from 'axios';
 
 
 
 interface PlanbookFormProps {
-    lessonId: string | null | undefined;
-    collectionId: string | null | undefined;
-    onPlanbookCreated: () => void; // Định nghĩa props onPlanbookCreated
-    [key: string]: any; // Tùy chọn: Cho phép các thuộc tính khác
-  }
+  lessonId: string | null | undefined;
+  collectionId: string | null | undefined;
+  onPlanbookCreated: () => void; // Định nghĩa props onPlanbookCreated
+  [key: string]: any; // Tùy chọn: Cho phép các thuộc tính khác
+}
 
-  const PlanbookForm: React.FC<PlanbookFormProps> = ({ lessonId, collectionId, onPlanbookCreated  }) => { 
+const PlanbookForm: React.FC<PlanbookFormProps> = ({ lessonId, collectionId, onPlanbookCreated }) => {
 
-    const handleSubmit = async (values: any) => {
-        try {
-          // const response = await axios.post('http://localhost/api/Planbook/CreatePlanbook', {
-            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Planbook/CreatePlanbook', {
-            lessonId,
-            collectionId,
-            ...values,
-          });
-          if (response.data.success) {
-            message.success('Kế hoạch giảng dạy đã được tạo thành công!');
-            onPlanbookCreated(); // Gọi hàm để đóng modal và tải lại danh sách
+  const handleSubmit = async (values: any) => {
+    try {
+      // const response = await axios.post('http://localhost/api/Planbook/CreatePlanbook', {
+      const response = await axios.post('https://elepla-be-production.up.railway.app/api/Planbook/CreatePlanbook', {
+        lessonId,
+        collectionId,
+        ...values,
+      });
+      if (response.data.success) {
+        message.success('Kế hoạch giảng dạy đã được tạo thành công!');
+        onPlanbookCreated(); // Gọi hàm để đóng modal và tải lại danh sách
 
-          }
-        } catch (error) {
-          message.error('Có lỗi xảy ra khi tạo kế hoạch giảng dạy.');
-        }
-      };
+      }
+    } catch (error) {
+      message.error('Có lỗi xảy ra khi tạo kế hoạch giảng dạy.');
+    }
+  };
 
   return (
     <Form onFinish={handleSubmit}>
@@ -138,50 +136,50 @@ interface PlanbookFormProps {
 
       {/* Activities */}
       <Form.List name="activities">
-  {(fields, { add, remove }) => (
-    <>
-      <h3 className="mt-4 font-semibold">Danh sách hoạt động</h3>
-      {fields.map((field, index) => (
-        <div key={field.key} className="flex items-center gap-4">
-          <Form.Item
-            name={[field.name, 'title']}
-            rules={[{ required: true, message: 'Hãy nhập tiêu đề hoạt động' }]}
-          >
-            <Input placeholder={`Tiêu đề hoạt động ${index + 1}`} />
-          </Form.Item>
-          <Form.Item
-            name={[field.name, 'objective']}
-            rules={[{ required: true, message: 'Hãy nhập mục tiêu' }]}
-          >
-            <Input placeholder="Mục tiêu" />
-          </Form.Item>
-          <Form.Item
-            name={[field.name, 'content']}
-            rules={[{ required: true, message: 'Hãy nhập nội dung' }]}
-          >
-            <Input placeholder="Nội dung" />
-          </Form.Item>
-          <Form.Item
-            name={[field.name, 'product']}
-            rules={[{ required: true, message: 'Hãy nhập sản phẩm' }]}
-          >
-            <Input placeholder="Sản phẩm" />
-          </Form.Item>
-          <Form.Item
-            name={[field.name, 'implementation']}
-            rules={[{ required: true, message: 'Hãy nhập phương pháp thực hiện' }]}
-          >
-            <Input placeholder="Phương pháp thực hiện" />
-          </Form.Item>
-          <MinusCircleOutlined onClick={() => remove(field.name)} />
-        </div>
-      ))}
-      <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-        Thêm hoạt động
-      </Button>
-    </>
-  )}
-</Form.List>
+        {(fields, { add, remove }) => (
+          <>
+            <h3 className="mt-4 font-semibold">Danh sách hoạt động</h3>
+            {fields.map((field, index) => (
+              <div key={field.key} className="flex items-center gap-4">
+                <Form.Item
+                  name={[field.name, 'title']}
+                  rules={[{ required: true, message: 'Hãy nhập tiêu đề hoạt động' }]}
+                >
+                  <Input placeholder={`Tiêu đề hoạt động ${index + 1}`} />
+                </Form.Item>
+                <Form.Item
+                  name={[field.name, 'objective']}
+                  rules={[{ required: true, message: 'Hãy nhập mục tiêu' }]}
+                >
+                  <Input placeholder="Mục tiêu" />
+                </Form.Item>
+                <Form.Item
+                  name={[field.name, 'content']}
+                  rules={[{ required: true, message: 'Hãy nhập nội dung' }]}
+                >
+                  <Input placeholder="Nội dung" />
+                </Form.Item>
+                <Form.Item
+                  name={[field.name, 'product']}
+                  rules={[{ required: true, message: 'Hãy nhập sản phẩm' }]}
+                >
+                  <Input placeholder="Sản phẩm" />
+                </Form.Item>
+                <Form.Item
+                  name={[field.name, 'implementation']}
+                  rules={[{ required: true, message: 'Hãy nhập phương pháp thực hiện' }]}
+                >
+                  <Input placeholder="Phương pháp thực hiện" />
+                </Form.Item>
+                <MinusCircleOutlined onClick={() => remove(field.name)} />
+              </div>
+            ))}
+            <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+              Thêm hoạt động
+            </Button>
+          </>
+        )}
+      </Form.List>
 
       {/* Submit Button */}
       <Form.Item>
