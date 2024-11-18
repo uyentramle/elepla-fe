@@ -196,14 +196,14 @@ const UserDetailsForm: React.FC<UserDetailsFormProps> = ({
                             <Option value="Teacher">Teacher</Option>
                         </Select>
                     </Form.Item>
-                    <Form.Item style={{ width: '25%' }} name="gender" label="Giới tính">
+                    <Form.Item style={{ width: '25%' }} name="gender" label="Giới tính" rules={[{ required: true, message: 'Vui lòng chọn giới tính' }]}>
                         <Select>
                             <Option value="Male">Nam</Option>
                             <Option value="Female">Nữ</Option>
                             <Option value="Unknown">Khác</Option>
                         </Select>
                     </Form.Item>
-                    <Form.Item style={{ width: '35%' }} name="status" label="Trạng thái">
+                    <Form.Item style={{ width: '35%' }} name="status" label="Trạng thái" rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}>
                         <Select>
                             <Option value={true}>Hoạt động</Option>
                             <Option value={false}>Chặn</Option>

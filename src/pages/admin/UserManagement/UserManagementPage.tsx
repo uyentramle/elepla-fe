@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { SearchOutlined, PlusOutlined, EditOutlined, EllipsisOutlined, BlockOutlined, UnlockOutlined } from '@ant-design/icons';
-import { Input, Select, Button, Table, Tag, Space, Avatar, Dropdown, Menu, Pagination } from 'antd';
+import { Input, Select, Button, Table, Tag, Space, Avatar, Dropdown, Menu, Pagination, message } from 'antd';
 import UserDetailsForm from './UserDetailsForm'; // Đường dẫn đến component UserDetailsForm
 import AddUserForm from './AddUserForm';
 // import { renderMatches } from "react-router-dom";
 // import { render } from "react-dom";
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
@@ -80,6 +81,38 @@ const getAllUsers = async (/*keyword: string | null, status: boolean | null,*/ p
   }
 };
 
+const blockOrUnblockUser = async (userId: string, status: boolean): Promise<void> => {
+  const accessToken = localStorage.getItem('accessToken');
+
+  if (!accessToken) {
+    throw new Error('Access token not found.');
+  }
+
+  try {
+    const response = await axios.put('https://elepla-be-production.up.railway.app/api/Account/BlockOrUnBlockUserByAdmin', {
+      userId,
+      status
+    }, {
+      headers: {
+        'accept': '*/*',
+        'Content-Type': 'application/json',
+        'authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (response.data.success) {
+      console.log(response.data.message);
+      message.success(response.data.message);
+      // Optionally, you can refresh the accounts list here
+      // fetchData();
+    } else {
+      throw new Error(response.data.message);
+    }
+  } catch (error) {
+    console.error('Error blocking/unblocking user:', error);
+  }
+};
+
 const UserManagementPage: React.FC = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -87,23 +120,26 @@ const UserManagementPage: React.FC = () => {
   const [editVisible, setEditVisible] = useState(false); // State để điều khiển hiển thị của modal
   const [selectedUser, setSelectedUser] = useState<Account | null>(null); // State để lưu trữ thông tin người dùng được chọn
   const [addVisible, setAddVisible] = useState(false); // State để điều khiển hiển thị của modal
-
+  const navigate = useNavigate();
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [totalItemsCount, setTotalItemsCount] = useState(0);
   // const [totalPagesCount, setTotalPagesCount] = useState(1);
-
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
+
+  const navigateToSignInPage = () => {
+    navigate('/sign-in');
+  };
 
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
 
     if (!accessToken) {
-      return;
+      navigateToSignInPage();
     }
 
     try {
-      const decodedToken: any = jwtDecode(accessToken);
+      const decodedToken: any = jwtDecode(accessToken as string);
       const userRoles = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 
       if (userRoles.includes('Admin')) {
@@ -139,7 +175,7 @@ const UserManagementPage: React.FC = () => {
   // });
 
   const filteredAccounts = accounts.filter((a) => {
-    const matchesSearch = 
+    const matchesSearch =
       `${a.firstName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       `${a.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       `${a.phoneNumber}`.toLowerCase().includes(searchTerm.toLowerCase());
@@ -171,10 +207,10 @@ const UserManagementPage: React.FC = () => {
   const handleMenuClick = async (key: React.Key, record: Account) => {
     if (key === 'details') {
       showUserDetailsModal(record);
-    } else if (key === 'Blocked' || key === 'Unblock') {
-      const newStatus = key === 'Blocked' ? false : true;
+    } else if (key === 'Block' || key === 'Unblock') {
+      const newStatus = key === 'Block' ? false : true;
       try {
-        //await blockOrUnblockUser(record.userId, newStatus);
+        await blockOrUnblockUser(record.userId, newStatus);
         const updatedAccounts = accounts.map(account =>
           account.userId === record.userId ? { ...account, status: newStatus } : account
         ) as Account[];
@@ -342,13 +378,11 @@ const UserManagementPage: React.FC = () => {
         // nextIcon={<Button type="text">Sau</Button>}
         showSizeChanger
       />
-
       <AddUserForm
         visible={addVisible}
         onCancel={() => setAddVisible(false)}
         onCreate={handleAddUser}
       />
-
       <UserDetailsForm
         visible={editVisible}
         onCancel={handleCancel}
