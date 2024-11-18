@@ -9,7 +9,7 @@ import {
 } from '@react-oauth/google';
 import CustomGoogleLoginButton from '../Button/GoogleLoginButton';
 import CustomFacebookLoginButton from "../Button/FacebookLoginButton";
-import CustomStep from "../Button/CustomStep";
+// import CustomStep from "../Button/CustomStep";
 import { obfuscateContactInfo } from "@/utils/ObfuscateInfo";
 import { translateErrorToVietnamese } from "@/utils/TranslateError";
 
@@ -217,13 +217,13 @@ const SignUpPage: React.FC = () => {
                                 <Step title={currentStep === 2 ? " " : ""} />
                             </Steps>
                             </div> */}
-                            <div className="steps mb-8 custom-steps flex justify-between text-sm">
+                            {/* <div className="steps mb-8 custom-steps flex justify-between text-sm">
                                 <CustomStep icon={<span>1</span>} title="Nhập tài khoản" isActive={currentStep >= 0} />
                                 <LineOutlined className="text-blue-500" style={{ fontSize: '35px' }} />
                                 <CustomStep icon={<span>2</span>} title="Xác minh bảo mật" isActive={currentStep >= 1} />
                                 <LineOutlined className="text-blue-500" style={{ fontSize: '35px' }} />
                                 <CustomStep icon={<span>3</span>} title="Thiết lập thông tin" isActive={currentStep >= 2} />
-                            </div>
+                            </div> */}
                             <Form
                                 form={form}
                                 name="sign_up"

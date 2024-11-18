@@ -1,26 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { SearchOutlined, PlusOutlined, EditOutlined, EllipsisOutlined, BlockOutlined, UnlockOutlined } from '@ant-design/icons';
-import { Input, Select, Button, Table, Tag, Space, Avatar, Dropdown, Menu, Pagination } from 'antd';
+import { Input, Select, Button, Table, Tag, Space, Avatar, Dropdown, Menu, Pagination, message } from 'antd';
 import UserDetailsForm from './UserDetailsForm'; // Đường dẫn đến component UserDetailsForm
 import AddUserForm from './AddUserForm';
+// import { renderMatches } from "react-router-dom";
+// import { render } from "react-dom";
+import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const { Option } = Select;
 
 export interface Account {
-  id: string;
+  userId: string;
   firstName: string;
   lastName: string;
-  userName: string;
+  username: string;
   email: string;
   phoneNumber: string;
   googleEmail: string;
   facebookEmail: string;
   gender: 'Male' | 'Female' | 'Unknown';
-  status: 'Active' | 'Inactive' | 'Blocked';
+  status: boolean;
   lastLogin: string;
-  totalPoints: number;
   avatar: string;
-  roles: string[];
+  role: string;
   address: string;
   createdAt: Date;
   createdBy: string;
@@ -30,77 +34,157 @@ export interface Account {
   deletedBy: string;
 }
 
-// interface ApiResponse {
-//   success: boolean;
-//   message: string;
-//   data: {
-//     totalItemsCount: number;
-//     pageSize: number;
-//     totalPagesCount: number;
-//     pageIndex: number;
-//     next: boolean;
-//     previous: boolean;
-//     items: Account[];
-//   };
-// }
+interface ApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    totalItemsCount: number;
+    pageSize: number;
+    totalPagesCount: number;
+    pageIndex: number;
+    next: boolean;
+    previous: boolean;
+    items: Account[];
+  };
+}
+
+const getAllUsers = async (/*keyword: string | null, status: boolean | null,*/ pageIndex: number, pageSize: number): Promise<ApiResponse> => {
+  const accessToken = localStorage.getItem('accessToken');
+
+  if (!accessToken) {
+    throw new Error('Access token not found.');
+  }
+
+  try {
+    const response = await axios.get<ApiResponse>('https://elepla-be-production.up.railway.app/api/Account/GetAllUsersForAdmin', {
+      params: {
+        // keyword,
+        // status,
+        pageIndex,
+        pageSize
+      },
+      headers: {
+        'accept': '*/*',
+        'Content-Type': 'application/json',
+        'authorization': `Bearer ${accessToken}`
+      }
+    });
+
+    if (response.data.success) {
+      return response.data;
+    } else {
+      throw new Error(response.data.message);
+    }
+  } catch (error) {
+    console.error('Error searching users:', error);
+    throw error;
+  }
+};
+
+const blockOrUnblockUser = async (userId: string, status: boolean): Promise<void> => {
+  const accessToken = localStorage.getItem('accessToken');
+
+  if (!accessToken) {
+    throw new Error('Access token not found.');
+  }
+
+  try {
+    const response = await axios.put('https://elepla-be-production.up.railway.app/api/Account/BlockOrUnBlockUserByAdmin', {
+      userId,
+      status
+    }, {
+      headers: {
+        'accept': '*/*',
+        'Content-Type': 'application/json',
+        'authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (response.data.success) {
+      console.log(response.data.message);
+      message.success(response.data.message);
+      // Optionally, you can refresh the accounts list here
+      // fetchData();
+    } else {
+      throw new Error(response.data.message);
+    }
+  } catch (error) {
+    console.error('Error blocking/unblocking user:', error);
+  }
+};
 
 const UserManagementPage: React.FC = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'Active' | 'Inactive' | 'Blocked' | 'All'>('All');
+  const [filterStatus, setFilterStatus] = useState<'Active' | 'Blocked' | 'All'>('All');
   const [editVisible, setEditVisible] = useState(false); // State để điều khiển hiển thị của modal
   const [selectedUser, setSelectedUser] = useState<Account | null>(null); // State để lưu trữ thông tin người dùng được chọn
   const [addVisible, setAddVisible] = useState(false); // State để điều khiển hiển thị của modal
-
+  const navigate = useNavigate();
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [totalItemsCount, setTotalItemsCount] = useState(0);
-  const [, setTotalPagesCount] = useState(1);
+  // const [totalPagesCount, setTotalPagesCount] = useState(1);
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
 
-  const [isAuthorized,] = useState<boolean>(false);
+  const navigateToSignInPage = () => {
+    navigate('/sign-in');
+  };
 
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
 
     if (!accessToken) {
-      return;
+      navigateToSignInPage();
     }
 
-    // try {
-    //   const decodedToken: any = jwtDecode(accessToken);
-    //   const userRoles = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+    try {
+      const decodedToken: any = jwtDecode(accessToken as string);
+      const userRoles = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 
-    //   if (userRoles.includes('Admin') || userRoles.includes('Staff')) {
-    //     setIsAuthorized(true);
-    //   }
-    // } catch (error) {
-    //   console.error('Error decoding token:', error);
-    // }
+      if (userRoles.includes('Admin')) {
+        setIsAuthorized(true);
+      }
+    } catch (error) {
+      console.error('Error decoding token:', error);
+    }
   }, []);
 
   useEffect(() => {
     if (!isAuthorized) return;
     const fetchData = async () => {
       try {
-        const data = await searchUsers(searchTerm, filterStatus, pageIndex, pageSize);
+        const data = await getAllUsers(/*searchTerm, filterStatus,*/ pageIndex, pageSize);
         setAccounts(data.data.items);
         setTotalItemsCount(data.data.totalItemsCount);
-        setTotalPagesCount(data.data.totalPagesCount);
+        // setTotalPagesCount(data.data.totalPagesCount);
       } catch (error) {
         console.error('Error fetching accounts:', error);
       }
     };
-    // fetchData();
-    const interval = setInterval(fetchData, 1000); // Cập nhật mỗi 1 giây
+    fetchData();
+    // const interval = setInterval(fetchData, 1000); // Cập nhật mỗi 1 giây
 
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
 
-  }, [isAuthorized, searchTerm, filterStatus, pageIndex, pageSize]);
+  }, [isAuthorized, searchTerm, filterStatus, pageIndex, pageSize, editVisible, addVisible]);
 
   // useWebSocket('ws://localhost:5096/ws', (event) => {
   //   console.log('Received WebSocket message:', event.data);
   //   fetchData(); // Fetch new data when a message is received
   // });
+
+  const filteredAccounts = accounts.filter((a) => {
+    const matchesSearch =
+      `${a.firstName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${a.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${a.phoneNumber}`.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      filterStatus === 'All' ||
+      (filterStatus === 'Active' && a.status) ||
+      (filterStatus === 'Blocked' && !a.status);
+    return matchesSearch && matchesStatus;
+  });
 
   const handlePageChange = (page: number, pageSize?: number) => {
     setPageIndex(page - 1); // Adjust for 0-based index
@@ -108,23 +192,6 @@ const UserManagementPage: React.FC = () => {
       setPageSize(pageSize);
     }
   };
-
-  const searchUsers = async (_term: string, _status: 'Active' | 'Inactive' | 'Blocked' | 'All', _pageIndex: number, _pageSize: number) => {
-    // Mock response or actual API call here
-    return {
-      data: {
-        totalItemsCount: 0,
-        totalPagesCount: 1,
-        items: [], // Replace with actual Account data as needed
-      },
-    };
-  };
-  
-  const blockOrUnblockUser = async (_id: string, _newStatus: 'Active' | 'Blocked') => {
-    // Mock response or logic for blocking/unblocking user here
-    return true;
-  };
-  
 
   const showUserDetailsModal = (user: Account) => {
     setSelectedUser(user);
@@ -140,12 +207,12 @@ const UserManagementPage: React.FC = () => {
   const handleMenuClick = async (key: React.Key, record: Account) => {
     if (key === 'details') {
       showUserDetailsModal(record);
-    } else if (key === 'Blocked' || key === 'Unblock') {
-      const newStatus = key === 'Blocked' ? 'Blocked' : 'Active';
+    } else if (key === 'Block' || key === 'Unblock') {
+      const newStatus = key === 'Block' ? false : true;
       try {
-        await blockOrUnblockUser(record.id, newStatus);
+        await blockOrUnblockUser(record.userId, newStatus);
         const updatedAccounts = accounts.map(account =>
-          account.id === record.id ? { ...account, status: newStatus } : account
+          account.userId === record.userId ? { ...account, status: newStatus } : account
         ) as Account[];
         setAccounts(updatedAccounts);
       } catch (error) {
@@ -159,15 +226,13 @@ const UserManagementPage: React.FC = () => {
   };
 
   // Hàm cập nhật thông tin người dùng sau khi chỉnh sửa
-  const handleUpdateUser = (updatedUser: Account) => {
-    // Thực hiện logic cập nhật người dùng ở đây, ví dụ: gọi API hoặc cập nhật state
-    console.log('Updated user:', updatedUser);
+  const handleUpdateUser = (/*updatedUser: Account*/) => {
+    // console.log('Updated user:', updatedUser);
     setEditVisible(false); // Đóng modal sau khi cập nhật thành công
   };
 
-  const handleAddUser = (updatedUser: Account) => {
-    // Thực hiện logic cập nhật người dùng ở đây, ví dụ: gọi API hoặc cập nhật state
-    console.log('Added user:', updatedUser);
+  const handleAddUser = (/*updatedUser: Account*/) => {
+    // console.log('Added user:', updatedUser);
     setAddVisible(false); // Đóng modal sau khi cập nhật thành công
   };
 
@@ -185,10 +250,10 @@ const UserManagementPage: React.FC = () => {
       dataIndex: 'name',
       key: 'name',
       render: (_text: string, record: Account) => {
-        const fullName = record.firstName && record.lastName ? `${record.firstName} ${record.lastName}` : "";
+        const fullName = record?.lastName && record?.firstName ? `${record?.lastName} ${record?.firstName}` : "Chưa cập nhật";
         return (
           <div className="flex items-center">
-            <Avatar src={record.avatar} />
+            <Avatar src={record?.avatar} />
             <span className="ml-2">{fullName}</span>
           </div>
         );
@@ -198,22 +263,29 @@ const UserManagementPage: React.FC = () => {
       title: 'Số điện thoại',
       dataIndex: 'phoneNumber',
       key: 'phoneNumber',
+      render: (phone: string | null) => phone || "Chưa liên kết",
     },
     {
       title: 'Giới tính',
       dataIndex: 'gender',
       key: 'gender',
+      render: (gender: 'Male' | 'Female' | 'Unknown') => {
+        switch (gender) {
+          case 'Male':
+            return 'Nam';
+          case 'Female':
+            return 'Nữ';
+          case 'Unknown':
+          default:
+            return 'Không xác định';
+        }
+      },
     },
     {
       title: 'Role',
-      dataIndex: 'roles',
-      key: 'roles',
-      render: (roles: string[]) => {
-        const roleOrder = { 'Admin': 1, 'Staff': 2, 'Customer': 3 };
-        return roles
-          .sort((a, b) => (roleOrder[a as keyof typeof roleOrder] || 4) - (roleOrder[b as keyof typeof roleOrder] || 4))
-          .join(', ');
-      },
+      dataIndex: 'role',
+      key: 'role',
+      render: (role: string) => role
     },
     {
       title: 'Hoạt động gần đây',
@@ -225,23 +297,27 @@ const UserManagementPage: React.FC = () => {
       title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
-      render: (status: 'Active' | 'Inactive' | 'Blocked') => (
-        <Tag color={status === 'Active' ? 'green' : status === 'Inactive' ? 'orange' : 'red'} style={{ fontWeight: 600, fontSize: '15px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '70px' }}>
-          {status}
-        </Tag>
-      ),
+      render: (status: boolean) => {
+        const statusText = status ? 'Active' : 'Blocked';
+        const color = status ? 'green' : 'red';
+        return (
+          <Tag color={color} style={{ fontWeight: 600, fontSize: '15px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '70px' }}>
+            {statusText}
+          </Tag>
+        );
+      },
     },
     {
       title: 'Thao tác',
       key: 'action',
-      render: (_text: any, record: Account) => (
+      render: (record: Account) => (
         <Space size="middle">
           <Dropdown
             overlay={
               <Menu onClick={({ key }) => handleMenuClick(key, record)}>
                 <Menu.Item key="details" icon={<EditOutlined />}>Chi tiết</Menu.Item>
-                <Menu.Item key={record.status === 'Active' ? 'Blocked' : 'Unblock'} icon={record.status === 'Active' ? <BlockOutlined /> : <UnlockOutlined />}>
-                  {record.status === 'Active' ? 'Chặn' : 'Bỏ chặn'}
+                <Menu.Item key={record.status ? 'Block' : 'Unblock'} icon={record.status ? <BlockOutlined /> : <UnlockOutlined />}>
+                  {record.status ? 'Chặn' : 'Bỏ chặn'}
                 </Menu.Item>
               </Menu>
             }
@@ -256,7 +332,7 @@ const UserManagementPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">Quản lý Người dùng</h1>
+      <h1 className="mb-6 text-3xl font-semibold">Quản lý Người dùng</h1>
       <div className="mb-4 flex justify-between">
         <div className="flex">
           <div className="relative mr-4">
@@ -291,8 +367,7 @@ const UserManagementPage: React.FC = () => {
           </Button>
         </div>
       </div>
-      {/* <Table columns={columns} dataSource={filteredAccounts} rowKey="id" pagination={false} /> */}
-      <Table columns={columns} dataSource={accounts} rowKey="id" pagination={false} />
+      <Table columns={columns} dataSource={filteredAccounts} rowKey="id" pagination={false} />
       <Pagination
         className="mt-10 flex justify-center"
         current={pageIndex + 1}
@@ -303,13 +378,11 @@ const UserManagementPage: React.FC = () => {
         // nextIcon={<Button type="text">Sau</Button>}
         showSizeChanger
       />
-
       <AddUserForm
         visible={addVisible}
         onCancel={() => setAddVisible(false)}
         onCreate={handleAddUser}
       />
-
       <UserDetailsForm
         visible={editVisible}
         onCancel={handleCancel}
