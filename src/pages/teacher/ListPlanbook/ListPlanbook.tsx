@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Select, Button, Card, Modal, Form, message } from 'antd';
+import { Input, Select, Button, Card, Modal, message } from 'antd';
 import { FileOutlined, PlusCircleOutlined, UnorderedListOutlined, AppstoreOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -23,11 +23,11 @@ interface Planbook {
 
 const ListPlanbook: React.FC = () => {
   const { id: collectionId } = useParams<{ id: string }>();
-  
+
   const [isLessonModalVisible, setIsLessonModalVisible] = useState(false);
   const [isPlanbookModalVisible, setIsPlanbookModalVisible] = useState(false);
   const [lessonId, setLessonId] = useState<string | null>(null); // Lưu lessonId được chọn
-  const [planbooks, setPlanbooks] = useState([]);
+  const [, setPlanbooks] = useState([]);
 
 
   const [isGridView, setIsGridView] = useState(true);
@@ -35,15 +35,15 @@ const ListPlanbook: React.FC = () => {
   const [filteredPlanbooks, setFilteredPlanbooks] = useState<Planbook[]>([]);
   const [selectedPlanbook, setSelectedPlanbook] = useState(null);
   const [isTeachingPlanFormVisible, setIsTeachingPlanFormVisible] = useState(false);
-  const [isLessonPlannerVisible, setIsLessonPlannerVisible] = useState(false); // New state for LessonPlanner
-  const [form] = Form.useForm();
+  // const [isLessonPlannerVisible, setIsLessonPlannerVisible] = useState(false); // New state for LessonPlanner
+  // const [form] = Form.useForm();
 
   useEffect(() => {
     console.log("Collection ID:", collectionId); // Debug
     const fetchPlanbooks = async () => {
       try {
         // const response = await axios.get('http://localhost/api/Planbook/GetPlanbookByCollectionId', {
-          const response = await axios.get('https://elepla-be-production.up.railway.app/api/Planbook/GetPlanbookByCollectionId', {
+        const response = await axios.get('https://elepla-be-production.up.railway.app/api/Planbook/GetPlanbookByCollectionId', {
           params: { collectionId },
         });
         console.log("Fetched Planbooks:", response.data.data.items); // Debug
@@ -54,10 +54,10 @@ const ListPlanbook: React.FC = () => {
         message.error('Không thể tải danh sách kế hoạch bài dạy.');
       }
     };
-  
+
     fetchPlanbooks();
   }, [collectionId, sortOrder]);
-  
+
 
   const fetchPlanbookById = async (planbookId: string) => {
     console.log("Fetching Planbook ID:", planbookId); // Kiểm tra ID được gửi đi
@@ -69,8 +69,8 @@ const ListPlanbook: React.FC = () => {
       setIsTeachingPlanFormVisible(true);
     }
   };
-  
-  
+
+
   const handleSearch = (value: string) => {
     const searchData = filteredPlanbooks.filter(planbook =>
       planbook.title.toLowerCase().includes(value.toLowerCase())
@@ -104,12 +104,12 @@ const ListPlanbook: React.FC = () => {
   const handlePlanbookCreated = (): void => {
     // Đóng modal PlanbookForm
     setIsPlanbookModalVisible(false);
-  
+
     // Gọi lại API để lấy danh sách planbook mới nhất
     const fetchPlanbooks = async () => {
       try {
         // const response = await axios.get('http://localhost/api/Planbook/GetPlanbookByCollectionId', {
-          const response = await axios.get('https://elepla-be-production.up.railway.app/api/Planbook/GetPlanbookByCollectionId', {
+        const response = await axios.get('https://elepla-be-production.up.railway.app/api/Planbook/GetPlanbookByCollectionId', {
           params: { collectionId },
         });
         setPlanbooks(response.data.data.items);
@@ -119,7 +119,7 @@ const ListPlanbook: React.FC = () => {
         message.error('Không thể tải danh sách kế hoạch bài dạy.');
       }
     };
-  
+
     fetchPlanbooks();
   };
 
@@ -166,7 +166,7 @@ const ListPlanbook: React.FC = () => {
               console.log("Clicked Planbook ID:", planbook.planbookId); // Kiểm tra ID từ đây
               handlePlanbookClick(planbook.planbookId);
             }}
-              >
+          >
             <div className="flex flex-col items-center justify-center h-full">
               <FileOutlined style={{ fontSize: '64px', color: '#1890ff' }} />
               <h2 className="text-sm font-semibold mt-2 text-center">{planbook.lessonName}</h2>
@@ -177,19 +177,19 @@ const ListPlanbook: React.FC = () => {
 
 
       <Modal
-          title="Chi tiết kế hoạch bài dạy"
-          visible={isTeachingPlanFormVisible}
-          onCancel={() => setIsTeachingPlanFormVisible(false)}
-          footer={null}
-          width="80%"
-        >
-          {selectedPlanbook && (
-            <>
-              {console.log("PlanbookData passed to PlanbookContent:", selectedPlanbook)}
-              <PlanbookContent planbookData={selectedPlanbook} />
-            </>
-          )}
-        </Modal>
+        title="Chi tiết kế hoạch bài dạy"
+        visible={isTeachingPlanFormVisible}
+        onCancel={() => setIsTeachingPlanFormVisible(false)}
+        footer={null}
+        width="80%"
+      >
+        {selectedPlanbook && (
+          <>
+            {console.log("PlanbookData passed to PlanbookContent:", selectedPlanbook)}
+            <PlanbookContent planbookData={selectedPlanbook} />
+          </>
+        )}
+      </Modal>
 
       {/* Modal for LessonPlanner */}
       <Modal
@@ -210,9 +210,9 @@ const ListPlanbook: React.FC = () => {
         footer={null}
         width="80%"
       >
-        <PlanbookForm 
-          lessonId={lessonId} 
-          collectionId={collectionId} 
+        <PlanbookForm
+          lessonId={lessonId}
+          collectionId={collectionId}
           onPlanbookCreated={handlePlanbookCreated} // Truyền đúng prop vào đây
         />
       </Modal>
