@@ -1,6 +1,8 @@
 // src/api/fetchCollections.ts
-import axios from 'axios';
+// import axios from 'axios';
 import { GradeItem } from '../data/teacher/GradeData'; // Update path if necessary
+import apiClient from "@/data/apiClient"; // Import your configured apiClient
+
 
 // Interface for data returned from the API
 interface ApiGradeItem {
@@ -12,7 +14,7 @@ interface ApiGradeItem {
 const fetchgrade = async (): Promise<GradeItem[]> => {
   try {
     // Send request to fetch data from the API
-    const response = await axios.get<{
+    const response = await apiClient.get<{
       success: boolean;
       message: string;
       data: {

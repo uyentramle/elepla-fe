@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
 import { Input, Select, Button, Card, Modal } from 'antd';
 import { FolderOpenOutlined, PlusCircleOutlined, UnorderedListOutlined, AppstoreOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { CollectionItem } from "@/data/teacher/PlanbookCollectionData";
 import fetchCollections from '@/api/ApiCollectionItem ';
 import { jwtDecode } from 'jwt-decode';
+import apiClient from "@/data/apiClient"; // Import your configured apiClient
+
 
 const { Search } = Input;
 const { Option } = Select;
@@ -84,7 +86,7 @@ const ListCollection: React.FC = () => {
 
         // Send POST request to API
         // const response = await axios.post('http://localhost/api/PlanbookCollection/CreatePlanbookCollection', newCollection); // api local
-        const response = await axios.post('https://elepla-be-production.up.railway.app/api/PlanbookCollection/CreatePlanbookCollection', newCollection); // api server
+        const response = await apiClient.post('https://elepla-be-production.up.railway.app/api/PlanbookCollection/CreatePlanbookCollection', newCollection); // api server
 
         // Optionally, add the new collection to the displayed list if creation was successful
         if (response.data && response.data.success) {
