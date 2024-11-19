@@ -189,7 +189,7 @@ const CreateLesson: React.FC<CreateLessonProps> = ({ onSubmit }) => {
 
              {/* lesson Dropdown */}
             <div className="mb-4">
-                <label className="block text-lg font-semibold mb-2">Chọn Chương:</label>
+                <label className="block text-lg font-semibold mb-2">Chọn Bài:</label>
                 <select
                     className="w-full p-2 border border-gray-300 rounded"
                     value={selectedLesson}

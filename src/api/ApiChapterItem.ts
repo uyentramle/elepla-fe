@@ -1,4 +1,4 @@
-import axios from 'axios';
+import apiClient from "@/data/apiClient"; // Import your configured apiClient
 
 // Interface for ChapterItem
 export interface ChapterItem {
@@ -18,7 +18,7 @@ const fetchChaptersBySubjectInCurriculumId = async (
         const url = `https://elepla-be-production.up.railway.app/api/Chapter/GetAllChapterBySubjectInCurriculumId?subjectInCurriculumId=${subjectInCurriculumId}`; //api server
 
         // Make the GET request
-        const response = await axios.get<{
+        const response = await apiClient.get<{
             success: boolean;
             message: string;
             data: ChapterItem[];

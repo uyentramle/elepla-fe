@@ -1,6 +1,7 @@
 // src/api/ApiCurriculumItem.ts
-import axios from 'axios';
 import { CurriculumItem } from '../data/teacher/CurriculumData'; // Update path if necessary
+import apiClient from "@/data/apiClient"; // Import your configured apiClient
+
 
 // Interface for data returned from the API
 interface ApiCurriculumItem {
@@ -12,7 +13,7 @@ interface ApiCurriculumItem {
 const fetchCurriculum = async (): Promise<CurriculumItem[]> => {
   try {
     // Send request to fetch data from the API
-    const response = await axios.get<{
+    const response = await apiClient.get<{
       success: boolean;
       message: string;
       data: {
