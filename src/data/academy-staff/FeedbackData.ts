@@ -1,3 +1,72 @@
+import apiClient from '@/data/apiClient';
+// import apiclient from 'apiclient';
+
+export interface IViewListFeedback {
+    id: string;
+    content: string | undefined;
+    rate: number;
+    type: string;
+    isFlagged: boolean;
+    username: string;
+    planbookName: string | undefined;
+    created_at: string;
+}
+
+export const fetchPlanBookFeedbackList = async (): Promise<IViewListFeedback[]> => {
+    try {
+        const response = await apiClient.get('/Feedback/GetPlanbookFeedback?pageIndex=0&pageSize=100');
+        if (response.data.success) {
+            return response.data.data.items.map((feedback: any) => ({
+                id: feedback.feedbackId,
+                content: feedback.content,
+                rate: feedback.rate,
+                type: feedback.type,
+                isFlagged: feedback.isFlagged,
+                username: feedback.teacherName,
+                planbookName: feedback.planbookName,
+                created_at: feedback.createdAt,
+            }));
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching feedback list:', error);
+        return [];
+    }
+};
+
+export const fetchSystemFeedbackList = async (): Promise<IViewListFeedback[]> => {
+    try {
+        const response = await apiClient.get('/Feedback/GetSystemFeedback?pageIndex=0&pageSize=10');
+        if (response.data.success) {
+            return response.data.data.items.map((feedback: any) => ({
+                id: feedback.feedbackId,
+                content: feedback.content,
+                rate: feedback.rate,
+                type: feedback.type,
+                isFlagged: feedback.isFlagged,
+                username: feedback.teacherName,
+                planbookName: feedback.planbookName,
+                created_at: feedback.createdAt,
+            }));
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching feedback list:', error);
+        return [];
+    }
+};
+
+export const deleteFeedback = async (feedbackId: string): Promise<boolean> => {
+    try {
+        const response = await apiClient.delete(`/Feedback/HardDeleteFeedback?feedbackId=${feedbackId}`);
+        return response.status === 200 && response.data.success;
+    } catch (error) {
+        console.error('Error deleting feedback:', error);
+        return false;
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export interface IFeedbackData {
     id: string;
     content: string;

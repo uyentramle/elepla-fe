@@ -1,22 +1,31 @@
 import React from "react";
 import { Input, Table, Typography, Button, Modal, message } from 'antd';
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import subjectData, { ISubject } from "@/data/admin/SubjectData";
+import { IViewListSubject, fetchSubjectList, deleteSubject } from '@/data/admin/SubjectData';
 import { Link } from "react-router-dom";
 
 const { Title } = Typography;
 
 const SubjectManagementPage: React.FC = () => {
-    const [subjects, setSubjects] = React.useState<ISubject[]>(subjectData);
+    const [subjects, setSubjects] = React.useState<IViewListSubject[]>([]);
     const [searchTerm, setSearchTerm] = React.useState('');
     const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
-    const [subjectToDelete, setCFToDelete] = React.useState<ISubject | null>(null);
+    const [subjectToDelete, setCFToDelete] = React.useState<IViewListSubject | null>(null);
 
     const filteredSubjects = subjects.filter((subject) =>
         subject.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleDeleteModal = (subject: ISubject) => {
+    React.useEffect(() => {
+        const fetchSubjects = async () => {
+            const subjectList = await fetchSubjectList();
+            setSubjects(subjectList);
+        };
+
+        fetchSubjects();
+    }, []);
+
+    const handleDeleteModal = (subject: IViewListSubject) => {
         setCFToDelete(subject);
         setDeleteModalVisible(true);
     };
@@ -26,11 +35,10 @@ const SubjectManagementPage: React.FC = () => {
             if (!subjectToDelete) return;
             setDeleteModalVisible(false);
 
-            // Simulating API response success
-            const response = { data: { success: true } };
-            if (response.data.success) {
+            const isDeleted = await deleteSubject(subjectToDelete.subjectId);
+            if (isDeleted) {
                 message.success('Đã xóa môn học thành công');
-                const updatedSubjects = subjects.filter((subject) => subject.id !== subjectToDelete.id);
+                const updatedSubjects = subjects.filter((subject) => subject.subjectId !== subjectToDelete.subjectId);
                 setSubjects(updatedSubjects);
             } else {
                 message.error('Không xóa được môn học');
@@ -50,6 +58,7 @@ const SubjectManagementPage: React.FC = () => {
         {
             title: 'No.',
             dataIndex: '1',
+            key: 'subjectId',
             render: (_text: any, _record: any, index: number) => index + 1,
         },
         {
@@ -57,22 +66,22 @@ const SubjectManagementPage: React.FC = () => {
             dataIndex: 'name',
             key: 'name',
         },
-        {
-            title: 'Kiểm duyệt',
-            dataIndex: 'is_approved',
-            key: 'is_approved',
-            render: (isApproved: boolean) => (
-                <span className={`text-${isApproved ? 'green' : 'red'}-500`}>
-                    {isApproved ? 'Đã kiểm duyệt' : 'Chưa kiểm duyệt'}
-                </span>
-            ),
-        },
+        // {
+        //     title: 'Kiểm duyệt',
+        //     dataIndex: 'is_approved',
+        //     key: 'is_approved',
+        //     render: (isApproved: boolean) => (
+        //         <span className={`text-${isApproved ? 'green' : 'red'}-500`}>
+        //             {isApproved ? 'Đã kiểm duyệt' : 'Chưa kiểm duyệt'}
+        //         </span>
+        //     ),
+        // },
         {
             title: 'Cập nhật',
             dataIndex: 'actions',
             key: 'actions',
-            render: (_text: any, _record: ISubject) => (
-                <Link to={`/admin/subjects/edit/${_record.id}`}>
+            render: (_text: any, _record: IViewListSubject) => (
+                <Link to={`/admin/subjects/edit/${_record.subjectId}`}>
                     <Button type="link"><EditOutlined /> Chỉnh sửa</Button>
                 </Link>
             ),
@@ -80,7 +89,7 @@ const SubjectManagementPage: React.FC = () => {
         {
             title: 'Xóa',
             key: 'delete',
-            render: (_text: any, record: ISubject) => (
+            render: (_text: any, record: IViewListSubject) => (
                 <Button
                     type="primary"
                     danger

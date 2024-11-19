@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Row, Col, Card, Statistic, List, Typography, Select, } from 'antd';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Row, Col, Card, Statistic, List, Typography, Select, message, } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import {
     XAxis,
@@ -16,21 +16,48 @@ import {
 } from 'recharts';
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
-import payment_data from "@/data/manager/UserPaymentData";
-import user_services_data from "@/data/manager/UserPackageData";
+import { IViewListPayment, fetchListPayment, fetchRevenueByMonth, fetchRevenueByQuarter, fetchRevenueByYear } from "@/data/manager/UserPaymentData";
+import { IViewListUserPackage, fetchUserPackageList } from "@/data/manager/UserPackageData";
 
 const { Title, Text } = Typography;
 const COLORS = ['#FFBB28', '#55bfc7', '#e8744c', '#00C49F', '#9e5493', '#FF6666'];
 const { Option } = Select;
 
 const DashBoardManagerPage: React.FC = () => {
-    const [userPayments] = useState(payment_data);
-    const [userServices] = useState(user_services_data);
+    const [userPayments, setUserPayments] = useState<IViewListPayment[]>([]);
+    const [userServices, setUserServices] = useState<IViewListUserPackage[]>([]);
+    const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([]);
     const [timeFrame, setTimeFrame] = useState("month");
 
     const handleTimeFrameChange = (value: string) => {
         setTimeFrame(value);
     };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const payments = await fetchListPayment();
+                const services = await fetchUserPackageList();
+                setUserPayments(payments);
+                setUserServices(services);
+
+                let revenueResponse;
+                const year = dayjs().year();
+                if (timeFrame === "month") {
+                    revenueResponse = await fetchRevenueByMonth(year);
+                } else if (timeFrame === "quarter") {
+                    revenueResponse = await fetchRevenueByQuarter(year);
+                } else if (timeFrame === "year") {
+                    revenueResponse = await fetchRevenueByYear();
+                }
+                setRevenueData(revenueResponse || []);
+            } catch (error) {
+                message.error('Lỗi khi tải dữ liệu từ server.');
+            }
+        };
+
+        fetchData();
+    }, [timeFrame]);
 
     const packageDistribution = useMemo(() => {
         const counts = { Free: 0, Basic: 0, Premium: 0 };
@@ -39,7 +66,7 @@ const DashBoardManagerPage: React.FC = () => {
             if (
                 (timeFrame === "month" && serviceDate.isSame(dayjs(), "month")) ||
                 (timeFrame === "quarter" && serviceDate.isAfter(dayjs().subtract(3, "month"))) ||
-                (timeFrame === "6months" && serviceDate.isAfter(dayjs().subtract(6, "month")))
+                (timeFrame === "year" && serviceDate.isAfter(dayjs().subtract(6, "month")))
             ) {
                 if (service.packageName === 'Gói miễn phí') counts.Free++;
                 if (service.packageName === 'Gói cơ bản') counts.Basic++;
@@ -54,40 +81,40 @@ const DashBoardManagerPage: React.FC = () => {
         ];
     }, [userServices, timeFrame]);
 
-    const revenueData = useMemo(() => {
-        if (timeFrame === "month") {
-            const lastMonths = Array.from({ length: 1 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
-            return lastMonths.map(month => ({
-                month,
-                revenue: userPayments
-                    .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
-                    .reduce((sum, payment) => sum + payment.totalAmount, 0)
-            }));
-        } else if (timeFrame === "quarter") {
-            const lastThreeMonths = Array.from({ length: 3 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
-            return lastThreeMonths.map(month => ({
-                month,
-                revenue: userPayments
-                    .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
-                    .reduce((sum, payment) => sum + payment.totalAmount, 0)
-            }));
-        } else if (timeFrame === "6months") {
-            const lastSixMonths = Array.from({ length: 6 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
-            return lastSixMonths.map(month => ({
-                month,
-                revenue: userPayments
-                    .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
-                    .reduce((sum, payment) => sum + payment.totalAmount, 0)
-            }));
-        }
-    }, [userPayments, timeFrame]);
+    // const revenueData = useMemo(() => {
+    //     if (timeFrame === "month") {
+    //         const lastMonths = Array.from({ length: 1 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
+    //         return lastMonths.map(month => ({
+    //             month,
+    //             revenue: userPayments
+    //                 .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
+    //                 .reduce((sum, payment) => sum + payment.totalAmount, 0)
+    //         }));
+    //     } else if (timeFrame === "quarter") {
+    //         const lastThreeMonths = Array.from({ length: 3 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
+    //         return lastThreeMonths.map(month => ({
+    //             month,
+    //             revenue: userPayments
+    //                 .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
+    //                 .reduce((sum, payment) => sum + payment.totalAmount, 0)
+    //         }));
+    //     } else if (timeFrame === "year") {
+    //         const lastSixMonths = Array.from({ length: 6 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
+    //         return lastSixMonths.map(month => ({
+    //             month,
+    //             revenue: userPayments
+    //                 .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
+    //                 .reduce((sum, payment) => sum + payment.totalAmount, 0)
+    //         }));
+    //     }
+    // }, [userPayments, timeFrame]);
 
     const serviceStatus = useMemo(() => {
         const activeServices = userServices.filter(
             (service) =>
             ((timeFrame === "month" && dayjs(service.startDate).isSame(dayjs(), "month")) ||
                 (timeFrame === "quarter" && dayjs(service.startDate).isAfter(dayjs().subtract(3, "month"))) ||
-                (timeFrame === "6months" && dayjs(service.startDate).isAfter(dayjs().subtract(6, "month"))))
+                (timeFrame === "year" && dayjs(service.startDate).isAfter(dayjs().subtract(6, "month"))))
         );
         return [
             { name: "Đang sử dụng", value: activeServices.filter((service) => service.isActivated).length },
@@ -143,7 +170,7 @@ const DashBoardManagerPage: React.FC = () => {
                                         .isSame(dayjs(), 'month')).length
                             } />
                         <div className="mt-2 flex items-center justify-between">
-                            <span className="text-green-500">Tăng 1.3% so với tuần trước</span>
+                            {/* <span className="text-green-500">Tăng 1.3% so với tuần trước</span> */}
                             <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link>
                         </div>
                     </Card>
@@ -173,7 +200,7 @@ const DashBoardManagerPage: React.FC = () => {
                     >
                         <Option value="month">1 tháng</Option>
                         <Option value="quarter">3 tháng</Option>
-                        <Option value="6months">6 tháng</Option>
+                        <Option value="year">năm</Option>
                     </Select>
                 </Col>
                 <Col span={8}>
@@ -260,49 +287,50 @@ const DashBoardManagerPage: React.FC = () => {
                                 style={{
                                     display: 'flex',
                                     width: '100%',
-                                    alignItems: 'center',
+                                    // alignItems: 'center',
+                                    textAlign: 'left',
                                 }}
                             >
-                                <div style={{ flex: '1 1 30px' }}>
+                                <div style={{ flex: '0 1 30px' }}>
                                     <Text strong>No. </Text>
                                 </div>
-                                <div style={{ flex: '1 1 350px' }}>
+                                <div style={{ flex: '1 1 350px', paddingLeft: '20px' }}>
                                     <Text strong>Tên gói</Text>
                                 </div>
-                                <div style={{ flex: '1 1 150px' }}>
+                                {/* <div style={{ flex: '1 1 150px' }}>
                                     <Text strong>Giá</Text>
-                                </div>
+                                </div> */}
                                 <div style={{ flex: '1 1 150px' }}>
                                     <Text strong>Số lượng người dùng</Text>
                                 </div>
                             </div>
                         </List.Item>
-                        {packageStatistics.length > 0 ? (
-                            <List
-                                itemLayout="vertical"
-                                dataSource={packageStatistics}
-                                renderItem={(item, index) => (
-                                    <List.Item>
-                                        <div style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
-                                            <div style={{ flex: '0 1 30px' }}>
-                                                <Text strong>{index + 1}</Text>
-                                            </div>
-                                            <div style={{ flex: '1 1 350px', paddingLeft: '10px' }}>
-                                                <Text strong>{item.name}</Text>
-                                            </div>
-                                            <div style={{ flex: '1 1 150px' }}>
-                                                {item.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                                            </div>
-                                            <div style={{ flex: '1 1 150px' }}>
-                                                {item.count}
-                                            </div>
+                        {/* {packageStatistics.length > 0 ? ( */}
+                        <List
+                            itemLayout="vertical"
+                            dataSource={packageStatistics}
+                            renderItem={(item, index) => (
+                                <List.Item>
+                                    <div style={{ display: 'flex', width: '100%', textAlign: 'left' }}>
+                                        <div style={{ flex: '0 1 30px' }}>
+                                            <Text strong>{index + 1}</Text>
                                         </div>
-                                    </List.Item>
-                                )}
-                            />
-                        ) : (
+                                        <div style={{ flex: '1 1 350px', paddingLeft: '20px' }}>
+                                            <Text strong>{item.name}</Text>
+                                        </div>
+                                        {/* <div style={{ flex: '1 1 150px' }}>
+                                            {item.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                        </div> */}
+                                        <div style={{ flex: '1 1 150px' }}>
+                                            {item.count}
+                                        </div>
+                                    </div>
+                                </List.Item>
+                            )}
+                        />
+                        {/* ) : (
                             <Text>Không có dữ liệu.</Text>
-                        )}
+                        )} */}
                     </Card>
                 </Col>
             </Row>

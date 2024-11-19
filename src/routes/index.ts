@@ -8,6 +8,7 @@ import DefaultTeacherLayout from '@/layouts/teacher/DefaultTeacherLayout';
 
 // Client
 import HomePage from '../pages/client/Home/HomePage';
+import NotFoundPage from '@/pages/client/NotFound/NotFoundPage';
 import ComingSoonPage from '../pages/client/ComingSoon/ComingSoonPage';
 import PlanbookLibraryPage from '../pages/client/PlanbookLibrary/PlanbookLibraryPage';
 import PlanbookDetailPage from '../pages/client/PlanBookDetail/PlanBookDetailPage';
@@ -15,8 +16,8 @@ import { DefaultLayoutProps } from '../types/layout.type';
 import SignInPage from '../pages/authen/SignIn/SignInPage';
 import SignUpPage from '../pages/authen/SignUp/SignUpPage';
 import ForgotPasswordPage from '@/pages/authen/ForgotPassword/ForgotPasswordPage';
-import ListArticlePage from '@/pages/client/ListArticlePage/ListArticlePage';
-import ArticleDetailPage from '@/pages/client/ArticleDetailPage/ArticleDetailPage';
+import ListArticlePage from '@/pages/client/Article/ListArticlePage';
+import ArticleDetailPage from '@/pages/client/Article/ArticleDetailPage';
 
 // Admin
 import DashBoardPage from '../pages/admin/DashBoard/DashBoardPage';
@@ -29,6 +30,8 @@ import CurriculumFrameworkManagementPage from '@/pages/admin/CurriculumFramework
 import CurriculumFrameworkFormPage from '@/pages/admin/CurriculumFrameworkManagement/CurriculumFrameworkFormPage';
 import SubjectManagementPage from '@/pages/admin/SubjectManagement/SubjectManagementPage';
 import SubjectFormPage from '@/pages/admin/SubjectManagement/SubjectFormPage';
+import GradeManagementPage from '@/pages/admin/GradeManagement/GrademanagementPage';
+import GradeFormPage from '@/pages/admin/GradeManagement/GradeFormPage';
 
 // Manager
 import DashBoardManagerPage from '@/pages/manager/DashBoard/DashBoardPage';
@@ -45,9 +48,12 @@ import QuestionBankManagementPage from '@/pages/academy-staff/QuestionBankManage
 import QuestionBankFormPage from '@/pages/academy-staff/QuestionBankManagement/QuestionBankFormPage';
 import PlanbookFeedbackManagementPage from '@/pages/academy-staff/FeedbackManagement/PlanbookFeedbackManagementPage';
 import SystemFeedbackManagementPage from '@/pages/academy-staff/FeedbackManagement/SystemFeedbackManagementPage';
+import SubjectInCurriculumManagementPage from '@/pages/academy-staff/SubjectInCurriculum/SubjectInCurriculumManagementPage';
+import ChapterManagementPage from '@/pages/academy-staff/ChapterManagement/ChapterManagementPage';
+import LessonManagementPage from '@/pages/academy-staff/LessonManagement/LessonManagementPage';
 
 // Teacher
-import ProfilePage from '@/pages/teacher/User/ProfilePage';
+import UserProfilePage from '@/pages/teacher/User/UserProfilePage';
 import ChangePasswordPage from '@/pages/teacher/User/ChangePasswordPage';
 import AccountSettingsPage from '@/pages/teacher/User/AccountSettingsPage';
 import PaymentHistoryPage from '@/pages/teacher/User/PaymentHistoryPage';
@@ -64,15 +70,16 @@ interface RouteProps {
 
 const publicRoutes: RouteProps[] = [
     { path: '/', component: HomePage, layout: DefaultClientLayout },
+    { path: '*', component: NotFoundPage, layout: DefaultClientLayout },
     { path: '/sign-in', component: SignInPage, layout: DefaultAuthenLayout },
     { path: '/sign-up', component: SignUpPage, layout: DefaultAuthenLayout },
     { path: '/forgot-password', component: ForgotPasswordPage, layout: DefaultAuthenLayout },
     { path: '/coming-soon', component: ComingSoonPage, layout: DefaultClientLayout },
-    { path: '/list-article', component: ListArticlePage, layout: DefaultClientLayout },
+    { path: '/articles', component: ListArticlePage, layout: DefaultClientLayout },
     { path: '/planbook-library', component: PlanbookLibraryPage, layout: DefaultClientLayout },
     { path: '/planbook-detail/:id', component: PlanbookDetailPage, layout: DefaultClientLayout },
     { path: '/package-detail', component: PackageDetailPage, layout: DefaultClientLayout },
-    { path: '/article-detail/:id', component: ArticleDetailPage, layout: DefaultClientLayout }
+    { path: '/articles/:id', component: ArticleDetailPage, layout: DefaultClientLayout }
 ];
 
 const privateRoutes: RouteProps[] = [];
@@ -92,6 +99,9 @@ const adminRoutes: RouteProps[] = [
     { path: '/admin/subjects', component: SubjectManagementPage, layout: DefaultAdminLayout },
     { path: '/admin/subjects/add-new', component: SubjectFormPage, layout: DefaultAdminLayout },
     { path: '/admin/subjects/edit/:id', component: SubjectFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/grades', component: GradeManagementPage, layout: DefaultAdminLayout },
+    { path: '/admin/grades/add-new', component: GradeFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/grades/edit/:id', component: GradeFormPage, layout: DefaultAdminLayout },
 ];
 
 const managerRoutes: RouteProps[] = [
@@ -112,10 +122,13 @@ const academyStaffRoutes: RouteProps[] = [
     { path: '/academy-staff/question-banks/edit/:id', component: QuestionBankFormPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/feedbacks/planbook/', component: PlanbookFeedbackManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/feedbacks/system/', component: SystemFeedbackManagementPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/subject-in-curriculum', component: SubjectInCurriculumManagementPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/chapters', component: ChapterManagementPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/lessons', component: LessonManagementPage, layout: DefaultStaffLayout },
 ];
 
 const teacherRoutes: RouteProps[] = [
-    { path: '/teacher/profile', component: ProfilePage, layout: DefaultClientLayout },
+    { path: '/teacher/profile', component: UserProfilePage, layout: DefaultClientLayout },
     { path: '/teacher/change-password', component: ChangePasswordPage, layout: DefaultClientLayout },
     { path: '/teacher/account-settings', component: AccountSettingsPage, layout: DefaultClientLayout },
     { path: '/teacher/payment-history', component: PaymentHistoryPage, layout: DefaultClientLayout },

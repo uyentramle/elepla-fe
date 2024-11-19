@@ -36,6 +36,7 @@ export default function MySider({
     const getConditionalItems = (): MenuItem[] => {
         return [
             getItem('Bảng thống kê', '1', <AnalyticsOutlinedIcon />),
+            getItem('Quản lý tài khoản', '6', <ManageAccountsOutlinedIcon />),
             getItem('Quản lý bài viết', '2', <FormOutlined />, [
                 getItem('Xem tất cả', '2-1', <CaretRightOutlined />),
                 getItem('Thêm mới bài viết', '2-2', <CaretRightOutlined />),
@@ -52,7 +53,7 @@ export default function MySider({
                 getItem('Xem tất cả', '5-1', <CaretRightOutlined />),
                 getItem('Thêm mới môn học', '5-2', <CaretRightOutlined />),
             ]),
-            getItem('Quản lý tài khoản', '6', <ManageAccountsOutlinedIcon />),
+            getItem('Quản lý khối lớp', '7', <ManageAccountsOutlinedIcon />),
         ];
     };
 
@@ -71,7 +72,8 @@ export default function MySider({
         .set('5', '/admin/subjects')
         .set('5-1', '/admin/subjects')
         .set('5-2', '/admin/subjects/add-new')
-        .set('6', '/admin/users');
+        .set('6', '/admin/users')
+        .set('7', '/admin/grades');
 
     return (
         <div className="fixed top-0 left-0 h-full bg-white z-50">
