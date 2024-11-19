@@ -1,4 +1,3 @@
-// import axios from 'axios';
 import apiClient from "@/data/apiClient"; // Import your configured apiClient
 
 // Interface for ChapterItem

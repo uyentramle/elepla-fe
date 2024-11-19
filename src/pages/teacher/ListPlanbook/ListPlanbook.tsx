@@ -165,12 +165,14 @@ const ListPlanbook: React.FC = () => {
             className="flex flex-col items-center justify-center p-6 border rounded-md shadow-md hover:shadow-lg transition-all h-32 transform hover:scale-105 hover:translate-y-[-0.5rem]"
             onClick={() => {
               console.log("Clicked Planbook ID:", planbook.planbookId); // Kiểm tra ID từ đây
+              console.log(planbooks.length)
               handlePlanbookClick(planbook.planbookId);
             }}
               >
             <div className="flex flex-col items-center justify-center h-full">
               <FileOutlined style={{ fontSize: '64px', color: '#1890ff' }} />
               <h2 className="text-sm font-semibold mt-2 text-center">{planbook.lessonName}</h2>
+              
             </div>
           </Card>
         ))}
