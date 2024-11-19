@@ -64,6 +64,8 @@ import PackageDetailPage from '@/pages/teacher/User/PackageDetailPage';
 import ListPlanbook from '@/pages/teacher/ListPlanbook/ListPlanbook';
 // import PlanbookContent from '@/layouts/teacher/PlanbookContent/PlanbookContent';
 import LessonPlanner from '@/layouts/teacher/Components/CreatePlanbook/CreateLesson'
+import EventFormPage from '@/pages/teacher/Schedule/EventFormPage';
+
 interface RouteProps {
     path: string;
     component: FC<{}>;
@@ -140,7 +142,8 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/list-collection/list-planbook/:id', component: ListPlanbook, layout: DefaultTeacherLayout },
     // { path: '/teacher/list-collection/planbook-content', component: PlanbookContent, layout: DefaultClientLayout },
     { path: '/teacher/LessonPlanner', component: LessonPlanner, layout: DefaultClientLayout },
-
+    { path: '/teacher/schedule/create', component: EventFormPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/schedule/edit/:id', component: EventFormPage, layout: DefaultTeacherLayout },
 ];
 
 export { publicRoutes, privateRoutes, adminRoutes, managerRoutes, academyStaffRoutes, teacherRoutes };
