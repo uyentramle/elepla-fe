@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Input, Button, InputNumber, message } from "antd";
+import { Form, Input, Button, InputNumber, message,Switch } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import apiClient from "@/data/apiClient";
 
@@ -38,13 +38,26 @@ const PlanbookForm: React.FC<PlanbookFormProps> = ({ lessonId, collectionId, onP
         (Kèm theo Công văn số 5512/BGDĐT-GDTrH ngày 18 tháng 12 năm 2020 của Bộ GDĐT)
       </p>
       <Form onFinish={handleSubmit} layout="vertical">
-
         
           {/* AI and Template Buttons */}
         <div className="flex justify-end gap-4 mb-4">
           <Button type="primary" className="bg-blue-600 text-white">Dùng AI</Button>
           <Button type="primary" className="bg-blue-600 text-white">Sử dụng giáo án mẫu</Button>
         </div>
+
+              {/* Public/Private Toggle */}
+              <Form.Item
+          label="Chế độ hiển thị"
+          name="isPublic"
+          valuePropName="checked"
+          initialValue={true}
+        >
+          <Switch
+            checkedChildren="Công khai"
+            unCheckedChildren="Riêng tư"
+          />
+        </Form.Item>
+
         {/* Title */}
         <Form.Item
           label="TÊN BÀI DẠY"

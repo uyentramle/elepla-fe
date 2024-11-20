@@ -55,6 +55,17 @@ const PlanbookContent: React.FC<PlanbookContentProps> = ({ planbookData }) => {
     // Implement the exit functionality here
   };
 
+  // Hàm xử lý xuất file PDF và Word
+    const handleExportPDF = () => {
+      // Logic để xuất file PDF
+      console.log("Xuất file PDF");
+    };
+
+    const handleExportWord = () => {
+      // Logic để xuất file Word
+      console.log("Xuất file Word");
+    };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-4 text-center">{editableData.title}</h1>
@@ -167,7 +178,20 @@ const PlanbookContent: React.FC<PlanbookContentProps> = ({ planbookData }) => {
             </Card>
           ))}
         </Card>
-
+          <div className="flex justify-end gap-4 mt-6">
+            <Button
+              style={{ backgroundColor: "red", color: "white" }}
+              onClick={handleExportPDF}
+            >
+              Xuất file PDF
+            </Button>
+            <Button
+              style={{ backgroundColor: "blue", color: "white" }}
+              onClick={handleExportWord}
+            >
+              Xuất file Word
+            </Button>
+          </div>
         <div className="flex justify-end gap-4 mt-6">
           <Button type="default" onClick={handleExit}>
             Thoát
