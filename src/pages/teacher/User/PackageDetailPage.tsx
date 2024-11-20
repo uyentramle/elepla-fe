@@ -4,6 +4,7 @@ import { CheckCircleOutlined, CrownOutlined, RocketOutlined } from '@ant-design/
 import axios from 'axios';
 import { getActiveUserPackageByUserId, ServicePackage } from '@/data/manager/UserPackageDatas';
 import { getUserId } from '@/data/apiClient';
+import { createPaymentLink } from "@/data/manager/PaymentData";
 
 interface ServicePackages {
   packageId: string;
@@ -91,6 +92,16 @@ const PackageDetailPage: React.FC = () => {
     fetchActivePackage(); // Gọi hàm lấy gói dịch vụ khi component mount
   }, []);
 
+  const handleUpgradePackage = async (packageId: string) => {
+    try {
+      const createPayment = await createPaymentLink(getUserId() || '', packageId);
+      window.open(createPayment.paymentUrl, '_blank');
+    } catch (error) {
+      console.error('Error upgrading package:', error);
+      message.error('Không thể nâng cấp gói dịch vụ.');
+    }
+  };
+
   return (
     <div className="container mx-auto">
       <h1 className="text-center text-2xl font-bold mb-4">Các gói dịch vụ</h1>
@@ -141,13 +152,21 @@ const PackageDetailPage: React.FC = () => {
               type={pkg.price > 0 ? 'primary' : 'default'}
               size="large"
               className="w-full"
-              disabled={pkg.price === 0 || activePackage?.packageId === pkg.packageId} // Disable nếu là gói hiện tại hoặc gói miễn phí
-              onClick={() =>
-                pkg.price > 0 ? alert(`Nâng cấp ${pkg.packageName}`) : alert(`Đây là gói hiện tại.`)
+              disabled={
+                activePackage?.packageName === "Gói cao cấp" || // Disable tất cả nút nếu gói hiện tại là Gói cao cấp
+                pkg.price === 0 || // Vô hiệu hóa nếu là gói miễn phí
+                activePackage?.packageId === pkg.packageId // Vô hiệu hóa nếu là gói hiện tại
               }
+              onClick={() => handleUpgradePackage(pkg.packageId)}
             >
-              {activePackage?.packageId === pkg.packageId ? 'Gói hiện tại' : pkg.price === 0 ? 'Gói miễn phí' : 'Nâng cấp ngay'}
-              </Button>
+              {activePackage?.packageId === pkg.packageId
+                ? 'Gói hiện tại'
+                : activePackage?.packageName === "Gói cao cấp" && pkg.packageName === "Gói cơ bản"
+                  ? 'Gói cơ bản'
+                  : pkg.price === 0
+                    ? 'Gói miễn phí'
+                    : 'Nâng cấp ngay'}
+            </Button>
           </Card>
         ))}
       </div>

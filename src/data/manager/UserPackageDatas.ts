@@ -4,17 +4,17 @@ interface ApiResponse<T> {
     success: boolean;
     message: string;
     data: {
-      totalItemsCount: number;
-      pageSize: number;
-      totalPagesCount: number;
-      pageIndex: number;
-      next: boolean;
-      previous: boolean;
-      items: T;
+        totalItemsCount: number;
+        pageSize: number;
+        totalPagesCount: number;
+        pageIndex: number;
+        next: boolean;
+        previous: boolean;
+        items: T;
     };
-  }
+}
 
-  export interface ServicePackage {
+export interface ServicePackage {
     packageId: string;
     packageName: string;
     description: string | null;
@@ -27,28 +27,27 @@ interface ApiResponse<T> {
     startDate: string;
     endDate: string;
     maxLessonPlans: number;
-  }
+}
 
-
-  export const getActiveUserPackageByUserId = async (userId: string): Promise<ServicePackage> => {
+export const getActiveUserPackageByUserId = async (userId: string): Promise<ServicePackage> => {
     try {
-      const response = await apiClient('UserPackage/GetActiveUserPackageByUserId', {
-        params: {
-          userId
-        },
-      });
-      if (response.data.success) {
-        return response.data.data;
-      } else {
-        throw new Error(response.data.message);
-      }
+        const response = await apiClient('UserPackage/GetActiveUserPackageByUserId', {
+            params: {
+                userId,
+            },
+        });
+        if (response.data.success) {
+            return response.data.data;
+        } else {
+            throw new Error(response.data.message);
+        }
     } catch (error) {
-      console.error('Error getting user package:', error);
-      throw error;
+        console.error('Error getting user package:', error);
+        throw error;
     }
-  }
+};
 
-  export interface UserPackage {
+export interface UserPackage {
     userPackageId: string;
     userId: string;
     fullName: string;
@@ -71,13 +70,13 @@ interface ApiResponse<T> {
     deletedAt: string;
     deletedBy: string;
     isDeleted: boolean;
-  }
+}
 
-    export const getUserPackagesByUserId = async (userId: string): Promise<ApiResponse<UserPackage[]>> => {
-        try {
+export const getUserPackagesByUserId = async (userId: string): Promise<ApiResponse<UserPackage[]>> => {
+    try {
         const response = await apiClient('UserPackage/GetUserPackagesByUserId', {
             params: {
-                userId
+                userId,
             },
         });
         if (response.data.success) {
@@ -85,10 +84,8 @@ interface ApiResponse<T> {
         } else {
             throw new Error(response.data.message);
         }
-        } catch (error) {
+    } catch (error) {
         console.error('Error getting user packages:', error);
         throw error;
-        }
     }
-
-  
+};
