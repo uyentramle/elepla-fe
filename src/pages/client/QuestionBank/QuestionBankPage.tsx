@@ -32,6 +32,7 @@ const QuestionBankPage: React.FC = () => {
     const [lessons, setLessons] = useState<IViewListLesson[]>([]);
     const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
     const [questions, setQuestions] = useState<IViewListQuestionBank[]>([]);
+    const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
     const [, setSearchText] = useState('');
 
     // Gọi API để tìm kiếm câu hỏi
@@ -44,6 +45,9 @@ const QuestionBankPage: React.FC = () => {
     const onSearch = (value: string) => {
         setSearchText(value); // Cập nhật từ khóa
         fetchQuestions(value); // Gọi API tìm kiếm
+        setSelectedSubjectId(null); // Reset môn học khi tìm kiếm
+        setChapters([]);
+        setLessons([]);
     };
 
     // Khởi tạo mặc định (lấy tất cả câu hỏi)
@@ -69,7 +73,7 @@ const QuestionBankPage: React.FC = () => {
                 setChapters(chapters);
                 setSelectedChapterId(null); // Reset chương khi chọn môn học mới
                 setLessons([]); // Xóa danh sách bài học
-                setQuestions([]); // Xóa câu hỏi
+                // setQuestions([]); // Xóa câu hỏi
             };
             fetchChapters();
         }
@@ -100,10 +104,18 @@ const QuestionBankPage: React.FC = () => {
         }
     }, [selectedLessonId]);
 
+    const handleQuestionClick = (questionId: string) => {
+        if (selectedQuestionId === questionId) {
+            setSelectedQuestionId(null);  // Nếu câu hỏi đã được chọn, bỏ chọn nó
+        } else {
+            setSelectedQuestionId(questionId);  // Chọn câu hỏi
+        }
+    };
+
     return (
-        <div className="pt-10 pb-10">
+        <div className="pt-5 pb-10">
             <div className="container mx-auto">
-                <div className="text-center">
+                <div className="text-center mb-5">
                     <Title level={2} className="my-4">
                         Ngân hàng câu hỏi
                     </Title>
@@ -116,8 +128,8 @@ const QuestionBankPage: React.FC = () => {
                 </div>
                 <div className="flex flex-wrap">
                     {/* Sidebar Môn học */}
-                    <div className="w-full lg:w-1/4">
-                        <ul className="shadow-lg pb-6 px-6 rounded-lg">
+                    <div className="w-full lg:w-1/5">
+                        <ul className="shadow-lg pb-6 px-6 rounded-lg bg-gray-100">
                             <li className="border-b mb-4">
                                 <Title level={3} className="my-4">
                                     Môn học
@@ -146,9 +158,9 @@ const QuestionBankPage: React.FC = () => {
                     </div>
 
                     {/* Danh sách chương và bài học */}
-                    <div className="w-full lg:w-1/4">
+                    <div className="w-full lg:w-1/5 mx-4">
                         {chapters.length > 0 ? (
-                            <ul className="shadow-lg pt-2 pb-6 px-6 rounded-lg">
+                            <ul className="shadow-lg pt-2 pb-6 px-6 rounded-lg bg-gray-100">
                                 <li className="border-b mb-4">
                                     <Title level={4} className="my-4">
                                         Chương
@@ -187,33 +199,35 @@ const QuestionBankPage: React.FC = () => {
 
                     {/* Ngân hàng câu hỏi */}
                     <div className="w-full lg:w-2/4">
-                        {questions.length > 0 ? (
+                        {questions.length > 0 && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {questions.map((question) => (
                                     <div key={question.id} className="shadow-lg rounded-lg p-4 bg-white">
-                                        <Title level={4} className="mb-2">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <p>Loại: {question.type}</p>
+                                            <p>Mức độ câu hỏi: {question.plum}</p>
+                                        </div>
+                                        <Title level={4}
+                                            className="mb-2 cursor-pointer"
+                                            onClick={() => handleQuestionClick(question.id)} >
                                             {question.question}
                                         </Title>
-                                        <p>Loại: {question.type}</p>
-                                        <p>Mức độ câu hỏi: {question.plum}</p>
                                         <p>
-                                            Đáp án:
-                                            <ul className="list-disc ml-4">
-                                                {question.answers.map((answer) => (
-                                                    <li
-                                                        key={answer.id}
-                                                        className={answer.isCorrect ? 'text-green-600' : ''}
-                                                    >
-                                                        {answer.answer}
-                                                    </li>
-                                                ))}
+                                            <ul className="list-disc ml-3">
+                                                {question.answers.map((answer, index) => {
+                                                    return (
+                                                        <p key={index} className='mb-2'>
+                                                            <b>{String.fromCharCode(65 + index)}.</b> {answer.answerText}
+                                                        </p>
+                                                    );
+                                                })}
                                             </ul>
                                         </p>
                                     </div>
                                 ))}
                             </div>
-                        ) : (
-                            <p className="text-center pt-4">Chọn một chương hoặc bài học để xem danh sách câu hỏi.</p>
+                            // ) : (
+                            //     <p className="text-center pt-4">Chọn một chương hoặc bài học để xem danh sách câu hỏi.</p>
                         )}
                     </div>
                 </div>

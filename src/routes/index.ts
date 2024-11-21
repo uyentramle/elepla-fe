@@ -143,7 +143,8 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/list-collection/list-planbook/:id', component: ListPlanbook, layout: DefaultTeacherLayout },
     { path: '/teacher/schedule/create', component: EventFormPage, layout: DefaultTeacherLayout },
     { path: '/teacher/schedule/edit/:id', component: EventFormPage, layout: DefaultTeacherLayout },
-    { path: '/question-bank/exam', component: ExamPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/question-bank/', component: QuestionBankPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/exam', component: ExamPage, layout: DefaultTeacherLayout },
 ];
 
 export { publicRoutes, privateRoutes, adminRoutes, managerRoutes, academyStaffRoutes, teacherRoutes };

@@ -6,6 +6,10 @@ export interface IViewListQuestionBank {
     question: string;
     type: string;
     plum: string;
+    chapterId: string;
+    chapterName: string;
+    lessonId: string;
+    lessonName: string;
     answers: IAnswer[];
 
     created_at: string;
@@ -29,7 +33,7 @@ export interface IViewDetailQuestionBank {
 
 export interface IAnswer {
     id: string;
-    answer: string;
+    answerText: string;
     isCorrect: boolean;
 }
 
@@ -41,7 +45,7 @@ export const getViewListQuestionBank = async (
     try {
         const response = await apiClient.get('QuestionBank/GetAllQuestionBank', {
             params: {
-                keyword, 
+                keyword,
                 pageIndex,
                 pageSize,
             },
@@ -55,9 +59,13 @@ export const getViewListQuestionBank = async (
             question: data.question,
             type: data.type,
             plum: data.plum,
+            chapterId: data.chapterId,
+            chapterName: data.chapterName,
+            lessonId: data.lessonId,
+            lessonName: data.lessonName,
             answers: data.answers.map((answer: any) => ({
                 id: answer.answerId,
-                answer: answer.answer,
+                answerText: answer.answerText,
                 isCorrect: answer.isCorrect,
             })),
             created_at: data.createdAt,
@@ -73,16 +81,20 @@ export const getViewListQuestionBank = async (
 
 export const getQuestionByChapterId = async (chapterId: string): Promise<IViewListQuestionBank[]> => {
     try {
-        const response = await apiClient.get(`QuestionBank/GetQuestionByChapterIdAsync?chapterId=${chapterId}`);
+        const response = await apiClient.get(`/QuestionBank/GetQuestionByChapterId?chapterId=${chapterId}&pageIndex=0&pageSize=50`);
         const questions = response.data.data.items
             .map((data: any) => ({
                 id: data.questionId,
                 question: data.question,
                 type: data.type,
                 plum: data.plum,
+                chapterId: data.chapterId,
+                chapterName: data.chapterName,
+                lessonId: data.lessonId,
+                lessonName: data.lessonName,
                 answers: data.answers.map((answer: any) => ({
                     id: answer.answerId,
-                    answer: answer.answer,
+                    answerText: answer.answerText,
                     isCorrect: answer.isCorrect,
                 })),
                 created_at: data.createdAt,
@@ -98,16 +110,20 @@ export const getQuestionByChapterId = async (chapterId: string): Promise<IViewLi
 
 export const getQuestionByLessonId = async (lessonId: string): Promise<IViewListQuestionBank[]> => {
     try {
-        const response = await apiClient.get(`QuestionBank/GetQuestionByLessonIdAsync?lessonId=${lessonId}`);
+        const response = await apiClient.get(`/QuestionBank/GetQuestionByLessonIdAsync?lessonId=${lessonId}&pageIndex=0&pageSize=50`);
         const questions = response.data.data.items
             .map((data: any) => ({
                 id: data.questionId,
                 question: data.question,
                 type: data.type,
                 plum: data.plum,
+                chapterId: data.chapterId,
+                chapterName: data.chapterName,
+                lessonId: data.lessonId,
+                lessonName: data.lessonName,
                 answers: data.answers.map((answer: any) => ({
                     id: answer.answerId,
-                    answer: answer.answer,
+                    answerText: answer.answerText,
                     isCorrect: answer.isCorrect,
                 })),
                 created_at: data.createdAt,
@@ -128,7 +144,7 @@ export const getViewDetailQuestionBank = async (questionId: string): Promise<IVi
 
         const answers = data.answers.map((answer: any) => ({
             id: answer.answerId,
-            answer: answer.answer,
+            answerText: answer.answerText,
             isCorrect: answer.isCorrect,
         }));
 
