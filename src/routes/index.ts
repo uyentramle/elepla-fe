@@ -18,6 +18,7 @@ import SignUpPage from '../pages/authen/SignUp/SignUpPage';
 import ForgotPasswordPage from '@/pages/authen/ForgotPassword/ForgotPasswordPage';
 import ListArticlePage from '@/pages/client/Article/ListArticlePage';
 import ArticleDetailPage from '@/pages/client/Article/ArticleDetailPage';
+import QuestionBankPage from '@/pages/client/QuestionBank/QuestionBankPage';
 
 // Admin
 import DashBoardPage from '../pages/admin/DashBoard/DashBoardPage';
@@ -63,6 +64,7 @@ import ListCollection from '@/pages/teacher/ListPlanbook/ListCollection';
 import PackageDetailPage from '@/pages/teacher/User/PackageDetailPage';
 import ListPlanbook from '@/pages/teacher/ListPlanbook/ListPlanbook';
 import EventFormPage from '@/pages/teacher/Schedule/EventFormPage';
+import ExamPage from '@/pages/teacher/Exam/ExamPage';
 
 interface RouteProps {
     path: string;
@@ -81,7 +83,8 @@ const publicRoutes: RouteProps[] = [
     { path: '/planbook-library', component: PlanbookLibraryPage, layout: DefaultClientLayout },
     { path: '/planbook-detail/:id', component: PlanbookDetailPage, layout: DefaultClientLayout },
     { path: '/package-detail', component: PackageDetailPage, layout: DefaultClientLayout },
-    { path: '/articles/:id', component: ArticleDetailPage, layout: DefaultClientLayout }
+    { path: '/articles/:id', component: ArticleDetailPage, layout: DefaultClientLayout },
+    { path: '/question-bank', component: QuestionBankPage, layout: DefaultClientLayout },
 ];
 
 const privateRoutes: RouteProps[] = [];
@@ -140,6 +143,8 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/list-collection/list-planbook/:id', component: ListPlanbook, layout: DefaultTeacherLayout },
     { path: '/teacher/schedule/create', component: EventFormPage, layout: DefaultTeacherLayout },
     { path: '/teacher/schedule/edit/:id', component: EventFormPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/question-bank/', component: QuestionBankPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/exam', component: ExamPage, layout: DefaultTeacherLayout },
 ];
 
 export { publicRoutes, privateRoutes, adminRoutes, managerRoutes, academyStaffRoutes, teacherRoutes };

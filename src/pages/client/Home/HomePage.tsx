@@ -68,7 +68,7 @@ const HomePage: React.FC = () => {
                                     </Title>
                                 </div>
                                 <div className="space-x-4 animate-fadeIn">
-                                    <Link href="#">
+                                    <Link href="/planbook-library">
                                         <Button type="primary" className="mb-3">Khám phá kho kế hoạch bài dạy</Button>
                                     </Link>
                                     <Link href="#">
@@ -97,7 +97,7 @@ const HomePage: React.FC = () => {
                                 <div className="w-full lg:w-1/3 text-center lg:text-left">
                                     <div className="intro-title p-8">
                                         <Title level={3} style={{ color: '#fff' }}>Nền tảng Giáo dục số</Title>
-                                        <p className="text-white mb-5">Soạn kế hoạch bài dạy cho tất cả các môn học trên một nền tảng duy nhât</p>
+                                        <p className="text-white mb-5">Soạn kế hoạch bài dạy cho tất cả các môn học trên một nền tảng duy nhất</p>
                                         <ul className="list-none p-0 m-0">
                                             <li className="text-white mb-2 flex items-center">
                                                 <CheckOutlined className="mr-2" /> Đơn giản
@@ -170,18 +170,21 @@ const HomePage: React.FC = () => {
                     <div className="bg-cover" style={{ backgroundImage: `url(/assets/img/bg/2.png)` }}>
                         <div className="relative">
                             <div className="p-6 rounded-lg shadow-md">
-                                <div className="flex items-center">
+                                <div className="flex items-center mb-2">
                                     <div className="mr-4 relative">
-                                        <img src={feedbacks[currentIndex].author_img} alt="Author" className="w-16 h-16 rounded-full m-4" />
+                                        {/* <img src={feedbacks[currentIndex].author_img} alt="Author" className="w-16 h-16 rounded-full m-4" /> */}
+                                        <div className="rounded-full bg-white p-2">
+                                            <UserOutlined style={{ fontSize: '32px', color: '#195E84' }} className="m-2" />
+                                        </div>
                                     </div>
                                     <div>
                                         <Title level={4} style={{ color: 'white' }}>{feedbacks[currentIndex].author_name}</Title>
                                         <Text className="text-white">{feedbacks[currentIndex].designation}</Text>
                                     </div>
                                 </div>
-                                <Text className="mb-4 text-white">{feedbacks[currentIndex].desc}</Text>
+                                <Text className="text-white ml-8 pl-8">{feedbacks[currentIndex].desc}</Text>
                             </div>
-                            <div className="flex justify-between mt-4">
+                            <div className="flex justify-between mt-2">
                                 <Button onClick={handlePrevClick} type="dashed" shape="circle" className='bg-transparent text-white m-2'>
                                     ‹
                                 </Button>
