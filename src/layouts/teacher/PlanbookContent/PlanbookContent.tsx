@@ -1,164 +1,178 @@
-import React, { useState } from 'react';
-import { Button, Card, Input, Form, } from 'antd';
-import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Card, Input, Form, Button } from 'antd';
 
-const PlanbookContent: React.FC = () => {
-  const [activities, setActivities] = useState([
-    { title: '', objective: '', content: '', product: '', implementation: '' },
-  ]);
+interface Activity {
+  title: string;
+  objective: string;
+  content: string;
+  product: string;
+  implementation: string;
+}
 
-  const addActivity = () => {
-    setActivities([...activities, { title: '', objective: '', content: '', product: '', implementation: '' }]);
+interface PlanbookContentProps {
+  planbookData: {
+    title: string;
+    schoolName: string;
+    teacherName: string;
+    subject: string;
+    className: string;
+    durationInPeriods: number;
+    knowledgeObjective: string;
+    skillsObjective: string;
+    qualitiesObjective: string;
+    teachingTools: string;
+    activities: Activity[];
+  };
+}
+
+const PlanbookContent: React.FC<PlanbookContentProps> = ({ planbookData }) => {
+  const [editableData, setEditableData] = useState(planbookData);
+
+  useEffect(() => {
+    console.log("Updating editableData:", planbookData);
+    setEditableData(planbookData);
+  }, [planbookData]);
+
+
+  const handleInputChange = (field: string, value: string) => {
+    setEditableData((prevData) => ({ ...prevData, [field]: value }));
   };
 
-  const removeActivity = (index: number) => {
-    setActivities(activities.filter((_, i) => i !== index));
+  const handleActivityChange = (index: number, field: string, value: string) => {
+    const updatedActivities = editableData.activities.map((activity, i) =>
+      i === index ? { ...activity, [field]: value } : activity
+    );
+    setEditableData((prevData) => ({ ...prevData, activities: updatedActivities }));
+  };
+
+  const handleSave = () => {
+    console.log("Saved data:", editableData);
+    // Implement the save functionality here
+  };
+
+  const handleExit = () => {
+    console.log("Exiting without saving...");
+    // Implement the exit functionality here
   };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4 text-center">
-        KHUNG KẾ HOẠCH BÀI DẠY
-      </h1>
-      <p className="text-center mb-8">
-        (Kèm theo Công văn số 5512/BGDĐT-GDTrH ngày 18 tháng 12 năm 2020 của Bộ GDĐT)
-      </p>
+      <h1 className="text-2xl font-bold mb-4 text-center">{editableData.title}</h1>
 
       <Form layout="vertical" className="max-w-4xl mx-auto bg-white p-6 rounded shadow-md">
-
-        {/* Field 1: General Information */}
         <Card className="mb-6" title="Thông tin chung">
-          <Form.Item label="Trường">
-            <Input placeholder="Tên Trường" />
+          <Form.Item label={<strong>Trường</strong>}>
+            <Input
+              value={editableData.schoolName}
+              onChange={(e) => handleInputChange("schoolName", e.target.value)}
+            />
           </Form.Item>
-          <Form.Item label="Tổ">
-            <Input placeholder="Tên Tổ" />
+          <Form.Item label={<strong>Giáo viên</strong>}>
+            <Input
+              value={editableData.teacherName}
+              onChange={(e) => handleInputChange("teacherName", e.target.value)}
+            />
           </Form.Item>
-          <Form.Item label="Họ và tên giáo viên">
-            <Input placeholder="Họ và tên giáo viên" />
+          <Form.Item label={<strong>Môn học</strong>}>
+            <Input
+              value={editableData.subject}
+              onChange={(e) => handleInputChange("subject", e.target.value)}
+            />
           </Form.Item>
-          <Form.Item label="Tên bài dạy">
-            <Input placeholder="Tên bài dạy" />
+          <Form.Item label={<strong>Lớp</strong>}>
+            <Input
+              value={editableData.className}
+              onChange={(e) => handleInputChange("className", e.target.value)}
+            />
           </Form.Item>
-          <Form.Item label="Môn học/Hoạt động giáo dục và lớp">
-            <Input placeholder="Môn học/Hoạt động giáo dục và lớp" />
-          </Form.Item>
-          <Form.Item label="Thời gian thực hiện (số tiết)">
-            <Input placeholder="Thời gian thực hiện" />
+          <Form.Item label={<strong>Thời gian thực hiện (số tiết)</strong>}>
+            <Input
+              value={editableData.durationInPeriods}
+              onChange={(e) => handleInputChange("durationInPeriods", e.target.value)}
+            />
           </Form.Item>
         </Card>
 
-        {/* AI and Template Buttons */}
-        <div className="flex justify-end gap-4 mb-4">
-          <Button type="primary" className="bg-blue-600 text-white">Dùng AI</Button>
-          <Button type="primary" className="bg-blue-600 text-white">Sử dụng giáo án mẫu</Button>
-        </div>
-
-        {/* Field 2: Objectives */}
         <Card className="mb-6" title="I. Mục tiêu">
-          <Form.Item label="Mục tiêu kiến thức">
-            <Input.TextArea rows={2} placeholder="Nêu cụ thể nội dung kiến thức học sinh cần học..." />
+          <Form.Item label={<strong>Mục tiêu kiến thức</strong>}>
+            <Input.TextArea
+              rows={2}
+              value={editableData.knowledgeObjective}
+              onChange={(e) => handleInputChange("knowledgeObjective", e.target.value)}
+            />
           </Form.Item>
-          <Form.Item label="Mục tiêu kỹ năng">
-            <Input.TextArea rows={2} placeholder="Nêu cụ thể yêu cầu học sinh làm được gì..." />
+          <Form.Item label={<strong>Mục tiêu kỹ năng</strong>}>
+            <Input.TextArea
+              rows={2}
+              value={editableData.skillsObjective}
+              onChange={(e) => handleInputChange("skillsObjective", e.target.value)}
+            />
           </Form.Item>
-          <Form.Item label="Mục tiêu phẩm chất">
-            <Input.TextArea rows={2} placeholder="Nêu cụ thể yêu cầu về hành vi, thái độ..." />
+          <Form.Item label={<strong>Mục tiêu phẩm chất</strong>}>
+            <Input.TextArea
+              rows={2}
+              value={editableData.qualitiesObjective}
+              onChange={(e) => handleInputChange("qualitiesObjective", e.target.value)}
+            />
           </Form.Item>
         </Card>
 
-        {/* Field 3: Teaching Tools */}
         <Card className="mb-6" title="II. Thiết bị dạy học và học liệu">
-          <Form.Item label="Thiết bị dạy học và học liệu">
-            <Input.TextArea rows={3} placeholder="Nêu cụ thể các thiết bị dạy học..." />
+          <Form.Item label={<strong>Thiết bị dạy học và học liệu</strong>}>
+            <Input.TextArea
+              rows={3}
+              value={editableData.teachingTools}
+              onChange={(e) => handleInputChange("teachingTools", e.target.value)}
+            />
           </Form.Item>
         </Card>
 
-        {/* Field 4: Teaching Activities */}
         <Card title="III. Tiến trình dạy học">
-          {activities.map((activity, index) => (
+          {editableData.activities.map((activity, index) => (
             <Card key={index} className="mb-4" title={`Hoạt động ${index + 1}`}>
-              <Form.Item label="Tên hoạt động">
+              <Form.Item label={<strong>Tên hoạt động</strong>}>
                 <Input
-                  placeholder="Tên hoạt động"
                   value={activity.title}
-                  onChange={(e) => {
-                    const newActivities = [...activities];
-                    newActivities[index].title = e.target.value;
-                    setActivities(newActivities);
-                  }}
+                  onChange={(e) => handleActivityChange(index, "title", e.target.value)}
                 />
               </Form.Item>
-              <Form.Item label="Mục tiêu">
+              <Form.Item label={<strong>Mục tiêu</strong>}>
                 <Input.TextArea
                   rows={2}
-                  placeholder="Nêu mục tiêu của hoạt động"
                   value={activity.objective}
-                  onChange={(e) => {
-                    const newActivities = [...activities];
-                    newActivities[index].objective = e.target.value;
-                    setActivities(newActivities);
-                  }}
+                  onChange={(e) => handleActivityChange(index, "objective", e.target.value)}
                 />
               </Form.Item>
-              <Form.Item label="Nội dung">
-                <Input.TextArea
-                  rows={2}
-                  placeholder="Nêu nội dung yêu cầu của hoạt động"
-                  value={activity.content}
-                  onChange={(e) => {
-                    const newActivities = [...activities];
-                    newActivities[index].content = e.target.value;
-                    setActivities(newActivities);
-                  }}
-                />
-              </Form.Item>
-              <Form.Item label="Sản phẩm">
-                <Input.TextArea
-                  rows={2}
-                  placeholder="Mô tả sản phẩm của hoạt động"
-                  value={activity.product}
-                  onChange={(e) => {
-                    const newActivities = [...activities];
-                    newActivities[index].product = e.target.value;
-                    setActivities(newActivities);
-                  }}
-                />
-              </Form.Item>
-              <Form.Item label="Cách thức thực hiện">
+              <Form.Item label={<strong>Nội dung</strong>}>
                 <Input.TextArea
                   rows={3}
-                  placeholder="Mô tả cách thức thực hiện"
-                  value={activity.implementation}
-                  onChange={(e) => {
-                    const newActivities = [...activities];
-                    newActivities[index].implementation = e.target.value;
-                    setActivities(newActivities);
-                  }}
+                  value={activity.content}
+                  onChange={(e) => handleActivityChange(index, "content", e.target.value)}
                 />
               </Form.Item>
-              <Button
-                type="dashed"
-                danger
-                icon={<MinusCircleOutlined />}
-                onClick={() => removeActivity(index)}
-                className="w-full mb-2"
-              >
-                Xóa hoạt động
-              </Button>
+              <Form.Item label={<strong>Sản phẩm</strong>}>
+                <Input.TextArea
+                  rows={2}
+                  value={activity.product}
+                  onChange={(e) => handleActivityChange(index, "product", e.target.value)}
+                />
+              </Form.Item>
+              <Form.Item label={<strong>Cách thức thực hiện</strong>}>
+                <Input.TextArea
+                  rows={4}
+                  value={activity.implementation}
+                  onChange={(e) => handleActivityChange(index, "implementation", e.target.value)}
+                />
+              </Form.Item>
             </Card>
           ))}
-          <Button type="dashed" onClick={addActivity} icon={<PlusOutlined />} className="w-full mb-6">
-            Thêm hoạt động
-          </Button>
         </Card>
 
-        {/* Save/Cancel Buttons */}
-        <div className="flex justify-end gap-4 mt-8">
-          <Button type="default" className="hover:border-red-500 hover:text-red-500">
-            Hủy
+        <div className="flex justify-end gap-4 mt-6">
+          <Button type="default" onClick={handleExit}>
+            Thoát
           </Button>
-          <Button type="primary" className="bg-blue-600 text-white">
+          <Button type="primary" onClick={handleSave}>
             Lưu
           </Button>
         </div>

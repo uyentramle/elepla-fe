@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { SearchOutlined, } from '@ant-design/icons';
-import { Input, Table, Select, Typography, Row, Col, Card, } from 'antd';
+import { Input, Table, Select, Typography, Row, Col, Card, message, } from 'antd';
 import {
     Bar,
     BarChart,
@@ -15,8 +15,9 @@ import {
     YAxis,
 } from "recharts";
 import dayjs from 'dayjs';
-import payment_data from "@/data/manager/UserPaymentData";
-import user_services_data from "@/data/manager/UserPackageData";
+import { IViewListPayment, fetchListPayment, fetchRevenueByMonth, fetchRevenueByQuarter, fetchRevenueByYear } from "@/data/manager/UserPaymentData";
+import { IViewListUserPackage, fetchUserPackageList } from "@/data/manager/UserPackageData";
+import { IViewListServicePackage, fetchServicePackages } from "@/data/manager/ServicePackageData";
 import { Link } from "react-router-dom";
 
 const { Option } = Select;
@@ -24,25 +25,52 @@ const { Title } = Typography;
 const COLORS = ['#FFBB28', '#55bfc7', '#e8744c', '#00C49F', '#9e5493', '#FF6666'];
 
 const PaymentManagementPage: React.FC = () => {
-    const [userPayments] = useState(payment_data);
-    const [userServices] = useState(user_services_data);
+    const [userPayments, setUserPayments] = useState<IViewListPayment[]>([]);
+    const [userServices, setUserServices] = useState<IViewListUserPackage[]>([]);
+    const [servicePackages, setServicePackages] = useState<IViewListServicePackage[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([]);
     // const [filterStatus, setFilterStatus] = useState<'Active' | 'Inactive' | 'All'>('All');
-    const [filterPackage, setFilterPackage] = useState<'All' | 'Free' | 'Basic' | 'Premium'>('All');
+    const [filterPackage, setFilterPackage] = useState('');
     const [timeFrame, setTimeFrame] = useState("month");
 
     const handleTimeFrameChange = (value: string) => {
         setTimeFrame(value);
     };
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const payments = await fetchListPayment();
+                const services = await fetchUserPackageList();
+                const packages = await fetchServicePackages();
+                setUserPayments(payments);
+                setUserServices(services);
+                setServicePackages(packages);
+
+                let revenueResponse;
+                const year = dayjs().year();
+                if (timeFrame === "month") {
+                    revenueResponse = await fetchRevenueByMonth(year);
+                } else if (timeFrame === "quarter") {
+                    revenueResponse = await fetchRevenueByQuarter(year);
+                } else if (timeFrame === "year") {
+                    revenueResponse = await fetchRevenueByYear();
+                }
+                setRevenueData(revenueResponse || []);
+            } catch (error) {
+                message.error('Lỗi khi tải dữ liệu từ server.');
+            }
+        };
+
+        fetchData();
+    }, [timeFrame]);
+
     const filteredUserPayments = userPayments.filter((c) => {
-        const matchesSearch = `${c.username}`.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = `${c.fullName}`.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesPackage =
             filterPackage === 'All' ||
-            // (filterPackage === 'Free' && c.packageName === 'Gói miễn phí') ||
-            (filterPackage === 'Basic' && c.packageName === 'Gói cơ bản') ||
-            // (filterPackage === 'Standard' && c.packageName === 'Gói tiêu chuẩn') ||
-            (filterPackage === 'Premium' && c.packageName === 'Gói cao cấp');
+            servicePackages.some(pkg => filterPackage === pkg.packageName && c.packageName === pkg.packageName);
         return matchesSearch && matchesPackage;
     });
 
@@ -53,7 +81,7 @@ const PaymentManagementPage: React.FC = () => {
             if (
                 (timeFrame === "month" && serviceDate.isSame(dayjs(), "month")) ||
                 (timeFrame === "quarter" && serviceDate.isAfter(dayjs().subtract(3, "month"))) ||
-                (timeFrame === "6months" && serviceDate.isAfter(dayjs().subtract(6, "month")))
+                (timeFrame === "year" && serviceDate.isAfter(dayjs().subtract(6, "month")))
             ) {
                 if (service.packageName === 'Gói miễn phí') counts.Free++;
                 if (service.packageName === 'Gói cơ bản') counts.Basic++;
@@ -68,40 +96,12 @@ const PaymentManagementPage: React.FC = () => {
         ];
     }, [userServices, timeFrame]);
 
-    const revenueData = useMemo(() => {
-        if (timeFrame === "month") {
-            const lastMonths = Array.from({ length: 1 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
-            return lastMonths.map(month => ({
-                month,
-                revenue: userPayments
-                    .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
-                    .reduce((sum, payment) => sum + payment.totalAmount, 0)
-            }));
-        } else if (timeFrame === "quarter") {
-            const lastThreeMonths = Array.from({ length: 3 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
-            return lastThreeMonths.map(month => ({
-                month,
-                revenue: userPayments
-                    .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
-                    .reduce((sum, payment) => sum + payment.totalAmount, 0)
-            }));
-        } else if (timeFrame === "6months") {
-            const lastSixMonths = Array.from({ length: 6 }, (_, i) => dayjs().subtract(i, 'month').format('MMMM YYYY')).reverse();
-            return lastSixMonths.map(month => ({
-                month,
-                revenue: userPayments
-                    .filter(payment => dayjs(payment.paymentDate).format('MMMM YYYY') === month)
-                    .reduce((sum, payment) => sum + payment.totalAmount, 0)
-            }));
-        }
-    }, [userPayments, timeFrame]);
-
     const serviceStatus = useMemo(() => {
         const activeServices = userServices.filter(
             (service) =>
             ((timeFrame === "month" && dayjs(service.startDate).isSame(dayjs(), "month")) ||
                 (timeFrame === "quarter" && dayjs(service.startDate).isAfter(dayjs().subtract(3, "month"))) ||
-                (timeFrame === "6months" && dayjs(service.startDate).isAfter(dayjs().subtract(6, "month"))))
+                (timeFrame === "year" && dayjs(service.startDate).isAfter(dayjs().subtract(6, "month"))))
         );
         return [
             { name: "Đang sử dụng", value: activeServices.filter((service) => service.isActivated).length },
@@ -118,8 +118,8 @@ const PaymentManagementPage: React.FC = () => {
         },
         {
             title: 'Tên khách hàng',
-            dataIndex: 'username',
-            key: 'username',
+            dataIndex: 'fullName',
+            key: 'fullName',
             render: (text: string, record: any) =>
                 <Link to={`/manager/payments/detail/${record.paymentId}`}><b>{text}</b></Link>,
         },
@@ -138,8 +138,8 @@ const PaymentManagementPage: React.FC = () => {
         },
         {
             title: 'Mã giao dịch',
-            dataIndex: 'transactionCode',
-            key: 'transactionCode',
+            dataIndex: 'paymentId',
+            key: 'paymentId',
         },
         {
             title: 'Ngày thanh toán',
@@ -153,6 +153,12 @@ const PaymentManagementPage: React.FC = () => {
             title: 'Trạng thái',
             dataIndex: 'status',
             key: 'status',
+            render: (text: string, _record: any) => (
+                // <span style={{ color: text === 'Thành công' ? 'green' : 'red' }}>
+                <span>
+                    {text}
+                </span>
+            ),
         },
     ];
 
@@ -170,7 +176,7 @@ const PaymentManagementPage: React.FC = () => {
                     >
                         <Option value="month">1 tháng</Option>
                         <Option value="quarter">3 tháng</Option>
-                        <Option value="6months">6 tháng</Option>
+                        <Option value="year">năm</Option>
                     </Select>
                 </Col>
                 <Col span={8}>
@@ -264,12 +270,14 @@ const PaymentManagementPage: React.FC = () => {
                             id="package-filter"
                             className="w-48"
                             value={filterPackage}
-                            onChange={(value) => setFilterPackage(value as 'All' | 'Free' | 'Basic' | 'Premium')}
+                            onChange={(value) => setFilterPackage(value)}
                         >
                             <Option value="All">Tất cả các gói</Option>
-                            {/* <Option value="Free">Gói miễn phí</Option> */}
-                            <Option value="Basic">Gói cơ bản</Option>
-                            <Option value="Premium">Gói cao cấp</Option>
+                            {servicePackages.map(pkg => (
+                                <Option key={pkg.packageId} value={pkg.packageName}>
+                                    {pkg.packageName}
+                                </Option>
+                            ))}
                         </Select>
                     </div>
                     {/* <div>

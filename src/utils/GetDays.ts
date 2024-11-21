@@ -1,3 +1,4 @@
+//GetDay.ts
 import dayjs from "dayjs";
 
 export interface SelectedDay {

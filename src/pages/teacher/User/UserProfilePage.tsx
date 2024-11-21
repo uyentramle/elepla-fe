@@ -3,33 +3,59 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { CameraOutlined, UploadOutlined } from '@ant-design/icons';
 import SidebarMenu from './SidebarMenu';
-import { message, Modal, Button } from 'antd';
+import { message, Modal, Button, Form, Input, Select } from 'antd';
 import { jwtDecode } from 'jwt-decode';
 import { convertGenderToVietnamese } from '@/utils/ConvertGender';
 import { obfuscateContactInfo } from '@/utils/ObfuscateInfo';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../services/Firebase/firebase';
+import AddressForm from '../../../layouts/teacher/Address/AddressForm';
+import cities from '../../../layouts/teacher/Address/data/provinces.json';
+import districts from '../../../layouts/teacher/Address/data/districts.json';
+import wards from '../../../layouts/teacher/Address/data/wards.json';
+import schools from '../../../layouts/teacher/Address/data/schools.json';
 
-// interface UserProfile {
-//     userId: string;
-//     firstName: string;
-//     lastName: string;
-//     gender: string;
-//     email: string;
-//     phoneNumber: string;
-//     address: string;
-//     avatar: string;
-//     background: string;
-// }
+interface UserProfile {
+    userId: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    username: string;
+    email: string;
+    googleEmail: string;
+    facebookEmail: string;
+    gender: string;
+    teach: string;
+    status: boolean;
+    addressLine: string;
+    city: string;
+    district: string;
+    ward: string;
+    address: string;
+    schoolName: string;
+    avatar: string;
+    background: string;
+}
+
+interface UpdateProfileModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    userData: UserProfile;
+}
+
+const { Option } = Select;
 
 const getUserProfile = async (): Promise<any> => {
     const accessToken = localStorage.getItem('accessToken');
 
-    if (!accessToken) {
-        throw new Error('Access token not found.');
-    }
+    // if (!accessToken) {
+    //     throw new Error('Access token not found.');
+    // }
 
     try {
+        if (!accessToken) {
+            throw new Error('Access token not found.');
+        }
         const decodedToken: any = jwtDecode(accessToken);
         const id = decodedToken.userId; // Assuming 'userId' is the key in your accessToken payload
 
@@ -41,10 +67,10 @@ const getUserProfile = async (): Promise<any> => {
         });
 
         // Lấy ra các trường cần thiết từ response
-        const { userId, firstName, lastName, gender, teach, schoolName, email, phoneNumber, address, avatar, background } = response.data.data;
+        const { userId, firstName, lastName, gender, teach, schoolName, email, phoneNumber, address, avatar, background, addressLine, city, district, ward } = response.data.data;
 
         // Trả về một đối tượng chỉ chứa các trường cần thiết
-        return { userId, firstName, lastName, gender, teach, schoolName, email, phoneNumber, address, avatar, background };
+        return { userId, firstName, lastName, gender, teach, schoolName, email, phoneNumber, address, avatar, background, addressLine, city, district, ward };
     } catch (error) {
         console.error('Error fetching user profile:', error);
         throw new Error('Failed to fetch user profile.');
@@ -58,19 +84,14 @@ const UserProfilePage: React.FC = () => {
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const userId = userData?.userId;
     const navigate = useNavigate();
-
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
     const navigateToSignInPage = () => {
         navigate('/sign-in');
-    };
+    }
 
     const showUpdateModal = () => {
         setIsUpdateModalOpen(true);
-    }
-
-    const handleUpdateModalOk = () => {
-        setIsUpdateModalOpen(false);
     }
 
     const handleUpdateModalCancel = () => {
@@ -93,29 +114,29 @@ const UserProfilePage: React.FC = () => {
         setIsAvatarModalOpen(false);
     };
 
-    const fetchData = async () => {
-        const accessToken = localStorage.getItem('accessToken');
-        if (!accessToken) {
-            navigateToSignInPage(); return;
-        }
-
-        try {
-            const userProfileData = await getUserProfile();
-            setUserData(userProfileData);
-            setAvatar(userProfileData.avatar);
-        } catch (error) {
-            console.error('Error fetching user profile:', error);
-            navigateToSignInPage(); // Redirect to sign-in page on error
-        } finally {
-            //setLoading(false); // Set loading to false after data fetching
-        }
-    };
-
     useEffect(() => {
-        const interval = setInterval(fetchData, 1000); // Cập nhật mỗi 1 giây
+        // const interval = setInterval(fetchData, 1000); // Cập nhật mỗi 1 giây
 
-        return () => clearInterval(interval);
-    }, []);
+        // return () => clearInterval(interval);
+        const fetchData = async () => {
+            const accessToken = localStorage.getItem('accessToken');
+            if (!accessToken) {
+                navigateToSignInPage();
+            }
+    
+            try {
+                const userProfileData = await getUserProfile();
+                setUserData(userProfileData);
+                setAvatar(userProfileData.avatar);
+            } catch (error) {
+                console.error('Error fetching user profile:', error);
+                navigateToSignInPage(); // Redirect to sign-in page on error
+            } finally {
+                //setLoading(false); // Set loading to false after data fetching
+            }
+        };
+        fetchData();
+    }, [avatar, navigateToSignInPage]);
 
     // const handleSaveAvatar = (file: File) => {
     //     const reader = new FileReader();
@@ -143,9 +164,9 @@ const UserProfilePage: React.FC = () => {
                             <div className="mb-4 ml-6 mr-0 flex-shrink-0 sm:mb-0 sm:mr-4">
                                 <div className="flex h-44 w-44 items-center justify-center rounded-full bg-white">
                                     {avatar || userData?.avatar ? (
-                                        <img src={avatar ?? userData?.avatar} alt="Avatar" className="h-40 w-40 rounded-full object-cover" />
+                                        <img src={avatar ?? userData?.avatar} alt="Avatar" className="h-40 w-40 rounded-full object-cover border-2" />
                                     ) : (
-                                        <div className="text-xl text-gray-400 bg-gray-200 h-40 w-40 rounded-full flex justify-center items-center">140x140</div>
+                                        <div className="text-xl text-gray-400 bg-gray-200 h-40 w-40 rounded-full flex justify-center items-center border-2">140x140</div>
                                     )}
                                 </div>
                                 <div className="mt-4 flex flex-col items-center justify-center">
@@ -245,7 +266,7 @@ const UserProfilePage: React.FC = () => {
                                         <input
                                             className="mt-1 block w-full rounded border border-gray-300 px-2 py-1.5 focus:border-blue-500 focus:outline-none"
                                             type="text"
-                                            name="address"
+                                            name="schoolName"
                                             value={userData?.schoolName || '...'}
                                             readOnly
                                         />
@@ -270,17 +291,6 @@ const UserProfilePage: React.FC = () => {
                                         >
                                             Cập nhật
                                         </Button>
-
-                                        <Modal
-                                            title = "Cập nhật thông tin cá nhân"
-                                            visible = {isUpdateModalOpen}
-                                            onOk={handleUpdateModalOk}
-                                            onCancel={handleUpdateModalCancel}
-                                            okText="Cập nhật"
-                                            cancelText="Hủy"
-                                        >
-                                            <p>Nội dung của modal ở đây.</p>
-                                        </Modal>
                                     </div>
                                 </div>
                             </div>
@@ -289,6 +299,7 @@ const UserProfilePage: React.FC = () => {
                 </div>
             </div>
             <AvatarModal isOpen={isAvatarModalOpen} onClose={handleCloseAvatarModal} /*onSave={handleSaveAvatar}*/ userId={currentUserId} />
+            <UpdateProfileModal isOpen={isUpdateModalOpen} onClose={handleUpdateModalCancel} userData={userData} />
         </div>
     );
 };
@@ -302,9 +313,9 @@ const AvatarModal: React.FC<{ isOpen: boolean, onClose: () => void, /*onSave: (f
 
     const accessToken = localStorage.getItem('accessToken');
 
-    if (!accessToken) {
-        throw new Error('Access token not found.');
-    }
+    // if (!accessToken) {
+    //     throw new Error('Access token not found.');
+    // }
 
     useEffect(() => {
         // Add or remove transition class based on modal state
@@ -350,9 +361,9 @@ const AvatarModal: React.FC<{ isOpen: boolean, onClose: () => void, /*onSave: (f
         return new Promise<string>((resolve, reject) => {
             uploadTask.on(
                 'state_changed',
-                // (snapshot) => {
-                //     // Handle progress if needed
-                // },
+                () => {
+                    // Handle progress if needed
+                },
                 (error) => {
                     console.error('Upload failed:', error);
                     reject(error);
@@ -442,5 +453,173 @@ const AvatarModal: React.FC<{ isOpen: boolean, onClose: () => void, /*onSave: (f
                 </div>
             </div>
         </div>
+    );
+};
+
+const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, onClose, userData }) => {
+    const [form] = Form.useForm();
+    const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
+    const [selectedDistrict, setSelectedDistrict] = useState<string | undefined>(undefined);
+
+
+    useEffect(() => {
+        if (isOpen) {
+            const city = cities.find(city => city.name_with_type === userData?.city);
+            const district = districts.find(district => district.name_with_type === userData?.district);
+            const ward = wards.find(ward => ward.name_with_type === userData?.ward);
+            const school = schools.find(school => school.school_name === userData?.schoolName);
+
+            form.setFieldsValue({
+                lastName: userData?.lastName || '',
+                firstName: userData?.firstName || '',
+                gender: userData?.gender,
+                teach: userData?.teach,
+                addressLine: userData?.addressLine || '',
+                city: city?.name,
+                district: district?.name,
+                ward: ward?.name,
+                schoolName: school?.school_name
+            });
+
+            setSelectedCity(city?.code);
+            setSelectedDistrict(district?.code);
+        }
+    }, [isOpen, form, userData?.addressLine, userData?.city, userData?.district, userData?.firstName, userData?.gender, userData?.lastName, userData?.schoolName, userData?.teach, userData?.ward]);
+
+    const updateProfile = async (updateProfile: UserProfile) => {
+        try {
+            const accessToken = localStorage.getItem('accessToken');
+            if (!accessToken) {
+                throw new Error('Access token not found.');
+            }
+
+            const response = await axios.put(`https://elepla-be-production.up.railway.app/api/Account/UpdateUserProfile`, updateProfile, {
+                headers: {
+                    'accept': '*/*',
+                    'content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+
+            if (response.data.success) {
+                message.success('Cập nhật địa chỉ thành công');
+                onClose();
+            }
+
+            // await fetchData(setUserAddresses); // Reload danh sách địa chỉ sau khi cập nhật thành công
+            // window.location.reload(); // Reload trang sau khi cập nhật thành công
+            // onAdd(response.data.data); // Cập nhật danh sách địa chỉ với địa chỉ mới
+
+        } catch (error) {
+            console.error('Error updating address:', error);
+            message.error('Cập nhật địa chỉ thất bại');
+        }
+    };
+
+    const handleUpdateModalOk = async () => {
+        try {
+            const values = await form.validateFields();
+
+            const city = cities.find(city => city.name === values.city);
+            const district = districts.find(district => district.name === values.district);
+            const ward = wards.find(ward => ward.name === values.ward);
+            const school = schools.find(school => school.school_name === values.schoolName);
+
+            const cityName = cities.find(city => city.code === values.city)?.name_with_type;
+            const districtName = districts.find(district => district.code === values.district)?.name_with_type;
+            const wardName = wards.find(ward => ward.code === values.ward)?.name_with_type;
+            const schoolName = schools.find(school => school.code === values.schoolName)?.school_name;
+
+            const updatedProfile: UserProfile = {
+                ...userData,
+                ...values,
+                city: cityName || city?.name_with_type,
+                district: districtName || district?.name_with_type,
+                ward: wardName || ward?.name_with_type,
+                schoolName: schoolName || school?.school_name
+            };
+            await updateProfile(updatedProfile);
+        } catch (error) {
+            console.error('Error validating fields:', error);
+        }
+    };
+
+    const handleCityChange = (value: string) => {
+        setSelectedCity(value);
+        setSelectedDistrict(undefined); // Reset district when city changes
+        form.setFieldsValue({ city: value, district: undefined, ward: undefined, schoolName: undefined });
+    };
+
+    const handleDistrictChange = (value: string) => {
+        setSelectedDistrict(value);
+        form.setFieldsValue({ district: value, ward: undefined });
+    };
+
+    return (
+        <Modal
+            title={
+                <div style={{ textAlign: 'center', width: '100%' }}>
+                    Cập nhật thông tin cá nhân
+                </div>
+            }
+            visible={isOpen}
+            onOk={handleUpdateModalOk}
+            onCancel={onClose}
+            okText="Cập nhật"
+            cancelText="Hủy"
+        >
+            <Form form={form} layout="vertical">
+                <div className="flex space-x-2">
+                    <Form.Item
+                        name="lastName"
+                        label="Họ"
+                        rules={[{ required: true, message: 'Vui lòng nhập họ' }]}
+                        className="flex-1" // w-1/2
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="firstName"
+                        label="Tên"
+                        rules={[{ required: true, message: 'Vui lòng nhập tên' }]}
+                        className="flex-1" // w-1/2
+                    >
+                        <Input />
+                    </Form.Item>
+                </div>
+                <div className="flex space-x-2">
+                    <Form.Item name="gender" label="Giới tính" rules={[{ required: true, message: 'Vui lòng chọn giới tính' }]} className="w-1/2">
+                        <Select>
+                            <Option value="Male">Nam</Option>
+                            <Option value="Female">Nữ</Option>
+                            <Option value="Unknown">Khác</Option>
+                        </Select>
+                    </Form.Item>
+                    <Form.Item
+                        name="teach"
+                        label="Môn"
+                        rules={[{ required: true, message: 'Vui lòng nhập môn dạy' }]}
+                        className="w-1/2"
+                    >
+                        <Input />
+                    </Form.Item>
+                </div>
+                <Form.Item
+                    name="addressLine"
+                    label="Địa chỉ"
+                    rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item>
+                    <AddressForm
+                        selectedCity={selectedCity}
+                        selectedDistrict={selectedDistrict}
+                        onCityChange={handleCityChange}
+                        onDistrictChange={handleDistrictChange}
+                    />
+                </Form.Item>
+            </Form>
+        </Modal>
     );
 };

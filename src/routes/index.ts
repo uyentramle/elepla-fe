@@ -8,6 +8,7 @@ import DefaultTeacherLayout from '@/layouts/teacher/DefaultTeacherLayout';
 
 // Client
 import HomePage from '../pages/client/Home/HomePage';
+import NotFoundPage from '@/pages/client/NotFound/NotFoundPage';
 import ComingSoonPage from '../pages/client/ComingSoon/ComingSoonPage';
 import PlanbookLibraryPage from '../pages/client/PlanbookLibrary/PlanbookLibraryPage';
 import PlanbookDetailPage from '../pages/client/PlanBookDetail/PlanBookDetailPage';
@@ -29,6 +30,8 @@ import CurriculumFrameworkManagementPage from '@/pages/admin/CurriculumFramework
 import CurriculumFrameworkFormPage from '@/pages/admin/CurriculumFrameworkManagement/CurriculumFrameworkFormPage';
 import SubjectManagementPage from '@/pages/admin/SubjectManagement/SubjectManagementPage';
 import SubjectFormPage from '@/pages/admin/SubjectManagement/SubjectFormPage';
+import GradeManagementPage from '@/pages/admin/GradeManagement/GrademanagementPage';
+import GradeFormPage from '@/pages/admin/GradeManagement/GradeFormPage';
 
 // Manager
 import DashBoardManagerPage from '@/pages/manager/DashBoard/DashBoardPage';
@@ -45,6 +48,9 @@ import QuestionBankManagementPage from '@/pages/academy-staff/QuestionBankManage
 import QuestionBankFormPage from '@/pages/academy-staff/QuestionBankManagement/QuestionBankFormPage';
 import PlanbookFeedbackManagementPage from '@/pages/academy-staff/FeedbackManagement/PlanbookFeedbackManagementPage';
 import SystemFeedbackManagementPage from '@/pages/academy-staff/FeedbackManagement/SystemFeedbackManagementPage';
+import SubjectInCurriculumManagementPage from '@/pages/academy-staff/SubjectInCurriculum/SubjectInCurriculumManagementPage';
+import ChapterManagementPage from '@/pages/academy-staff/ChapterManagement/ChapterManagementPage';
+import LessonManagementPage from '@/pages/academy-staff/LessonManagement/LessonManagementPage';
 
 // Teacher
 import UserProfilePage from '@/pages/teacher/User/UserProfilePage';
@@ -56,7 +62,7 @@ import WeeklySchedulePage from '@/pages/teacher/Schedule/WeeklySchedulePage';
 import ListCollection from '@/pages/teacher/ListPlanbook/ListCollection';
 import PackageDetailPage from '@/pages/teacher/User/PackageDetailPage';
 import ListPlanbook from '@/pages/teacher/ListPlanbook/ListPlanbook';
-import PlanbookContent from '@/layouts/teacher/PlanbookContent/PlanbookContent';
+import EventFormPage from '@/pages/teacher/Schedule/EventFormPage';
 
 interface RouteProps {
     path: string;
@@ -66,6 +72,7 @@ interface RouteProps {
 
 const publicRoutes: RouteProps[] = [
     { path: '/', component: HomePage, layout: DefaultClientLayout },
+    { path: '*', component: NotFoundPage, layout: DefaultClientLayout },
     { path: '/sign-in', component: SignInPage, layout: DefaultAuthenLayout },
     { path: '/sign-up', component: SignUpPage, layout: DefaultAuthenLayout },
     { path: '/forgot-password', component: ForgotPasswordPage, layout: DefaultAuthenLayout },
@@ -94,6 +101,9 @@ const adminRoutes: RouteProps[] = [
     { path: '/admin/subjects', component: SubjectManagementPage, layout: DefaultAdminLayout },
     { path: '/admin/subjects/add-new', component: SubjectFormPage, layout: DefaultAdminLayout },
     { path: '/admin/subjects/edit/:id', component: SubjectFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/grades', component: GradeManagementPage, layout: DefaultAdminLayout },
+    { path: '/admin/grades/add-new', component: GradeFormPage, layout: DefaultAdminLayout },
+    { path: '/admin/grades/edit/:id', component: GradeFormPage, layout: DefaultAdminLayout },
 ];
 
 const managerRoutes: RouteProps[] = [
@@ -114,6 +124,9 @@ const academyStaffRoutes: RouteProps[] = [
     { path: '/academy-staff/question-banks/edit/:id', component: QuestionBankFormPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/feedbacks/planbook/', component: PlanbookFeedbackManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/feedbacks/system/', component: SystemFeedbackManagementPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/subject-in-curriculum', component: SubjectInCurriculumManagementPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/chapters', component: ChapterManagementPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/lessons', component: LessonManagementPage, layout: DefaultStaffLayout },
 ];
 
 const teacherRoutes: RouteProps[] = [
@@ -125,8 +138,8 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/schedule/weekly', component: WeeklySchedulePage, layout: DefaultTeacherLayout },
     { path: '/teacher/list-collection', component: ListCollection, layout: DefaultTeacherLayout },
     { path: '/teacher/list-collection/list-planbook/:id', component: ListPlanbook, layout: DefaultTeacherLayout },
-    { path: '/teacher/list-collection/planbook-content', component: PlanbookContent, layout: DefaultClientLayout },
-
+    { path: '/teacher/schedule/create', component: EventFormPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/schedule/edit/:id', component: EventFormPage, layout: DefaultTeacherLayout },
 ];
 
 export { publicRoutes, privateRoutes, adminRoutes, managerRoutes, academyStaffRoutes, teacherRoutes };

@@ -1,4 +1,5 @@
-import axios from 'axios';
+import apiClient from '@/data/apiClient';
+// import apiclient from 'apiclient';
 
 export interface IViewListCategory {
     id: string;
@@ -17,7 +18,7 @@ export interface IViewListCategory {
 
 export const fetchListCategory = async (): Promise<IViewListCategory[]> => {
     try {
-        const response = await axios.get('https://elepla-be-production.up.railway.app/api/Category/GetAllCategory?pageIndex=0&pageSize=10');
+        const response = await apiClient.get('/Category/GetAllCategory?pageIndex=0&pageSize=10');
         if (response.data.success) {
             return response.data.data.items.map((category: any) => ({
                 id: category.categoryId,
@@ -43,7 +44,7 @@ export const fetchListCategory = async (): Promise<IViewListCategory[]> => {
 
 export const deleteCategory = async (id: string): Promise<boolean> => {
     try {
-        const response = await axios.delete(`https://elepla-be-production.up.railway.app/api/Category/DeleteCategory`, {
+        const response = await apiClient.delete(`/Category/DeleteCategory`, {
             data: { id }  // Include the id as part of the request body
         });
         return response.status === 200 && response.data.success;
@@ -63,7 +64,7 @@ export interface ICategoryForm {
 
 export const createCategory = async (category: ICategoryForm): Promise<boolean> => {
     try {
-        const response = await axios.post('https://elepla-be-production.up.railway.app/api/Category/CreateCategory', category);
+        const response = await apiClient.post('/Category/CreateCategory', category);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error creating category:', error);
@@ -73,7 +74,7 @@ export const createCategory = async (category: ICategoryForm): Promise<boolean> 
 
 export const updateCategory = async (category: ICategoryForm): Promise<boolean> => {
     try {
-        const response = await axios.put('https://elepla-be-production.up.railway.app/api/Category/UpdateCategory', category);
+        const response = await apiClient.put('/Category/UpdateCategory', category);
         return response.status === 200 && response.data.success;
     } catch (error) {
         console.error('Error updating category:', error);

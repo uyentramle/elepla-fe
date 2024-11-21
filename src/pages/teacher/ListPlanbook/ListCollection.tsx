@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
+// import axios from 'axios';
 import { Input, Select, Button, Card, Modal } from 'antd';
 import { FolderOpenOutlined, PlusCircleOutlined, UnorderedListOutlined, AppstoreOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import collection_data, { CollectionItem } from "@/data/teacher/PlanbookCollectionData";
+import { useNavigate } from 'react-router-dom';
+import { CollectionItem } from "@/data/teacher/PlanbookCollectionData";
+import fetchCollections from '@/api/ApiCollectionItem ';
+import { jwtDecode } from 'jwt-decode';
+import apiClient from "@/data/apiClient"; // Import your configured apiClient
+
 
 const { Search } = Input;
 const { Option } = Select;
-
-const fetchCollectionData = async (): Promise<CollectionItem[]> => {
-  // Here, you will replace this with an API call when the backend is ready
-  return collection_data;
-};
 
 const ListCollection: React.FC = () => {
   const [isGridView, setIsGridView] = useState(true);
@@ -18,20 +18,33 @@ const ListCollection: React.FC = () => {
   const [filteredData, setFilteredData] = useState<CollectionItem[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newCollectionTitle, setNewCollectionTitle] = useState('');
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
 
-  
+  // Helper to retrieve teacherId from token
+  const getTeacherIdFromToken = (): string | null => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+    const decodedToken = jwtDecode<{ userId?: string }>(token);
+      return decodedToken.userId || null;
+    }
+    return null;
+  };
 
+  // Load collections on component mount
   useEffect(() => {
     const loadData = async () => {
-      const data = await fetchCollectionData();
-      setFilteredData(data);
+      try {
+        const data = await fetchCollections();
+        setFilteredData(data);
+      } catch (error) {
+        console.error("Error fetching collections:", error);
+      }
     };
     loadData();
   }, []);
 
   const handleItemClick = (collectionId: string) => {
-    navigate(`/teacher/list-collection/list-planbook/${collectionId}`); // Navigate to the ListPlanbook page
+    navigate(`/teacher/list-collection/list-planbook/${collectionId}`);
   };
 
   const sortItems = () => {
@@ -60,17 +73,35 @@ const ListCollection: React.FC = () => {
 
   const toggleView = () => setIsGridView(!isGridView);
 
-  const handleAddCollection = () => {
-    if (newCollectionTitle.trim()) {
-      const newCollection: CollectionItem = {
-        collectionId: String(filteredData.length + 1),
-        name: newCollectionTitle,
-        createDay: new Date(),
-        updateDay: new Date(),
-      };
-      setFilteredData([...filteredData, newCollection]);
-      setNewCollectionTitle('');
-      setIsModalVisible(false);
+  // Create new collection by calling the API
+  const handleAddCollection = async () => {
+    const teacherId = getTeacherIdFromToken();
+    if (newCollectionTitle.trim() && teacherId) {
+      try {
+        const newCollection = {
+          collectionName: newCollectionTitle,
+          isSaved: true,
+          teacherId: teacherId,
+        };
+
+        // Send POST request to API
+        // const response = await axios.post('http://localhost/api/PlanbookCollection/CreatePlanbookCollection', newCollection); // api local
+        const response = await apiClient.post('https://elepla-be-production.up.railway.app/api/PlanbookCollection/CreatePlanbookCollection', newCollection); // api server
+
+        // Optionally, add the new collection to the displayed list if creation was successful
+        if (response.data && response.data.success) {
+          setFilteredData([...filteredData, {
+            collectionId: response.data.collectionId,
+            name: newCollectionTitle,
+            createDay: new Date(),
+            updateDay: new Date(),
+          }]);
+          setNewCollectionTitle('');
+          setIsModalVisible(false);
+        }
+      } catch (error) {
+        console.error("Error creating new collection:", error);
+      }
     }
   };
 
@@ -104,22 +135,25 @@ const ListCollection: React.FC = () => {
           onClick={() => setIsModalVisible(true)}
         >
           <div className="flex flex-col items-center justify-center h-full">
-          <PlusCircleOutlined style={{ fontSize: '64px', color: '#1890ff' }} />
-          <span className="mt-2 text-xs text-center">Thêm bộ sưu tập</span>
+            <PlusCircleOutlined style={{ fontSize: '64px', color: '#1890ff' }} />
+            <span className="mt-2 text-xs text-center">Thêm bộ sưu tập</span>
           </div>
         </Card>
 
         {filteredData.map(item => (
-          <Card key={item.collectionId} className="flex flex-col items-center justify-center p-6 border rounded-md shadow-md hover:shadow-lg transition-all h-32"
-                onClick={() => handleItemClick(item.collectionId)} // Handle click to navigate
+          <Card
+            key={item.collectionId}
+            className="flex flex-col items-center justify-center p-6 border rounded-md shadow-md hover:shadow-lg transition-all h-32"
+            onClick={() => handleItemClick(item.collectionId)}
           >
             <div className="flex flex-col items-center justify-center h-full">
-            <FolderOpenOutlined style={{ fontSize: '64px', color: '#1890ff' }} />
-            <h2 className="text-sm font-semibold mt-2 text-center">{item.name}</h2>
+              <FolderOpenOutlined style={{ fontSize: '64px', color: '#1890ff' }} />
+              <h2 className="text-sm font-semibold mt-2 text-center">{item.name}</h2>
             </div>
           </Card>
         ))}
       </div>
+
       {/* Modal for Adding New Collection */}
       <Modal
         title="Tạo bộ sưu tập mới"
