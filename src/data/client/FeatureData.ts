@@ -6,33 +6,33 @@ interface FeatureItem {
     id: number;
     name: string;
     icon: ReactNode;
-    desc: string;
+    desc: string | null;
 }
 
 const feature_data: FeatureItem[] = [
     {
         id: 1,
-        name: 'Hỗ trợ tận tâm',
+        name: 'Kho kế hoạch bài giảng phong phú',
         icon: React.createElement(HeartOutlined, { className: "mb-4 text-4xl" }),
-        desc: 'Ipsum yorem dolor amet sit elit. Duis at est id leosco for it',
+        desc: 'Hàng nghìn kế hoạch bài giảng được thiết kế đa dạng, đáp ứng mọi nhu cầu giảng dạy của bạn.',
     },
     {
         id: 2,
-        name: 'Điều kiện nhiều hơn',
+        name: 'Tiết kiệm thời gian',
         icon: React.createElement(ClockCircleOutlined, { className: "mb-4 text-4xl" }),
-        desc: 'Ipsum yorem dolor amet sit elit. Duis at est id leosco for it',
+        desc: 'Truy cập nhanh chóng và dễ dàng vào tài liệu sẵn có, giúp giảm thiểu thời gian chuẩn bị kế hoạch bài giảng.',
     },
     {
         id: 3,
-        name: 'Giá tốt',
+        name: 'Chi phí phù hợp',
         icon: React.createElement(DollarOutlined, { className: "mb-4 text-4xl" }),
-        desc: 'Ipsum yorem dolor amet sit elit. Duis at est id leosco for it',
+        desc: 'Dịch vụ chất lượng với mức giá hợp lý, phù hợp với ngân sách của mọi giáo viên.',
     },
     {
         id: 4,
         name: 'Nhiều sự lựa chọn',
         icon: React.createElement(CheckCircleOutlined, { className: "mb-4 text-4xl" }),
-        desc: 'Ipsum yorem dolor amet sit elit. Duis at est id leosco for it',
+        desc: 'Cung cấp hàng loạt tùy chọn tài liệu và nội dung, giúp bạn dễ dàng tìm thấy giải pháp phù hợp nhất.',
     },
 ];
 
