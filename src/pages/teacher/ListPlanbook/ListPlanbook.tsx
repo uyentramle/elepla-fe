@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Select, Button, Card, Modal, message } from 'antd';
+import { Input, Select, Button, Card, Modal, message, Dropdown , Menu } from 'antd';
 import { FileOutlined, PlusCircleOutlined, UnorderedListOutlined, AppstoreOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 // import axios from 'axios';
@@ -28,19 +28,19 @@ const ListPlanbook: React.FC = () => {
   const [isLessonModalVisible, setIsLessonModalVisible] = useState(false);
   const [isPlanbookModalVisible, setIsPlanbookModalVisible] = useState(false);
   const [lessonId, setLessonId] = useState<string | null>(null); // Lưu lessonId được chọn
-  const [planbooks, setPlanbooks] = useState([]);
-
-
+  const [planbooks, setPlanbooks] = useState<Planbook[]>([]);  // Khai báo kiểu Planbook[]
   const [isGridView, setIsGridView] = useState(true);
   const [sortOrder, setSortOrder] = useState('createdAt');
-  const [filteredPlanbooks, setFilteredPlanbooks] = useState<Planbook[]>([]);
+  const [filteredPlanbooks, setFilteredPlanbooks] = useState<Planbook[]>([]); // Khai báo kiểu Planbook[]
   const [selectedPlanbook, setSelectedPlanbook] = useState(null);
   const [isTeachingPlanFormVisible, setIsTeachingPlanFormVisible] = useState(false);
   // const [isLessonPlannerVisible, setIsLessonPlannerVisible] = useState(false); // New state for LessonPlanner
   // const [form] = Form.useForm();
 
+  const userId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
+
+
   useEffect(() => {
-    console.log("Collection ID:", collectionId); // Debug
     const fetchPlanbooks = async () => {
       try {
         // const response = await axios.get('http://localhost/api/Planbook/GetPlanbookByCollectionId', {
@@ -124,6 +124,56 @@ const ListPlanbook: React.FC = () => {
     fetchPlanbooks();
   };
 
+    const renderMenu = (planbookId: string) => (
+        <Menu>
+          <Menu.Item
+            key="delete"
+            danger
+            onClick={(e) => {
+              e.domEvent.stopPropagation(); // Ngăn sự kiện lan truyền
+              Modal.confirm({
+                title: "Xác nhận xóa",
+                content: "Bạn có chắc chắn muốn xóa kế hoạch bài dạy này?",
+                okText: "Xóa",
+                cancelText: "Hủy",
+                okType: "danger",
+                onOk: () => handleDeletePlanbook(planbookId), // Gọi hàm xóa với planbookId
+              });
+            }}
+          >
+            Xóa
+          </Menu.Item>
+        </Menu>
+    );
+
+      const handleDeletePlanbook = async (planbookId: string) => {
+        try {
+          const response = await apiClient.delete(
+            `https://elepla-be-production.up.railway.app/api/Planbook/DeletePlanbook`,
+            { params: { planbookId } }
+          );
+      
+          if (response.data.success) {
+            message.success("Xóa kế hoạch bài dạy thành công!");
+      
+            // Cập nhật danh sách sau khi xóa
+            setPlanbooks((prevPlanbooks) =>
+              prevPlanbooks.filter((planbook) => planbook.planbookId !== planbookId)
+            );
+            setFilteredPlanbooks((prevFiltered) =>
+              prevFiltered.filter((planbook) => planbook.planbookId !== planbookId)
+            );
+          } else {
+            message.error(response.data.message || "Xóa kế hoạch bài dạy thất bại.");
+          }
+        } catch (error) {
+          console.error("Error deleting planbook:", error);
+          message.error("Có lỗi xảy ra khi xóa kế hoạch bài dạy.");
+        }
+      };
+      
+      
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-semibold mb-4">Danh sách kế hoạch giảng dạy</h1>
@@ -173,6 +223,19 @@ const ListPlanbook: React.FC = () => {
               <FileOutlined style={{ fontSize: '64px', color: '#1890ff' }} />
               <h2 className="text-sm font-semibold mt-2 text-center">{planbook.lessonName}</h2>
               
+              <Dropdown
+                overlay={renderMenu(planbook.planbookId)} // Tạo menu cho từng planbook
+                trigger={['click']}
+              >
+                <Button
+                  type="text"
+                  size="small"
+                  className="absolute top-2 right-2"
+                  onClick={(e) => e.stopPropagation()} // Ngăn sự kiện click lan truyền lên Card
+                  icon={<UnorderedListOutlined />}
+                />
+              </Dropdown>
+
             </div>
           </Card>
         ))}
@@ -186,10 +249,13 @@ const ListPlanbook: React.FC = () => {
           footer={null}
           width="80%"
         >
-          {selectedPlanbook && (
+          {selectedPlanbook && userId && (
             <>
               {console.log("PlanbookData passed to PlanbookContent:", selectedPlanbook)}
-              <PlanbookContent planbookData={selectedPlanbook} />
+              <PlanbookContent 
+                planbookData={selectedPlanbook} 
+                userId={userId} // Truyền userId vào đây
+              />
             </>
           )}
         </Modal>
