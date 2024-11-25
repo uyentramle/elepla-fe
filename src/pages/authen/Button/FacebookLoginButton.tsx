@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button, message } from 'antd';
 import { FacebookFilled } from '@ant-design/icons';
 import FacebookLogin from '@greatsumini/react-facebook-login';
+import { facebookLogin, saveTokens, navigateBasedOnRole } from "@/data/authen/loginData";
+import { translateLoginErrorToVietnamese } from "@/utils/TranslateError";
 
 export const CustomFacebookLoginButton: React.FC = () => {
     const navigate = useNavigate(); // Sử dụng useNavigate để điều hướng
@@ -24,32 +26,47 @@ export const CustomFacebookLoginButton: React.FC = () => {
 
     const callFacebookLoginApi = async (accessToken: string) => {
         try {
-            const response = await fetch('https://elepla-be-production.up.railway.app/api/Auth/FacebookLogin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    accessToken: accessToken
-                })
-            });
+            const response = await facebookLogin(accessToken);
 
-            if (!response.ok) {
-                throw new Error('Facebook Login failed');
+            if (response.success) {
+                message.success('Đăng nhập thành công');
+
+                // Lưu trữ access token vào localStorage
+                saveTokens(response.accessToken, response.refreshToken);
+
+                // Chuyển hướng người dùng đến trang tương ứng với role
+                navigateBasedOnRole(navigate);
+            } else {
+                console.error('Facebook Login Failed:', response.message);
+                message.error(translateLoginErrorToVietnamese(response.message));
             }
 
-            const data = await response.json();
+            // const response = await fetch('https://elepla-be-production.up.railway.app/api/Auth/FacebookLogin', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({
+            //         accessToken: accessToken
+            //     })
+            // });
+
+            // if (!response.ok) {
+            //     throw new Error('Facebook Login failed');
+            // }
+
+            // const data = await response.json();
             
-            console.log('Facebook Login API Response:', data);
-            console.log('Login Success');
-            message.success('Đăng nhập thành công');
+            // console.log('Facebook Login API Response:', data);
+            // console.log('Login Success');
+            // message.success('Đăng nhập thành công');
 
-            // Lưu trữ access token vào localStorage
-            localStorage.setItem('accessToken', data.accessToken);
-            localStorage.setItem('refreshToken', data.refreshToken);
+            // // Lưu trữ access token vào localStorage
+            // localStorage.setItem('accessToken', data.accessToken);
+            // localStorage.setItem('refreshToken', data.refreshToken);
 
-            // Chuyển hướng đến trang chủ sau khi đăng nhập thành công bằng useNavigate
-            navigate('/'); // Điều hướng đến trang chủ
+            // // Chuyển hướng đến trang chủ sau khi đăng nhập thành công bằng useNavigate
+            // navigate('/'); // Điều hướng đến trang chủ
         } catch (error) {
             console.error('Facebook Login API Error:', error);
             message.error('Đăng nhập qua Facebook thất bại. Vui lòng thử lại sau.');

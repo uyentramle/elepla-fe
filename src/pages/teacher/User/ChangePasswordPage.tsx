@@ -5,7 +5,7 @@ import SidebarMenu from './SidebarMenu';
 import { useForm } from 'antd/es/form/Form';
 import { Form, Input, Button, message } from 'antd';
 import { jwtDecode } from 'jwt-decode';
-import { translateErrorToVietnamese } from '../../../utils/TranslateError';
+import { translatePasswordErrorToVietnamese } from '../../../utils/TranslateError';
 
 const ChangePasswordPage: React.FC = () => {
     const [form] = useForm();
@@ -60,7 +60,7 @@ const ChangePasswordPage: React.FC = () => {
                     case 'Password is not in correct format.':
                         if (error.response.data.errors && error.response.data.errors.length > 0) {
                             error.response.data.errors.forEach((err: string) => {
-                                const errorMessage = translateErrorToVietnamese(err);
+                                const errorMessage = translatePasswordErrorToVietnamese(err);
                                 message.error(errorMessage);
                             });
                         }

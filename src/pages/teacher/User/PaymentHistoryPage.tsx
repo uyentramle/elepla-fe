@@ -250,7 +250,7 @@ const PaymentDetailModal: React.FC<{ isOpen: boolean, paymentId: string; onClose
                 <div className="modal-content">
                     <div className="modal-header text-black">
                         <h5 className="modal-title mb-2 text-center text-xl font-bold">
-                            Chi tiết đơn hàng
+                            Chi tiết thanh toán
                         </h5>
                     </div>
                     <div className="modal-body flex text-sm">
@@ -263,7 +263,7 @@ const PaymentDetailModal: React.FC<{ isOpen: boolean, paymentId: string; onClose
                                         <span className="font-normal">{paymentDetail?.paymentId}</span>
                                     </p>
                                     <p className="font-bold">
-                                        Ngày đặt hàng: <span className="font-normal">
+                                        Ngày thanh toán: <span className="font-normal">
                                             {paymentDetail?.createdAt
                                                 ? new Date(paymentDetail.createdAt).toLocaleDateString('vi-VN', {
                                                     year: 'numeric',

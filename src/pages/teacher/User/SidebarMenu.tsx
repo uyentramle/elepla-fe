@@ -41,7 +41,7 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({ onLogout }) => {
                         }`}
                     >
                         <BookOutlined className="mr-2" />
-                        <span>Thư viện giáo án</span>
+                        <span>Thư viện kế hoạch bài dạy</span>
                     </Link>                  
                     <Link
                         to="/teacher/change-password"

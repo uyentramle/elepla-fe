@@ -14,7 +14,9 @@ import { Link } from 'react-router-dom';
 import type { OTPProps } from 'antd/es/input/OTP';
 import CustomStep from "../Button/CustomStep";
 import { obfuscateContactInfo } from "@/utils/ObfuscateInfo";
-import { translateErrorToVietnamese } from "@/utils/TranslateError";
+import { translatePasswordErrorToVietnamese } from "@/utils/TranslateError";
+import { sendForgotPasswordVerificationCode, verifyForgotPasswordCode, resetPassword } from "@/data/authen/ForgotPasswordData";
+import { translateForgotPasswordErrorToVietnamese } from "@/utils/TranslateError";
 
 // const { Step } = Steps;
 
@@ -34,7 +36,7 @@ const ForgotPasswordPage: React.FC = () => {
             setCountdown(60);
         } else if (currentStep === 1) {
             // Handle verification code submission
-            verifyForgotPasswordCode(phoneNumberOrEmail, values.verificationCode);
+            verifyForgotPwdCode(phoneNumberOrEmail, values.verificationCode);
         } else if (currentStep === 2) {
             // Handle password reset
             resetPasswordUser(values);
@@ -66,26 +68,16 @@ const ForgotPasswordPage: React.FC = () => {
 
     const sendVerificationCode = async (phoneNumberOrEmail: any) => {
         try {
-            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/SendForgotPasswordVerificationCode', {
-                phoneNumberOrEmail,
-            });
-            if (response.data.success) {
-                message.success('Đã gửi mã xác minh');
+            const response = await sendForgotPasswordVerificationCode({ phoneNumberOrEmail });
+
+            if (response.success) {
+                message.success('Mã xác minh đã được gửi');
                 setCurrentStep(1);
             } else {
-                message.error(response.data.message);
+                message.error(translateForgotPasswordErrorToVietnamese(response.message));
             }
         } catch (error: any) {
-            // message.error('Đã xảy ra lỗi khi gửi mã xác minh.');
-            // Xử lý các trường hợp lỗi cụ thể
-            switch (error.response.data.message) {
-                case 'User not found.':
-                    message.error('Không tìm thấy người dùng.');
-                    break;
-                default:
-                    message.error('Đã xảy ra lỗi khi gửi mã xác minh.');
-                    break;
-            }
+            message.error('Đã xảy ra lỗi khi gửi mã xác minh.');
         }
     };
 
@@ -99,33 +91,20 @@ const ForgotPasswordPage: React.FC = () => {
         }
     };
 
-    const verifyForgotPasswordCode = async (phoneNumberOrEmail: any, verificationCode: any) => {
+    const verifyForgotPwdCode = async (phoneNumberOrEmail: any, verificationCode: any) => {
         try {
-            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/VerifyForgotPasswordCode', {
-                phoneNumberOrEmail,
-                verificationCode
-            });
-            if (response.data.success) {
+            const response = await verifyForgotPasswordCode({ phoneNumberOrEmail, verificationCode });
+
+            if (response.success) {
                 message.success('Xác minh thành công');
-                // form.setFieldsValue({ resetPasswordToken: response.data.data.resetToken });
-                setResetPasswordToken(response.data.data.resetToken);
+                setResetPasswordToken(response.data.resetToken);
                 setPhoneNumberOrEmail(phoneNumberOrEmail);
-                // console.log(response.data.data.token);
-                // console.log(phoneNumberOrEmail);
                 setCurrentStep(2);
             } else {
-                message.error(response.data.message);
+                message.error(translateForgotPasswordErrorToVietnamese(response.message));
             }
         } catch (error: any) {
-            // message.error('Failed to verify code');
-            switch (error.response.data.message) {
-                case 'Invalid verification code.':
-                    message.error('Mã xác minh không hợp lệ.');
-                    break;
-                default:
-                    message.error('Đã xảy ra lỗi. Vui lòng thử lại.');
-                    break;
-            }
+            message.error('Đã xảy ra lỗi khi xác minh mã xác thực.');
         }
     };
 
@@ -156,7 +135,7 @@ const ForgotPasswordPage: React.FC = () => {
                 case 'Password is not in correct format.':
                     if (error.response.data.errors && error.response.data.errors.length > 0) {
                         error.response.data.errors.forEach((err: string) => {
-                            const errorMessage = translateErrorToVietnamese(err);
+                            const errorMessage = translatePasswordErrorToVietnamese(err);
                             message.error(errorMessage);
                         });
                     }
@@ -303,7 +282,7 @@ const ForgotPasswordPage: React.FC = () => {
                             {currentStep < 3 ? 'Tiếp' : <Link to="/sign-in">Đăng nhập ngay</Link>}
                         </Button>
                     </Form.Item>
-                    <Button type="default" className="w-full" href="/sign-in">Trở về đăng nhập</Button>
+                    <Button type="default" className="w-full"><Link to="/sign-in">Trở về đăng nhập</Link></Button>
                 </Form>
             </div>
         </div>

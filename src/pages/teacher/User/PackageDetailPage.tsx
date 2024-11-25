@@ -124,7 +124,7 @@ const PackageDetailPage: React.FC = () => {
               )}
             </div>
             <p className="text-lg mb-4">
-              {pkg.description || 'Không có mô tả.'}
+              {pkg.description || ''}
             </p>
             <ul className="text-left mb-8" style={{ height: '200px' }}>
               <li>- {pkg.useTemplate ? 'Hỗ trợ sử dụng mẫu bài giảng.' : 'Không hỗ trợ sử dụng mẫu bài giảng.'}</li>
