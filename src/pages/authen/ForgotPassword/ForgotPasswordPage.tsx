@@ -15,7 +15,7 @@ import type { OTPProps } from 'antd/es/input/OTP';
 import CustomStep from "../Button/CustomStep";
 import { obfuscateContactInfo } from "@/utils/ObfuscateInfo";
 import { translatePasswordErrorToVietnamese } from "@/utils/TranslateError";
-import { sendForgotPasswordVerificationCode, verifyForgotPasswordCode, resetPassword } from "@/data/authen/ForgotPasswordData";
+import { sendForgotPasswordVerificationCode, verifyForgotPasswordCode } from "@/data/authen/ForgotPasswordData";
 import { translateForgotPasswordErrorToVietnamese } from "@/utils/TranslateError";
 
 // const { Step } = Steps;
