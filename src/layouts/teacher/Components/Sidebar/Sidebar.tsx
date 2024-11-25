@@ -1,4 +1,4 @@
-import { MenuOutlined, SnippetsOutlined, CalendarOutlined, DatabaseOutlined, StarOutlined, CheckSquareOutlined, CaretRightOutlined } from '@ant-design/icons';
+import { MenuOutlined, SnippetsOutlined, CalendarOutlined, DatabaseOutlined, StarOutlined, CheckSquareOutlined, CaretRightOutlined,ShareAltOutlined } from '@ant-design/icons';
 import { Menu, MenuProps, Button } from 'antd';
 import Sider from 'antd/es/layout/Sider';
 import React, { useEffect } from 'react';
@@ -48,6 +48,7 @@ export default function MySider({
   const getConditionalItems = (): MenuItem[] => {
     return [
       getItem('Bộ Sưu tập của tôi', '1', <SnippetsOutlined />),
+      getItem('Thư viện kế hoạch', '5', <ShareAltOutlined />),
       getItem('Thời khóa biểu hàng tuần', '2', <CalendarOutlined />),
       getItem('Ngân hàng câu hỏi', '3', <DatabaseOutlined />, [
         getItem('Ngân hàng câu hỏi', '3.1', <CaretRightOutlined />),
@@ -61,6 +62,7 @@ export default function MySider({
   const navUrl = new Map<string, string>();
   navUrl
     .set('1', '/teacher/list-collection')
+    .set('5', '/teacher/planbook-library')
     .set('2', '/teacher/schedule/weekly')
     .set('3', '/teacher/question-bank/')
     .set('3.1', '/teacher/question-bank/')
@@ -106,9 +108,9 @@ export default function MySider({
             block
             size="large"
             className="bg-blue-500 text-white w-full"  // Đảm bảo nút này rộng full chiều ngang
-            onClick={() => navigate('#')}
+            onClick={() => navigate('/teacher/list-collection')}
           >
-            Tạo giáo án
+            Tạo kế hoạch
           </Button>
         </div>
 

@@ -14,6 +14,7 @@ interface Activity {
 
 interface PlanbookContentProps {
   planbookData: {
+    lessonName:string;
     title: string;
     planbookId: string;
     isPublic: boolean;
@@ -175,7 +176,7 @@ const handleSave = async () => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4 text-center">{editableData.title}</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">{editableData.lessonName}</h1>
 
       <Form.Item label="Chế độ hiển thị" name="isPublic" valuePropName="checked">
   <Switch
