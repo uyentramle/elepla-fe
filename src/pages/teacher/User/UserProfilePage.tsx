@@ -14,6 +14,7 @@ import cities from '../../../layouts/teacher/Address/data/provinces.json';
 import districts from '../../../layouts/teacher/Address/data/districts.json';
 import wards from '../../../layouts/teacher/Address/data/wards.json';
 import schools from '../../../layouts/teacher/Address/data/schools.json';
+import { Logout } from '@/data/authen/loginData';
 
 interface UserProfile {
     userId: string;
@@ -86,9 +87,9 @@ const UserProfilePage: React.FC = () => {
     const navigate = useNavigate();
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
-    const navigateToSignInPage = () => {
-        navigate('/sign-in');
-    }
+    // const navigateToSignInPage = () => {
+    //     navigate('/sign-in');
+    // }
 
     const showUpdateModal = () => {
         setIsUpdateModalOpen(true);
@@ -98,12 +99,12 @@ const UserProfilePage: React.FC = () => {
         setIsUpdateModalOpen(false);
     }
 
-    const handleLogout = () => {
-        // Clear local items
-        localStorage.removeItem('accessToken');
-        // Redirect to sign-in page
-        navigateToSignInPage();
-    };
+    // const handleLogout = () => {
+    //     // Clear local items
+    //     localStorage.removeItem('accessToken');
+    //     // Redirect to sign-in page
+    //     navigateToSignInPage();
+    // };
 
     const handleOpenAvatarModal = (userId: string) => {
         setCurrentUserId(userId);
@@ -120,8 +121,10 @@ const UserProfilePage: React.FC = () => {
         // return () => clearInterval(interval);
         const fetchData = async () => {
             const accessToken = localStorage.getItem('accessToken');
+            console.log('accessToken:', accessToken);
             if (!accessToken) {
-                navigateToSignInPage();
+                // navigateToSignInPage();
+                Logout(navigate);
             }
     
             try {
@@ -130,13 +133,14 @@ const UserProfilePage: React.FC = () => {
                 setAvatar(userProfileData.avatar);
             } catch (error) {
                 console.error('Error fetching user profile:', error);
-                navigateToSignInPage(); // Redirect to sign-in page on error
+                // navigateToSignInPage(); // Redirect to sign-in page on error
+                Logout(navigate);   
             } finally {
                 //setLoading(false); // Set loading to false after data fetching
             }
         };
         fetchData();
-    }, [avatar, navigateToSignInPage]);
+    }, [avatar, navigate, userData]);
 
     // const handleSaveAvatar = (file: File) => {
     //     const reader = new FileReader();
@@ -146,15 +150,11 @@ const UserProfilePage: React.FC = () => {
     //     reader.readAsDataURL(file);
     // };
 
-    if (!userData) {
-        navigateToSignInPage();
-    }
-
     return (
         <div className="container mx-auto w-4/5 p-4 pt-10">
             <div className="flex flex-col gap-10 lg:flex-row">
                 {' '}
-                <SidebarMenu onLogout={handleLogout} />
+                <SidebarMenu onLogout={() => Logout(navigate)} />
                 <div className="w-full lg:flex-1">
                     <div className="rounded bg-white p-4 shadow">
                         <div className="flex flex-col gap-12 sm:flex-row">
@@ -460,7 +460,6 @@ const UpdateProfileModal: React.FC<UpdateProfileModalProps> = ({ isOpen, onClose
     const [form] = Form.useForm();
     const [selectedCity, setSelectedCity] = useState<string | undefined>(undefined);
     const [selectedDistrict, setSelectedDistrict] = useState<string | undefined>(undefined);
-
 
     useEffect(() => {
         if (isOpen) {

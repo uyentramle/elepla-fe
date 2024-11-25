@@ -3,6 +3,7 @@ import axios from "axios";
 import { Form, Input, Button, Checkbox, /*Steps,*/ message, GetProp } from 'antd';
 import { LineOutlined, CheckCircleFilled, CheckOutlined, LoadingOutlined } from '@ant-design/icons';
 import type { OTPProps } from 'antd/es/input/OTP';
+import { Link } from "react-router-dom";
 import {
     GoogleOAuthProvider,
     // GoogleLogin
@@ -11,7 +12,9 @@ import CustomGoogleLoginButton from '../Button/GoogleLoginButton';
 import CustomFacebookLoginButton from "../Button/FacebookLoginButton";
 // import CustomStep from "../Button/CustomStep";
 import { obfuscateContactInfo } from "@/utils/ObfuscateInfo";
-import { translateErrorToVietnamese } from "@/utils/TranslateError";
+import { translatePasswordErrorToVietnamese as translatePasswordErrorToVietnamese } from "@/utils/TranslateError";
+import { sendRegisterVerificationCode, verifyRegisterCode } from "@/data/authen/RegisterData";
+import { translateRegisterErrorToVietnamese } from "@/utils/TranslateError";
 
 // const { Step } = Steps;
 
@@ -20,7 +23,6 @@ const SignUpPage: React.FC = () => {
     const [form] = Form.useForm();
     const [phoneNumberOrEmail, setPhoneNumberOrEmail] = useState<string>('');
     const [registerToken, setRegisterToken] = useState<string>('');
-
     const [countdown, setCountdown] = useState(60);
     const [canResend, setCanResend] = useState(false);
 
@@ -46,62 +48,31 @@ const SignUpPage: React.FC = () => {
 
     const sendVerificationCode = async (phoneNumberOrEmail: any) => {
         try {
-            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/SendRegisterVerificationCode', {
-                phoneNumberOrEmail,
-            });
-            if (response.data.success) {
+            const response = await sendRegisterVerificationCode({ phoneNumberOrEmail });
+            if (response.success) {
                 message.success('Đã gửi mã xác minh');
                 setCurrentStep(1);
             } else {
-                message.error(response.data.message);
+                message.error(translateRegisterErrorToVietnamese(response.message));
             }
         } catch (error: any) {
-            // message.error('Đã xảy ra lỗi khi gửi mã xác minh.');
-            // Xử lý các trường hợp lỗi cụ thể
-            switch (error.response.data.message) {
-                case 'Email already in use.':
-                    message.error('Email đã được sử dụng.');
-                    break;
-                case 'Phone number already in use.':
-                    message.error('Số điện thoại đã được sử dụng.');
-                    break;
-                case 'Invalid phone number or email format.':
-                    message.error('Định dạng số điện thoại hoặc email không hợp lệ.');
-                    break;
-                default:
-                    message.error('Đã xảy ra lỗi khi gửi mã xác minh.');
-                    break;
-            }
+            message.error('Đã xảy ra lỗi khi gửi mã xác minh.');
         }
     };
 
-    const verifyRegisterCode = async (phoneNumberOrEmail: any, verificationCode: any) => {
+    const verifyRegisterVerificationCode = async (phoneNumberOrEmail: any, verificationCode: any) => {
         try {
-            const response = await axios.post('https://elepla-be-production.up.railway.app/api/Auth/VerifyRegisterCode', {
-                phoneNumberOrEmail,
-                verificationCode
-            });
-            if (response.data.success) {
+            const response = await verifyRegisterCode({ phoneNumberOrEmail, verificationCode });
+            if (response.success) {
                 message.success('Xác minh thành công');
-                // form.setFieldsValue({ registerToken: response.data.data.token });
-                setRegisterToken(response.data.data.token);
+                setRegisterToken(response.data.token);
                 setPhoneNumberOrEmail(phoneNumberOrEmail);
-                // console.log(response.data.data.token);
-                // console.log(phoneNumberOrEmail);
                 setCurrentStep(2);
             } else {
-                message.error(response.data.message);
+                message.error(translateRegisterErrorToVietnamese(response.message));
             }
         } catch (error: any) {
-            // message.error('Failed to verify code');
-            switch (error.response.data.message) {
-                case 'Invalid verification code.':
-                    message.error('Mã xác minh không hợp lệ.');
-                    break;
-                default:
-                    message.error('Đã xảy ra lỗi. Vui lòng thử lại.');
-                    break;
-            }
+            message.error('Đã xảy ra lỗi khi xác minh mã.');
         }
     };
 
@@ -119,45 +90,40 @@ const SignUpPage: React.FC = () => {
                 message.success('Đăng ký tài khoản thành công');
                 setCurrentStep(3);
             } else {
-                message.error(response.data.message);
+                switch (response.data.message) {
+                    case 'Invalid or expired email registration token.':
+                    case 'Invalid or expired phone registration token.':
+                        message.error('Phiên đăng ký không hợp lệ hoặc đã hết hạn. Vui lòng đăng ký lại tài khoản.');
+                        // trở về bước đầu tiên
+                        setCurrentStep(0);
+                        break;
+                    case `${phoneNumberOrEmail} already exists`:
+                        message.error(`${phoneNumberOrEmail} đã tồn tại.`);
+                        break;
+                    case 'Invalid phone number or email format.':
+                        message.error('Định dạng số điện thoại hoặc email không hợp lệ.');
+                        break;
+                    case `${values.username} already exists`:
+                        message.error(`Tên đăng nhập ${values.username} đã tồn tại.`);
+                        break;
+                    case 'Username must be between 6 and 20 characters long.':
+                        message.error('Tên đăng nhập phải từ 6 đến 20 ký tự.');
+                        break;
+                    case 'Password is not in correct format.':
+                        if (response.data.errors && response.data.errors.length > 0) {
+                            response.data.errors.forEach((err: string) => {
+                                const errorMessage = translatePasswordErrorToVietnamese(err);
+                                message.error(errorMessage);
+                            });
+                        }
+                        break;
+                    default:
+                        message.error(response.data.message);
+                        break;
+                }
             }
         } catch (error: any) {
-            // message.error('Failed to register');
-            switch (error.response.data.message) {
-                case 'Invalid or expired email registration token.':
-                    message.error('Phiên đăng ký không hợp lệ hoặc đã hết hạn. Vui lòng đăng ký lại tài khoản.');
-                    // trở về bước đầu tiên
-                    setCurrentStep(0);
-                    break;
-                case 'Invalid or expired phone registration token.':
-                    message.error('Phiên đăng ký không hợp lệ hoặc đã hết hạn. Vui lòng đăng ký lại tài khoản.');
-                    // trở về bước đầu tiên
-                    setCurrentStep(0);
-                    break;
-                case `${phoneNumberOrEmail} already exists`:
-                    message.error(`${phoneNumberOrEmail} đã tồn tại.`);
-                    break;
-                case 'Invalid phone number or email format.':
-                    message.error('Định dạng số điện thoại hoặc email không hợp lệ.');
-                    break;
-                case `${values.username} already exists`:
-                    message.error(`Tên đăng nhập ${values.username} đã tồn tại.`);
-                    break;
-                case 'Username must be between 6 and 20 characters long.':
-                    message.error('Tên đăng nhập phải từ 6 đến 20 ký tự.');
-                    break;
-                case 'Password is not in correct format.':
-                    if (error.response.data.errors && error.response.data.errors.length > 0) {
-                        error.response.data.errors.forEach((err: string) => {
-                            const errorMessage = translateErrorToVietnamese(err);
-                            message.error(errorMessage);
-                        });
-                    }
-                    break;
-                default:
-                    message.error('Đã xảy ra lỗi, vui lòng thử lại sau.');
-                    break;
-            }
+            message.error('Đã xảy ra lỗi khi đăng ký tài khoản, vui lòng thử lại sau.');
         }
     };
 
@@ -178,7 +144,7 @@ const SignUpPage: React.FC = () => {
             sendVerificationCode(values.phoneNumberOrEmail);
             setCountdown(60);
         } else if (currentStep === 1) {
-            verifyRegisterCode(phoneNumberOrEmail, values.verificationCode);
+            verifyRegisterVerificationCode(phoneNumberOrEmail, values.verificationCode);
         } else if (currentStep === 2) {
             registerUser(values);
         }
@@ -200,16 +166,15 @@ const SignUpPage: React.FC = () => {
                                     <h1 className="text-3xl mb-4">Chào mừng trở lại!</h1>
                                     <p className="text-gray-200 font-normal leading-relaxed">Hãy đăng nhập để tiếp tục công việc xây dựng giáo án của bạn.</p>
                                     <div className="my-8">
-                                        <a href="/sign-in" className="border text-white font-medium text-sm rounded-full transition-all duration-300 hover:bg-white hover:text-black focus:bg-white focus:text-black px-14 py-2.5">
+                                        <Link to="/sign-in" className="border text-white font-medium text-sm rounded-full transition-all duration-300 hover:bg-white hover:text-black focus:bg-white focus:text-black px-14 py-2.5">
                                             Đăng nhập
-                                        </a>
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div className="xl:col-span-3 lg:col-span-2 lg:m-10 m-5 flex flex-col justify-center items-center">
                             <h2 className="text-2xl font-bold mb-6 text-center text-blue-500">Đăng ký</h2>
-
                             {/* <div className="w-56">
                             <Steps current={currentStep} className="mb-8 custom-steps">
                                 <Step title={currentStep === 0 ? <LineOutlined className="text-blue-500" /> : <LineOutlined className="text-blue-500" />} />
@@ -299,7 +264,7 @@ const SignUpPage: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className="text-center mt-4">
-                                            <p>Bạn đã có tài khoản? <Button type="link" href="/sign-in">Đăng nhập</Button></p>
+                                            <p>Bạn đã có tài khoản? <Button type="link"><Link to="/sign-in">Đăng nhập</Link></Button></p>
                                         </div>
                                     </>
                                 )}
@@ -414,7 +379,7 @@ const SignUpPage: React.FC = () => {
                                     <div className="text-center">
                                         <CheckCircleFilled className='text-green-500 mb-2' style={{ fontSize: '40px' }} />
                                         <p>Tài khoản của bạn đã được thiết lập thành công</p>
-                                        <Button type="link" className="block mx-auto text-center" style={{ maxWidth: 'max-content' }} href="/sign-in">Trở về Đăng nhập</Button>
+                                        <Button type="link" className="block mx-auto text-center" style={{ maxWidth: 'max-content' }}><Link to="/sign-in">Trở về Đăng nhập</Link></Button>
                                     </div>
                                 )}
                             </Form>

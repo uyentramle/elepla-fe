@@ -1,9 +1,11 @@
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Dropdown, MenuProps, Modal, Spin } from 'antd';
 import { Header } from 'antd/es/layout/layout';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Logout } from '@/data/authen/loginData';
 
 export default function MyHeader() {
+    const navigate = useNavigate();
     const items: MenuProps['items'] = [
         {
             key: '1',
@@ -13,7 +15,7 @@ export default function MyHeader() {
         {
             key: '2',
             icon: <LogoutOutlined></LogoutOutlined>,
-            label: <div onClick={() => { }}>Đăng xuất</div>,
+            label: <div onClick={() => {Logout(navigate)}}>Đăng xuất</div>,
         },
     ];
 

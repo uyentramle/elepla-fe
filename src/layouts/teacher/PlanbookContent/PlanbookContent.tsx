@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Input, Form, Button } from 'antd';
+import { Card, Input, Form, Button, message, Switch } from 'antd';
+import apiClient from "@/data/apiClient";
+import { getActiveUserPackageByUserId, ServicePackage } from '@/data/manager/UserPackageDatas';
+
 
 interface Activity {
   title: string;
@@ -11,7 +14,10 @@ interface Activity {
 
 interface PlanbookContentProps {
   planbookData: {
+    lessonName:string;
     title: string;
+    planbookId: string;
+    isPublic: boolean;
     schoolName: string;
     teacherName: string;
     subject: string;
@@ -23,41 +29,165 @@ interface PlanbookContentProps {
     teachingTools: string;
     activities: Activity[];
   };
+  userId: string; // Thêm userId để lấy thông tin gói người dùng
 }
 
-const PlanbookContent: React.FC<PlanbookContentProps> = ({ planbookData }) => {
+const PlanbookContent: React.FC<PlanbookContentProps> = ({ planbookData, userId }) => {
   const [editableData, setEditableData] = useState(planbookData);
+  const [userPackage, setUserPackage] = useState<ServicePackage  | null>(null);
+
+
 
   useEffect(() => {
     console.log("Updating editableData:", planbookData);
     setEditableData(planbookData);
   }, [planbookData]);
 
+    // Lấy thông tin gói người dùng khi component được render
+    useEffect(() => {
+      const fetchUserPackage = async () => {
+        try {
+          console.log("Fetching user package with userId:", userId); // Debug: In ra userId trước khi gọi API
+          if (!userId) {
+            console.error("UserId is missing."); // Debug: Xác nhận nếu userId không tồn tại
+            message.error("UserId không hợp lệ. Không thể lấy thông tin gói người dùng.");
+            return;
+          }
+          
+          const data = await getActiveUserPackageByUserId(userId);
+          console.log("Fetched user package:", data); // Debug: Xem dữ liệu trả về từ API
+          setUserPackage(data);
+        } catch (error) {
+          console.error("Error fetching user package:", error); // Debug: In lỗi nếu API thất bại
+          message.error("Không thể lấy thông tin gói người dùng.");
+        }
+      };
+    
+      fetchUserPackage();
+    }, [userId]);
 
-  const handleInputChange = (field: string, value: string) => {
-    setEditableData((prevData) => ({ ...prevData, [field]: value }));
+
+
+  const handleInputChange = (field: string, value: any) => {
+    setEditableData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleActivityChange = (index: number, field: string, value: string) => {
-    const updatedActivities = editableData.activities.map((activity, i) =>
-      i === index ? { ...activity, [field]: value } : activity
+const handleActivityChange = (index: number, field: string, value: any) => {
+  const updatedActivities = [...editableData.activities];
+  updatedActivities[index] = { ...updatedActivities[index], [field]: value };
+  setEditableData((prev) => ({ ...prev, activities: updatedActivities }));
+};
+
+const handleSave = async () => {
+  try {
+    const updatedValues = {
+      ...editableData,
+      activities: editableData.activities.map((activity: any) => ({
+        activityId: activity.activityId || null,
+        ...activity,
+      })),
+    };
+
+    const response = await apiClient.put(
+      "https://elepla-be-production.up.railway.app/api/Planbook/UpdatePlanbook",
+      updatedValues
     );
-    setEditableData((prevData) => ({ ...prevData, activities: updatedActivities }));
+
+    if (response.data.success) {
+      message.success("Cập nhật kế hoạch giảng dạy thành công!");
+    } else {
+      message.error(response.data.message || "Không thể cập nhật kế hoạch giảng dạy.");
+    }
+  } catch (error) {
+    console.error(error);
+    message.error("Có lỗi xảy ra khi cập nhật kế hoạch giảng dạy.");
+  }
+};
+
+  // const handleExit = () => {
+  //   console.log("Exiting without saving...");
+  //   // Implement the exit functionality here
+  // };
+
+  const handleExportPdf = async () => {
+    if (!userPackage?.exportPdf) {
+      message.warning("Nâng cấp tài khoảng để sử dụng chức năng này");
+      return;
+    }
+    try {
+      const response = await apiClient.get(
+        `https://elepla-be-production.up.railway.app/api/Planbook/ExportPlanbookToPdf`,
+        {
+          params: { planbookId: planbookData.planbookId },
+          responseType: "blob", // Để xử lý file PDF
+        }
+      );
+
+      // Tạo URL blob từ dữ liệu phản hồi
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Đặt tên file, có thể tùy chỉnh
+      link.setAttribute("download", `${planbookData.title}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      message.success("Xuất file PDF thành công!");
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      message.error("Có lỗi xảy ra khi xuất file PDF.");
+    }
   };
 
-  const handleSave = () => {
-    console.log("Saved data:", editableData);
-    // Implement the save functionality here
-  };
+  const handleExportWord = async () => {
+    if(!userPackage?.exportWord){
+      message.warning("Nâng cấp tài khoảng để sử dụng chức năng này");
+      return;
+    }
 
-  const handleExit = () => {
-    console.log("Exiting without saving...");
-    // Implement the exit functionality here
+    try {
+      const response = await apiClient.get(
+        `https://elepla-be-production.up.railway.app/api/Planbook/ExportPlanbookToWord`,
+        {
+          params: { planbookId: planbookData.planbookId },
+          responseType: "blob", // Để xử lý file Word
+        }
+      );
+
+      // Tạo URL blob từ dữ liệu phản hồi
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Đặt tên file, có thể tùy chỉnh
+      link.setAttribute("download", `${planbookData.title}.docx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      message.success("Xuất file Word thành công!");
+    } catch (error) {
+      console.error("Error exporting Word:", error);
+      message.error("Có lỗi xảy ra khi xuất file Word.");
+    }
   };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4 text-center">{editableData.title}</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">{editableData.lessonName}</h1>
+
+      <Form.Item label="Chế độ hiển thị" name="isPublic" valuePropName="checked">
+  <Switch
+    checked={editableData.isPublic}
+    onChange={(checked) =>
+      setEditableData((prev) => ({ ...prev, isPublic: checked }))
+    }
+    checkedChildren="Công khai"
+    unCheckedChildren="Riêng tư"
+  />
+</Form.Item>
 
       <Form layout="vertical" className="max-w-4xl mx-auto bg-white p-6 rounded shadow-md">
         <Card className="mb-6" title="Thông tin chung">
@@ -65,7 +195,7 @@ const PlanbookContent: React.FC<PlanbookContentProps> = ({ planbookData }) => {
             <Input
               value={editableData.schoolName}
               onChange={(e) => handleInputChange("schoolName", e.target.value)}
-            />
+              />
           </Form.Item>
           <Form.Item label={<strong>Giáo viên</strong>}>
             <Input
@@ -128,13 +258,13 @@ const PlanbookContent: React.FC<PlanbookContentProps> = ({ planbookData }) => {
         </Card>
 
         <Card title="III. Tiến trình dạy học">
-          {editableData.activities.map((activity, index) => (
+        {editableData.activities.map((activity, index) => (
             <Card key={index} className="mb-4" title={`Hoạt động ${index + 1}`}>
               <Form.Item label={<strong>Tên hoạt động</strong>}>
                 <Input
                   value={activity.title}
                   onChange={(e) => handleActivityChange(index, "title", e.target.value)}
-                />
+                  />
               </Form.Item>
               <Form.Item label={<strong>Mục tiêu</strong>}>
                 <Input.TextArea
@@ -167,11 +297,24 @@ const PlanbookContent: React.FC<PlanbookContentProps> = ({ planbookData }) => {
             </Card>
           ))}
         </Card>
-
+          <div className="flex justify-end gap-4 mt-6">
+            <Button
+              style={{ backgroundColor: "red", color: "white" }}
+              onClick={handleExportPdf}
+            >
+              Xuất file PDF
+            </Button>
+            <Button
+              style={{ backgroundColor: "blue", color: "white" }}
+              onClick={handleExportWord}
+            >
+              Xuất file Word
+            </Button>
+          </div>
         <div className="flex justify-end gap-4 mt-6">
-          <Button type="default" onClick={handleExit}>
+          {/* <Button type="default" onClick={handleExit}>
             Thoát
-          </Button>
+          </Button> */}
           <Button type="primary" onClick={handleSave}>
             Lưu
           </Button>

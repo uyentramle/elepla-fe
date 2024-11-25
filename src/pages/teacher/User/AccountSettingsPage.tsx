@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Input, message } from 'antd';
 import { UserOutlined, MailOutlined, PhoneOutlined, KeyOutlined, TwitterOutlined, GoogleOutlined } from '@ant-design/icons';
 import { obfuscateUsername, obfuscateEmail, obfuscatePhoneNumber } from '@/utils/ObfuscateInfo';
-import { translateErrorToVietnamese } from '@/utils/TranslateError';
+import { translatePasswordErrorToVietnamese } from '@/utils/TranslateError';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
@@ -120,11 +120,8 @@ const AccountSettingsPage: React.FC = () => {
                         </nav>
                         <div className="space-y-4">
                             <LinkedAccount username={username} setUsername={setUsername} />
-
                             <LinkedEmail email={email} setEmail={setEmail} /> {/* Thêm dòng này để test */}
-
                             <LinkedPhone phoneNumber={phoneNumber} setPhoneNumber={setPhoneNumber} /> {/* Thêm dòng này để test */}
-
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
                                     <div className="rounded-full bg-blue-400 p-2 text-xs text-white">
@@ -165,14 +162,18 @@ const AccountSettingsPage: React.FC = () => {
                                     <div>
                                         <div className="text-gray-700">Facebook</div>
                                         {/* <div className="text-gray-500">Phạm Tum</div> */}
-                                        <div className="text-gray-500 text-xs">{facebookEmail || 'Chưa liên kết'}</div>
+                                        <div
+                                            className={`text-xs ${facebookEmail ? 'text-gray-500' : 'text-red-500'
+                                                }`}
+                                        >
+                                            {facebookEmail || 'Chưa liên kết'}
+                                        </div>
                                     </div>
                                 </div>
                                 <button className="mt-1 rounded bg-gray-300 px-2 py-1 text-sm text-gray-700">
                                     {facebookEmail ? 'Hủy liên kết' : 'Liên Kết'}
                                 </button>
                             </div>
-
                             <div className="">
                                 <div className="flex items-center space-x-2">
                                     <div className="rounded-full bg-blue-400 p-2 text-white">
@@ -187,7 +188,6 @@ const AccountSettingsPage: React.FC = () => {
                                     Liên Kết
                                 </button>
                             </div>
-
                             <div className="">
                                 <div className="flex items-center space-x-2">
                                     <div className="rounded-full bg-red-500 p-2 text-white">
@@ -196,7 +196,12 @@ const AccountSettingsPage: React.FC = () => {
                                     <div>
                                         <div className="text-gray-700">Google</div>
                                         {/* <div className="text-gray-500">Ngô Bá Tô</div> */}
-                                        <div className="text-gray-500 text-xs">{googleEmail || 'Chưa liên kết'}</div>
+                                        <div
+                                            className={`text-xs ${googleEmail ? 'text-gray-500' : 'text-red-500'
+                                                }`}
+                                        >
+                                            {googleEmail || 'Chưa liên kết'}
+                                        </div>
                                     </div>
                                 </div>
                                 <button className="mt-1 rounded bg-gray-300 px-2 py-1 text-sm text-gray-700">
@@ -278,7 +283,7 @@ const LinkedAccount: React.FC<LinkedAccountProps> = ({ username, setUsername }) 
                     case 'Password is not in correct format.':
                         if (error.response.data.errors && error.response.data.errors.length > 0) {
                             error.response.data.errors.forEach((err: string) => {
-                                const errorMessage = translateErrorToVietnamese(err);
+                                const errorMessage = translatePasswordErrorToVietnamese(err);
                                 message.error(errorMessage);
                             });
                         }

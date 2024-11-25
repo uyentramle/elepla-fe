@@ -2,10 +2,9 @@ import React from "react";
 import { useNavigate } from 'react-router-dom';
 import { Button, message } from 'antd';
 import { GoogleOutlined } from '@ant-design/icons';
-import {
-    useGoogleLogin,
-    // GoogleLogin
-} from '@react-oauth/google';
+import { useGoogleLogin /*, GoogleLogin*/ } from '@react-oauth/google';
+import { googleLogin, saveTokens, navigateBasedOnRole } from "@/data/authen/loginData";
+import { translateLoginErrorToVietnamese } from "@/utils/TranslateError";
 
 const CustomGoogleLoginButton: React.FC = () => {
     const navigate = useNavigate(); // Sử dụng useNavigate để điều hướng
@@ -21,31 +20,46 @@ const CustomGoogleLoginButton: React.FC = () => {
 
     const callGoogleLoginApi = async (googleToken: string) => {
         try {
-            const response = await fetch('https://elepla-be-production.up.railway.app/api/Auth/GoogleLogin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    googleToken: googleToken,
-                    isCredential: false
-                })
-            });
+            const response = await googleLogin(googleToken);
+            
+            if (response.success) {
+                message.success('Đăng nhập thành công');
 
-            if (!response.ok) {
-                throw new Error('Google Login failed');
+                // Lưu trữ access token vào localStorage
+                saveTokens(response.accessToken, response.refreshToken);
+
+                // Chuyển hướng người dùng đến trang tương ứng với role
+                navigateBasedOnRole(navigate);
+            } else {
+                console.error('Google Login Failed:', response.message);
+                message.error(translateLoginErrorToVietnamese(response.message));
             }
 
-            const data = await response.json();
-            console.log('Google Login API Response:', data);
-            console.log('Login Success');
-            message.success('Đăng nhập thành công');
+            // const response = await fetch('https://elepla-be-production.up.railway.app/api/Auth/GoogleLogin', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({
+            //         googleToken: googleToken,
+            //         isCredential: false
+            //     })
+            // });
 
-            // Lưu trữ access token vào localStorage
-            localStorage.setItem('accessToken', data.accessToken);
-            localStorage.setItem('refreshToken', data.refreshToken);
+            // if (!response.ok) {
+            //     throw new Error('Google Login failed');
+            // }
 
-            navigate('/'); // Điều hướng đến trang chủ
+            // const data = await response.json();
+            // console.log('Google Login API Response:', data);
+            // console.log('Login Success');
+            // message.success('Đăng nhập thành công');
+
+            // // Lưu trữ access token vào localStorage
+            // saveTokens(data.accessToken, data.refreshToken);
+
+            // // Chuyển hướng người dùng đến trang tương ứng với role
+            // navigateBasedOnRole(navigate);
         } catch (error) {
             console.error('Google Login API Error:', error);
             message.error('Đăng nhập qua Google thất bại. Vui lòng thử lại sau.');

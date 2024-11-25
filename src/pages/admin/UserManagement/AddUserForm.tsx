@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Modal, Form, Input, Select, Button, message } from 'antd';
 import { Account } from 'src/pages/admin/UserManagement/UserManagementPage.tsx';
 import axios from 'axios';
-import { translateErrorToVietnamese } from '../../../utils/TranslateError';
+import { translatePasswordErrorToVietnamese } from '../../../utils/TranslateError';
 
 const { Option } = Select;
 
@@ -76,7 +76,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({
                         case 'Password is not in correct format.':
                             if (error.response.data.errors && error.response.data.errors.length > 0) {
                                 error.response.data.errors.forEach((err: string) => {
-                                    const errorMessage = translateErrorToVietnamese(err);
+                                    const errorMessage = translatePasswordErrorToVietnamese(err);
                                     message.error(errorMessage);
                                 });
                             }
