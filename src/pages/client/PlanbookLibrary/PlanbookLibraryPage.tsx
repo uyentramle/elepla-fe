@@ -1,99 +1,96 @@
-import React, { useState } from 'react';
-import { Select, Card, Rate, Button, Avatar } from 'antd';
-import { HeartOutlined, HeartFilled } from '@ant-design/icons';
-import { lessonPlans } from '../../../data/client/LessonPlanData'; // Import from the new file
-
-const { Option } = Select;
+import { useEffect, useState } from "react";
+import { getAllPlanbooks, PlanbookItem } from "@/api/ApiGetAllPlanbook";
+import { getPlanbookById, PlanbookDetail } from "@/api/ApiGetAllPlanbook";
+import { Spin, Card } from "antd";
+import { FileOutlined, UserOutlined, BookOutlined } from "@ant-design/icons";
+import PlanbookDetailModal from "@/layouts/client/Components/PlanbookDetailModal/PlanbookDetailModal"; // Import component mới
 
 const PlanbookLibraryPage: React.FC = () => {
-  const [selectedGrade, setSelectedGrade] = useState<string | undefined>(undefined);
-  const [selectedSubject, setSelectedSubject] = useState<string | undefined>(undefined);
+  const [planbooks, setPlanbooks] = useState<PlanbookItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedPlanbook, setSelectedPlanbook] = useState<PlanbookDetail | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [modalLoading, setModalLoading] = useState<boolean>(false);
 
-  const handleGradeChange = (value: string) => {
-    setSelectedGrade(value);
+  useEffect(() => {
+    const fetchPlanbooks = async () => {
+      try {
+        const data = await getAllPlanbooks(0, 50);
+        setPlanbooks(data);
+      } catch (error) {
+        console.error("Error fetching planbooks:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlanbooks();
+  }, []);
+
+  const handleCardClick = async (planbookId: string) => {
+    setModalLoading(true);
+    setIsModalVisible(true);
+    try {
+      const data = await getPlanbookById(planbookId);
+      setSelectedPlanbook(data);
+    } catch (error) {
+      console.error("Error fetching planbook details:", error);
+    } finally {
+      setModalLoading(false);
+    }
   };
 
-  const handleSubjectChange = (value: string) => {
-    setSelectedSubject(value);
+  const handleModalClose = () => {
+    setSelectedPlanbook(null);
+    setIsModalVisible(false);
   };
 
-  const toggleFavorite = (id: number) => {
-    const updatedPlans = lessonPlans.map((plan) =>
-      plan.id === id ? { ...plan, isFavorite: !plan.isFavorite } : plan
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spin size="large" />
+      </div>
     );
-    console.log('Updated lesson plans:', updatedPlans); 
-  };
+  }
+
+  
 
   return (
     <div className="p-4">
-      {/* Bộ lọc khối lớp và môn học */}
-      <div className="flex space-x-4 mb-6">
-        <Select
-          placeholder="Chọn khối lớp"
-          onChange={handleGradeChange}
-          className="w-40"
-          value={selectedGrade}
-        >
-          <Option value="10">Lớp 10</Option>
-          <Option value="11">Lớp 11</Option>
-          <Option value="12">Lớp 12</Option>
-        </Select>
-
-        <Select
-          placeholder="Chọn môn học"
-          onChange={handleSubjectChange}
-          className="w-40"
-          value={selectedSubject}
-        >
-          <Option value="Toán">Toán</Option>
-          <Option value="Ngữ Văn">Ngữ Văn</Option>
-          <Option value="Hóa Học">Hóa Học</Option>
-          <Option value="Vật Lý">Vật Lý</Option>
-          <Option value="Sinh Học">Sinh Học</Option>
-          <Option value="Địa Lý">Địa Lý</Option>
-        </Select>
-      </div>
-
-      {/* Danh sách giáo án */}
+      <h1 className="text-2xl font-bold text-center mb-6">Khám phá thư viện giáo án</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {lessonPlans
-          .filter(
-            (plan) =>
-              (!selectedGrade || plan.grade === selectedGrade) &&
-              (!selectedSubject || plan.subject === selectedSubject)
-          )
-          .map((plan) => (
-            <Card
-              key={plan.id}
-              className="p-2 shadow-lg hover:shadow-2xl transition-shadow transform hover:scale-105 duration-300"
-              cover={<img alt={plan.title} src="https://chantroisangtao.vn/wp-content/uploads/2024/01/Toan-12-T1-BIT.png" className="h-32 object-cover" />}
-            >
-              {/* Move the title below the image */}
-              <Card.Meta title={plan.title} className="mt-4" />
-
-              {/* Rating below title */}
-              <Rate allowHalf disabled defaultValue={plan.rating} className="mt-2" />
-
-              {/* Author and Favorite button at the bottom */}
-              <div className="flex items-center justify-between mt-4">
-                {/* Author */}
+        {planbooks.map((planbook) => (
+          <Card
+            key={planbook.planbookId}
+            className="shadow-md hover:shadow-lg transition-shadow duration-300 p-4"
+            hoverable
+            onClick={() => handleCardClick(planbook.planbookId)}
+          >
+            <div className="flex flex-col items-center text-center">
+              <FileOutlined className="text-blue-500 text-6xl mb-3" />
+              <h3 className="text-lg font-semibold mb-3">{planbook.lessonName}</h3>
+              <div className="flex justify-between w-full text-gray-500 text-sm">
                 <div className="flex items-center">
-                  <Avatar src={plan.avatar} className="mr-2" />
-                  <p className="text-gray-700">{plan.author}</p>
+                  <UserOutlined className="mr-2" />
+                  <span>{planbook.teacherName}</span>
                 </div>
-
-                {/* Favorite Button */}
-                <Button
-                  type="link"
-                  icon={plan.isFavorite ? <HeartFilled /> : <HeartOutlined />}
-                  onClick={() => toggleFavorite(plan.id)}
-                  style={{ fontSize: '16px', color: plan.isFavorite ? 'red' : 'black' }}
-                  title={plan.isFavorite ? "Bỏ yêu thích" : "Thêm yêu thích"}
-                />
+                <div className="flex items-center">
+                  <BookOutlined className="mr-2" />
+                  <span>{planbook.subject}</span>
+                </div>
               </div>
-            </Card>
-          ))}
+            </div>
+          </Card>
+        ))}
       </div>
+
+  {/* Sử dụng PlanbookDetailModal */}
+  <PlanbookDetailModal
+        visible={isModalVisible}
+        loading={modalLoading}
+        planbook={selectedPlanbook}
+        onClose={handleModalClose}
+      />
     </div>
   );
 };

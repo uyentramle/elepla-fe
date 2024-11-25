@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // import axios from 'axios';
-import { Dropdown,Menu, Input, Select, Button, Card, Modal } from 'antd';
+import { Dropdown,Menu, Input, Select, Button, Card, Modal,Spin } from 'antd';
 import { FolderOpenOutlined, PlusCircleOutlined, UnorderedListOutlined, AppstoreOutlined, EllipsisOutlined  } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { CollectionItem } from "@/data/teacher/PlanbookCollectionData";
@@ -21,6 +21,7 @@ const ListCollection: React.FC = () => {
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [editingCollectionName, setEditingCollectionName] = useState<string>('');
   const [editingCollectionId, setEditingCollectionId] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
   // Helper to retrieve teacherId from token
@@ -38,9 +39,12 @@ const ListCollection: React.FC = () => {
     const loadData = async () => {
       try {
         const data = await fetchCollections();
+
         setFilteredData(data);
       } catch (error) {
         console.error("Error fetching collections:", error);
+      }finally {
+        setLoading(false);
       }
     };
     loadData();
@@ -218,6 +222,15 @@ const handleSaveNewName = async (newName: string) => {
       console.error("Error occurred while updating collection:", error);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-semibold mb-4">Bộ sưu tập của tôi</h1>

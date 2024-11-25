@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Select, Button, Card, Modal, message, Dropdown , Menu } from 'antd';
+import { Input, Select, Button, Card, Modal, message, Dropdown , Menu, Spin } from 'antd';
 import { FileOutlined, PlusCircleOutlined, UnorderedListOutlined, AppstoreOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 // import axios from 'axios';
@@ -34,6 +34,7 @@ const ListPlanbook: React.FC = () => {
   const [filteredPlanbooks, setFilteredPlanbooks] = useState<Planbook[]>([]); // Khai báo kiểu Planbook[]
   const [selectedPlanbook, setSelectedPlanbook] = useState(null);
   const [isTeachingPlanFormVisible, setIsTeachingPlanFormVisible] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   // const [isLessonPlannerVisible, setIsLessonPlannerVisible] = useState(false); // New state for LessonPlanner
   // const [form] = Form.useForm();
 
@@ -53,6 +54,8 @@ const ListPlanbook: React.FC = () => {
       } catch (error) {
         console.error(error); // Debug lỗi
         message.error('Không thể tải danh sách kế hoạch bài dạy.');
+      }finally {
+        setLoading(false);
       }
     };
   
@@ -172,7 +175,13 @@ const ListPlanbook: React.FC = () => {
         }
       };
       
-      
+      if (loading) {
+        return (
+          <div className="flex justify-center items-center h-screen">
+            <Spin size="large" />
+          </div>
+        );
+      }
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -221,8 +230,11 @@ const ListPlanbook: React.FC = () => {
               >
             <div className="flex flex-col items-center justify-center h-full">
               <FileOutlined style={{ fontSize: '64px', color: '#1890ff' }} />
-              <h2 className="text-sm font-semibold mt-2 text-center">{planbook.lessonName}</h2>
-              
+              <h2 className="text-sm font-semibold mt-2 text-center">
+                    {planbook.lessonName.length > 20
+                      ? `${planbook.lessonName.slice(0, 70)}...`
+                      : planbook.lessonName}
+                  </h2>              
               <Dropdown
                 overlay={renderMenu(planbook.planbookId)} // Tạo menu cho từng planbook
                 trigger={['click']}
@@ -262,7 +274,7 @@ const ListPlanbook: React.FC = () => {
 
       {/* Modal for LessonPlanner */}
       <Modal
-        title="Tạo giáo án"
+        title="Tạo kế hoạch giảng dạy"
         visible={isLessonModalVisible}
         onCancel={() => setIsLessonModalVisible(false)}
         footer={null}

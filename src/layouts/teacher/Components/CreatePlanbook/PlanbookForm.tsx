@@ -278,28 +278,28 @@ const PlanbookForm: React.FC<PlanbookFormProps> = ({
                     name={[field.name, "title"]}
                     rules={[{ required: true, message: "Hãy nhập tiêu đề hoạt động" }]}
                   >
-                    <Input placeholder="Nhập tiêu đề hoạt động" />
+                    <Input.TextArea placeholder="Nhập tiêu đề hoạt động" />
                   </Form.Item>
                   <Form.Item
                     label="Mục tiêu"
                     name={[field.name, "objective"]}
                     rules={[{ required: true, message: "Hãy nhập mục tiêu" }]}
                   >
-                    <Input placeholder="Nhập mục tiêu" />
+                    <Input.TextArea placeholder="Nhập mục tiêu" />
                   </Form.Item>
                   <Form.Item
                     label="Nội dung"
                     name={[field.name, "content"]}
                     rules={[{ required: true, message: "Hãy nhập nội dung" }]}
                   >
-                    <Input placeholder="Nhập nội dung" />
+                    <Input.TextArea placeholder="Nhập nội dung" />
                   </Form.Item>
                   <Form.Item
                     label="Sản phẩm"
                     name={[field.name, "product"]}
                     rules={[{ required: true, message: "Hãy nhập sản phẩm" }]}
                   >
-                    <Input placeholder="Nhập sản phẩm" />
+                    <Input.TextArea placeholder="Nhập sản phẩm" />
                   </Form.Item>
                   <Form.Item
                     label="Tổ chức thực hiện"
