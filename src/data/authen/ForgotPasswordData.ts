@@ -56,7 +56,7 @@ export const verifyForgotPasswordCode = async (data: VerifyForgotPasswordCode): 
     }
 };
 
-export const resetPassword = async (data: ResetPassword): Promise<ForgotPasswordResponse<T>> => {
+export const resetPassword = async (data: ResetPassword): Promise<ForgotPasswordResponse<string>> => {
     try {
         const response = await apiClient.post('Auth/ResetPassword', data);
         return response.data;
