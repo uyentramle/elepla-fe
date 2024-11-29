@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Select, List, Checkbox, Button } from "antd";
-import { FileOutlined, FilePdfOutlined } from "@ant-design/icons";
 import { GradeItem } from '@/data/teacher/GradeData'; // Update path if necessary
 import fetchgrade from "@/api/ApiGradeItem";
 import { CurriculumItem } from '@/data/teacher/CurriculumData'; // Update path if necessary

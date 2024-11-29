@@ -35,9 +35,6 @@ const ListPlanbook: React.FC = () => {
   const [selectedPlanbook, setSelectedPlanbook] = useState(null);
   const [isTeachingPlanFormVisible, setIsTeachingPlanFormVisible] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
-  // const [isLessonPlannerVisible, setIsLessonPlannerVisible] = useState(false); // New state for LessonPlanner
-  // const [form] = Form.useForm();
-
   const userId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
 
 
@@ -49,6 +46,7 @@ const ListPlanbook: React.FC = () => {
           params: { collectionId },
         });
         console.log("Fetched Planbooks:", response.data.data.items); // Debug
+        console.log("TeacherId: ", userId)
         setPlanbooks(response.data.data.items);
         setFilteredPlanbooks(response.data.data.items); // Đặt giá trị cho danh sách được lọc
       } catch (error) {

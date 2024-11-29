@@ -22,6 +22,7 @@ const ListCollection: React.FC = () => {
   const [editingCollectionName, setEditingCollectionName] = useState<string>('');
   const [editingCollectionId, setEditingCollectionId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const userId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
   const navigate = useNavigate();
 
   // Helper to retrieve teacherId from token
@@ -140,21 +141,22 @@ const handleSaveNewName = async (newName: string) => {
           isSaved: true,
           teacherId: teacherId,
         };
-
+  
         // Send POST request to API
-        // const response = await axios.post('http://localhost/api/PlanbookCollection/CreatePlanbookCollection', newCollection); // api local
-        const response = await apiClient.post('https://elepla-be-production.up.railway.app/api/PlanbookCollection/CreatePlanbookCollection', newCollection); // api server
-
-        // Optionally, add the new collection to the displayed list if creation was successful
+        const response = await apiClient.post(
+          'https://elepla-be-production.up.railway.app/api/PlanbookCollection/CreatePlanbookCollection',
+          newCollection
+        );
+  
         if (response.data && response.data.success) {
-          setFilteredData([...filteredData, {
-            collectionId: response.data.collectionId,
-            name: newCollectionTitle,
-            createDay: new Date(),
-            updateDay: new Date(),
-          }]);
+          // Clear the modal input and close the modal
           setNewCollectionTitle('');
           setIsModalVisible(false);
+  
+          // Re-fetch the updated list of collections
+          await fetchAndUpdateCollections();
+  
+          console.log("New collection added and data reloaded successfully.");
         }
       } catch (error) {
         console.error("Error creating new collection:", error);
@@ -162,9 +164,25 @@ const handleSaveNewName = async (newName: string) => {
     }
   };
 
+  const fetchAndUpdateCollections = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchCollections();
+      setFilteredData(data);
+    } catch (error) {
+      console.error("Error fetching collections:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    fetchAndUpdateCollections();
+  }, []);
+
   const handleDeleteCollection = async (collectionId: string) => {
     try {
-      const teacherId = getTeacherIdFromToken();
+      const teacherId = userId;
       if (!teacherId) {
         console.error("Teacher ID not found in token.");
         return;
