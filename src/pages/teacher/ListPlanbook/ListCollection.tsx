@@ -34,7 +34,6 @@ const ListCollection: React.FC = () => {
     return null;
   };
 
-  // Load collections on component mount
   useEffect(() => {
     const loadData = async () => {
       try {
