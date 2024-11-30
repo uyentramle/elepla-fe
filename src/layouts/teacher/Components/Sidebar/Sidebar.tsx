@@ -72,7 +72,7 @@ export default function MySider({
     .set('3.2', '#')
     .set('4', '/teacher/exam/')
     .set('4.1', '/teacher/exam/')
-    .set('4.2', '#')
+    .set('4.2', '/teacher/list-exam')
 
   return (
     <div className="fixed top-0 left-0 h-full bg-white z-50">

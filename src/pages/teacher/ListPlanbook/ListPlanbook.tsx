@@ -3,7 +3,7 @@ import { Input, Select, Button, Card, Modal, message, Dropdown , Menu, Spin } fr
 import { FileOutlined, PlusCircleOutlined, UnorderedListOutlined, AppstoreOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 // import axios from 'axios';
-import apiClient from "@/data/apiClient"; // Import your configured apiClient
+import apiClient, {getUserId}from "@/data/apiClient"; // Import your configured apiClient
 import PlanbookContent from '@/layouts/teacher/PlanbookContent/PlanbookContent';
 import CreateLesson from '@/layouts/teacher/Components/CreatePlanbook/CreateLesson';
 import PlanbookForm from '@/layouts/teacher/Components/CreatePlanbook/PlanbookForm'
@@ -35,8 +35,7 @@ const ListPlanbook: React.FC = () => {
   const [selectedPlanbook, setSelectedPlanbook] = useState(null);
   const [isTeachingPlanFormVisible, setIsTeachingPlanFormVisible] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const userId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
-
+  const userId = getUserId();
 
   useEffect(() => {
     const fetchPlanbooks = async () => {

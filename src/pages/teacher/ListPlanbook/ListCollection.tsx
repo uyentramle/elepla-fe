@@ -5,8 +5,7 @@ import { FolderOpenOutlined, PlusCircleOutlined, UnorderedListOutlined, Appstore
 import { useNavigate } from 'react-router-dom';
 import { CollectionItem } from "@/data/teacher/PlanbookCollectionData";
 import fetchCollections from '@/api/ApiCollectionItem ';
-import { jwtDecode } from 'jwt-decode';
-import apiClient from "@/data/apiClient"; // Import your configured apiClient
+import apiClient, {getUserId} from "@/data/apiClient"; // Import your configured apiClient
 
 
 const { Search } = Input;
@@ -22,23 +21,15 @@ const ListCollection: React.FC = () => {
   const [editingCollectionName, setEditingCollectionName] = useState<string>('');
   const [editingCollectionId, setEditingCollectionId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const userId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
+  const userId = getUserId();
   const navigate = useNavigate();
 
   // Helper to retrieve teacherId from token
-  const getTeacherIdFromToken = (): string | null => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-    const decodedToken = jwtDecode<{ userId?: string }>(token);
-      return decodedToken.userId || null;
-    }
-    return null;
-  };
-
   useEffect(() => {
     const loadData = async () => {
       try {
         const data = await fetchCollections();
+        console.log("userId: " ,userId)
 
         setFilteredData(data);
       } catch (error) {
@@ -133,7 +124,7 @@ const handleSaveNewName = async (newName: string) => {
 
   // Create new collection by calling the API
   const handleAddCollection = async () => {
-    const teacherId = getTeacherIdFromToken();
+    const teacherId = userId;
     if (newCollectionTitle.trim() && teacherId) {
       try {
         const newCollection = {
@@ -207,7 +198,7 @@ const handleSaveNewName = async (newName: string) => {
 
   const handleEditCollection = async (collectionId: string, newCollectionName: string) => {
     try {
-      const teacherId = getTeacherIdFromToken();
+      const teacherId = userId;
       if (!teacherId) {
         console.error("Teacher ID not found in token.");
         return;
