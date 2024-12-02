@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Select, List, Checkbox, Button } from "antd";
+import { Select, List, Checkbox, Button,Modal,Input, message } from "antd";
 import { GradeItem } from '@/data/teacher/GradeData'; // Update path if necessary
 import fetchgrade from "@/api/ApiGradeItem";
 import { CurriculumItem } from '@/data/teacher/CurriculumData'; // Update path if necessary
@@ -8,6 +8,8 @@ import fetchSubjectsByGradeAndCurriculum, { SubjectInCurriculumItem } from "@/ap
 import fetchChaptersBySubjectInCurriculumId, { ChapterItem } from "@/api/ApiChapterItem";
 import fetchLessonByChapter, { lessonItem } from "@/api/ApiLessonItem";
 import { getQuestionByLessonId, getQuestionByChapterId ,IViewListQuestionBank } from '@/data/client/QuestionBankData';
+import { createExam, ICreateExamRequest } from "@/data/client/ExamData";
+import { getUserId } from "@/data/apiClient";
 
 const { Option } = Select;
 
@@ -29,6 +31,10 @@ const ExamPage : React.FC  = () => {
   const [questions, setQuestions] = useState<IViewListQuestionBank[]>([]); // State to store questions
   const [chapterQuestions, setChapterQuestions] = useState<IViewListQuestionBank[]>([]); // Câu hỏi theo chương
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false); // Hiển thị Modal
+
+  const [examName, setExamName] = useState("");
+  const [examTime, setExamTime] = useState("");
 
 
   // Giả sử các API để lấy dữ liệu đã được định nghĩa
@@ -84,7 +90,58 @@ const ExamPage : React.FC  = () => {
     } 
   }, [selectedLessonId]);
   
+    // Mở Modal
+    const showModal = () => {
+      if (selectedQuestions.length === 0) {
+        message.warning("Vui lòng chọn ít nhất một câu hỏi trước khi tạo bài kiểm tra!");
+        return;
+      }
+      setIsModalVisible(true);
+    };
 
+    const handleCancel = () => {
+      setIsModalVisible(false);
+      setExamName("");
+      setExamTime("");
+    };
+
+    const handleSaveExam = async () => {
+      if (!examName || !examTime) {
+        message.error("Vui lòng nhập đầy đủ thông tin bài kiểm tra!");
+        return;
+      }
+    
+      const userId = getUserId() ?? ""; // Xử lý trường hợp null
+    
+      if (!userId) {
+        message.error("Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.");
+        return;
+      }
+    
+      const examData: ICreateExamRequest = {
+        title: examName,
+        time: examTime,
+        userId: userId, // Đảm bảo userId là string
+        questionIds: selectedQuestions,
+      };
+    
+      try {
+        const newExam = await createExam(examData);
+        if (newExam) {
+          message.success("Bài kiểm tra đã được tạo thành công!");
+          setIsModalVisible(false);
+          setExamName("");
+          setExamTime("");
+          setSelectedQuestions([]); // Reset danh sách câu hỏi
+        } else {
+          message.error("Tạo bài kiểm tra thất bại. Vui lòng thử lại!");
+        }
+      } catch (error) {
+        console.error("Lỗi khi tạo bài kiểm tra:", error);
+        message.error("Có lỗi xảy ra khi tạo bài kiểm tra!");
+      }
+    };
+  
   
   const fetchQuestionsByLessonId = async (lessonId: string) => {
     try {
@@ -102,12 +159,6 @@ const ExamPage : React.FC  = () => {
     } catch (error) {
       console.error("Error fetching questions:", error);
     }
-  };
-
-  const handleAddToExamList = () => {
-    // Xử lý logic thêm câu hỏi vào danh sách bài kiểm tra
-    console.log('Danh sách câu hỏi được chọn:', selectedQuestions);
-    // Call API ở đây (sẽ cung cấp sau)
   };
 
   useEffect(() => {
@@ -146,8 +197,10 @@ const ExamPage : React.FC  = () => {
   };
 
   const handleCheckboxChange = (questionId: string, isChecked: boolean) => {
-    setSelectedQuestions((prev) =>
-      isChecked ? [...prev, questionId] : prev.filter((id) => id !== questionId)
+    setSelectedQuestions((prevSelected) =>
+      isChecked
+        ? [...prevSelected, questionId]
+        : prevSelected.filter((id) => id !== questionId)
     );
   };
 
@@ -284,26 +337,9 @@ const ExamPage : React.FC  = () => {
 
             {/* Button */}
             <div className="flex justify-end mt-4">
-              <Button
-                type="primary"
-                disabled={selectedQuestions.length === 0}
-                onClick={handleAddToExamList}
-              >
+              <Button type="primary" onClick={showModal}>
                 Thêm vào danh sách bài kiểm tra
               </Button>
-
-        {/* Export Buttons 
-        <div>
-          <Button className="mr-2 flex items-center">
-            <FileOutlined className="mr-1" />
-            Xuất DOC
-          </Button>
-          <Button className="flex items-center">
-            <FilePdfOutlined className="mr-1" />
-            Xuất PDF
-          </Button>
-        </div>
-        */}
       </div>
       {/* Questions List */}
       <div className="mt-4">
@@ -345,6 +381,34 @@ const ExamPage : React.FC  = () => {
             )}
           />
       </div>
+
+                  {/* Modal nhập thông tin bài kiểm tra */}
+      <Modal
+        title="Nhập thông tin bài kiểm tra"
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        footer={[
+          <Button key="cancel" onClick={handleCancel}>
+            Hủy
+          </Button>,
+          <Button key="save" type="primary" onClick={handleSaveExam}>
+            Lưu
+          </Button>,
+        ]}
+      >
+        <Input
+          placeholder="Nhập tên bài kiểm tra"
+          value={examName}
+          onChange={(e) => setExamName(e.target.value)}
+          style={{ marginBottom: "1rem" }}
+        />
+        <Input
+          placeholder="Nhập thời gian làm bài (ví dụ: 60 phút)"
+          value={examTime}
+          onChange={(e) => setExamTime(e.target.value)}
+        />
+      </Modal>
+
     </div>
   );
 };

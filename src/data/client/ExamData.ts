@@ -56,6 +56,61 @@ export interface IExam {
     isDeleted?: boolean;
   }
 
+  export const deleteExamById = async (examId: string): Promise<boolean> => {  
+    try {
+      // Gửi yêu cầu DELETE tới API với examId là query parameter
+      const response = await apiClient.delete(
+        `https://elepla-be-production.up.railway.app/api/Exam/DeleteExam`,
+        {
+          params: { examId }, // Truyền examId dưới dạng query parameter
+        }
+      );
+      // Kiểm tra phản hồi thành công
+      if (response.data && response.data.success) {
+        return true; // Xóa thành công
+      }
+      // Trường hợp phản hồi không thành công
+      return false;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  export const exportExamToWord = async (examId: string): Promise<Blob | null> => {
+    try {
+      // Gửi yêu cầu GET tới API với examId là query parameter
+      const response = await apiClient.get(
+        `https://elepla-be-production.up.railway.app/api/Exam/ExportExamToWordNoColor`,
+        {
+          params: { examId }, // Truyền examId dưới dạng query parameter
+          responseType: "blob", // Để nhận được file dưới dạng blob
+        }
+      );
+  
+      // Kiểm tra phản hồi thành công
+      if (response.status === 200) {
+        return response.data; // Trả về blob của file Word
+      }
+      return null; // Trường hợp phản hồi không thành công
+    } catch (error) {
+      console.error("Error exporting exam to Word:", error);
+      return null; // Xử lý lỗi khi gửi yêu cầu
+    }
+  };
+
+  export const exportExamToPdf = async (examId: string): Promise<Blob | null> => {
+    try {
+      const response = await apiClient.get(`https://elepla-be-production.up.railway.app/api/Exam/ExportExamToPdfNoColor`, {
+        params: { examId },
+        responseType: "blob", // Định dạng phản hồi là file
+      });
+      return response.data; // Trả về file blob
+    } catch (error) {
+      console.error("Error exporting exam to PDF:", error);
+      return null; // Trả về null nếu có lỗi
+    }
+  };
+
   export const getExamDetailsById = async (examId: string): Promise<IExamDetails | null> => {
     try {
       // Gửi yêu cầu tới API
