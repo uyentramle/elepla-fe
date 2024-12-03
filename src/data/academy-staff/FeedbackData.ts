@@ -56,6 +56,16 @@ export const fetchSystemFeedbackList = async (): Promise<IViewListFeedback[]> =>
     }
 };
 
+export const countPlanBookFeedback = async (): Promise<number> => {
+    try {
+        const feedbackList = await fetchPlanBookFeedbackList();
+        return feedbackList.length;
+    } catch (error) {
+        console.error('Error counting planbook feedback:', error);
+        return 0;
+    }
+};
+
 export const deleteFeedback = async (feedbackId: string): Promise<boolean> => {
     try {
         const response = await apiClient.delete(`/Feedback/HardDeleteFeedback?feedbackId=${feedbackId}`);
