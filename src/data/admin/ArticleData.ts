@@ -24,7 +24,7 @@ export const getViewListArticle = async (): Promise<IViewListArticle[]> => {
         const response = await apiClient.get('/Article/GetAllArticle', {
             params: {
                 pageIndex: 0,
-                pageSize: 10,
+                pageSize: 300,
             },
             headers: {
                 'accept': '*/*',
@@ -180,6 +180,77 @@ export const deleteArticle = async (articleId: string): Promise<boolean> => {
     } catch (error) {
         console.error('Error deleting article:', error);
         return false;
+    }
+};
+
+export const countArticles = async (): Promise<number> => {
+    try {
+        const articles = await getViewListArticle();
+        return articles.length;
+    } catch (error) {
+        console.error('Error counting articles:', error);
+        return 0;
+    }
+};
+
+export const getArticlesByCategoryId = async (categoryId: string): Promise<IViewListArticle[]> => {
+    try {
+        const response = await apiClient.get('/Article/GetAllArticlesByCategoryId', {
+            params: {
+                categoryId,
+                pageIndex: 0,
+                pageSize: 100,
+            },
+            headers: {
+                'accept': '*/*',
+            },
+        });
+
+        const articles = response.data.data.items.map((article: any) => ({
+            id: article.articleId,
+            url: article.url,
+            title: article.title,
+            excerpt: article.excerpt,
+            status: article.status,
+            thumb: article.thumb || defaultThumb,
+            created_at: article.createdAt,
+            created_by: article.createdBy || '',
+            updated_at: article.updatedAt || undefined,
+            updated_by: article.updatedBy || undefined,
+            deleted_at: article.deletedAt || undefined,
+            deleted_by: article.deletedBy || undefined,
+            isDelete: article.isDeleted,
+        }));
+
+        return articles;
+    } catch (error) {
+        console.error('Error fetching articles by category:', error);
+        return [];
+    }
+};
+
+export const countArticlesByCategory = async (): Promise<{ [key: string]: number }> => {
+    try {
+        const response = await apiClient.get('/Category/GetAllCategory?pageIndex=0&pageSize=100');
+        if (response.data.success) {
+            const categories = response.data.data.items;
+            const counts: { [key: string]: number } = {};
+
+            for (const category of categories) {
+                const articlesResponse = await apiClient.get(`/Article/GetAllArticlesByCategoryId?categoryId=${category.categoryId}&pageIndex=0&pageSize=10`);
+                if (articlesResponse.data.success) {
+                    counts[category.name] = articlesResponse.data.data.totalItemsCount;
+                } else {
+                    counts[category.name] = 0;
+                }
+            }
+
+            return counts;
+        }
+        return {};
+    } catch (error) {
+        console.error('Error counting articles by category:', error);
+        return {};
     }
 };
 
