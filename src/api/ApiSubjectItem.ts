@@ -1,4 +1,4 @@
-// import axios from 'axios';
+// src/api/ApiSubjectItem.ts
 import apiClient from "@/data/apiClient"; // Import your configured apiClient
 // Interface for SubjectInCurriculumItem
 export interface SubjectInCurriculumItem {

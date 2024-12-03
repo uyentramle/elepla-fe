@@ -3,7 +3,7 @@ import { Input, Select, Button, Card, Modal, message, Dropdown , Menu, Spin } fr
 import { FileOutlined, PlusCircleOutlined, UnorderedListOutlined, AppstoreOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 // import axios from 'axios';
-import apiClient from "@/data/apiClient"; // Import your configured apiClient
+import apiClient, {getUserId}from "@/data/apiClient"; // Import your configured apiClient
 import PlanbookContent from '@/layouts/teacher/PlanbookContent/PlanbookContent';
 import CreateLesson from '@/layouts/teacher/Components/CreatePlanbook/CreateLesson';
 import PlanbookForm from '@/layouts/teacher/Components/CreatePlanbook/PlanbookForm'
@@ -35,11 +35,7 @@ const ListPlanbook: React.FC = () => {
   const [selectedPlanbook, setSelectedPlanbook] = useState(null);
   const [isTeachingPlanFormVisible, setIsTeachingPlanFormVisible] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
-  // const [isLessonPlannerVisible, setIsLessonPlannerVisible] = useState(false); // New state for LessonPlanner
-  // const [form] = Form.useForm();
-
-  const userId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
-
+  const userId = getUserId();
 
   useEffect(() => {
     const fetchPlanbooks = async () => {
@@ -49,6 +45,7 @@ const ListPlanbook: React.FC = () => {
           params: { collectionId },
         });
         console.log("Fetched Planbooks:", response.data.data.items); // Debug
+        console.log("TeacherId: ", userId)
         setPlanbooks(response.data.data.items);
         setFilteredPlanbooks(response.data.data.items); // Đặt giá trị cho danh sách được lọc
       } catch (error) {
