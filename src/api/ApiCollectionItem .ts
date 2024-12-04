@@ -1,8 +1,6 @@
 // src/api/fetchCollections.ts
-// import axios from 'axios';
-import { jwtDecode } from "jwt-decode";
 import { CollectionItem } from '../data/teacher/PlanbookCollectionData'; // Cập nhật đường dẫn nếu cần
-import apiClient from "@/data/apiClient"; // Import your configured apiClient
+import apiClient ,{getUserId} from "@/data/apiClient"; // Import your configured apiClient
 
 // Interface cho dữ liệu trả về từ API
 interface ApiCollectionItem {
@@ -12,20 +10,11 @@ interface ApiCollectionItem {
   updatedAt: string | null;
 }
 
-// Helper function để lấy userId từ token lưu trong localStorage
-const getUserIdFromToken = (): string | null => {
-  const token = localStorage.getItem('accessToken');
-  if (token) {
-    const decodedToken: { userId?: string } = jwtDecode(token);
-    return decodedToken.userId || null;
-  }
-  return null;
-};
 
 // Hàm để lấy dữ liệu bộ sưu tập từ API
 const fetchCollections = async (): Promise<CollectionItem[]> => {
   try {
-    const teacherId = getUserIdFromToken();
+    const teacherId = getUserId();
     if (!teacherId) throw new Error('User ID not found');
 
     // Gửi yêu cầu lấy dữ liệu từ API

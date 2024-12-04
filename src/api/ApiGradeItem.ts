@@ -1,8 +1,5 @@
-// src/api/fetchCollections.ts
-// import axios from 'axios';
 import { GradeItem } from '../data/teacher/GradeData'; // Update path if necessary
 import apiClient from "@/data/apiClient"; // Import your configured apiClient
-
 
 // Interface for data returned from the API
 interface ApiGradeItem {

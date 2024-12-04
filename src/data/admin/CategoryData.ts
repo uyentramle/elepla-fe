@@ -18,7 +18,7 @@ export interface IViewListCategory {
 
 export const fetchListCategory = async (): Promise<IViewListCategory[]> => {
     try {
-        const response = await apiClient.get('/Category/GetAllCategory?pageIndex=0&pageSize=10');
+        const response = await apiClient.get('/Category/GetAllCategory?pageIndex=0&pageSize=100');
         if (response.data.success) {
             return response.data.data.items.map((category: any) => ({
                 id: category.categoryId,
@@ -80,6 +80,11 @@ export const updateCategory = async (category: ICategoryForm): Promise<boolean> 
         console.error('Error updating category:', error);
         return false;
     }
+};
+
+export const countCategories = async (): Promise<number> => {
+    const categories = await fetchListCategory();
+    return categories.length;
 };
 
 

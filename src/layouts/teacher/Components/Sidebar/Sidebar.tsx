@@ -55,7 +55,10 @@ export default function MySider({
         getItem('Ngân hàng câu hỏi', '3.1', <CaretRightOutlined />),
         getItem('Câu hỏi của tôi', '3.2', <CaretRightOutlined />),
       ]),
-      getItem('Bài kiểm tra', '4', <CheckSquareOutlined />),
+      getItem('Bài kiểm tra', '4', <CheckSquareOutlined />,[
+        getItem('Tạo bài kiểm tra', '4.1', <CaretRightOutlined />),
+        getItem('bài kiểm tra của tôi', '4.2', <CaretRightOutlined />),
+    ]),
     ];
   };
 
@@ -68,7 +71,9 @@ export default function MySider({
     .set('3', '/teacher/question-bank/')
     .set('3.1', '/teacher/question-bank/')
     .set('3.2', '#')
-    .set('4', '/teacher/exam');
+    .set('4', '/teacher/exam/')
+    .set('4.1', '/teacher/exam/')
+    .set('4.2', '/teacher/list-exam')
 
   return (
     <div className="fixed top-0 left-0 h-full bg-white z-50">

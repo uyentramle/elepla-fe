@@ -95,7 +95,7 @@ export const getQuestionByChapterId = async (chapterId: string): Promise<IViewLi
                 answers: data.answers.map((answer: any) => ({
                     id: answer.answerId,
                     answerText: answer.answerText,
-                    isCorrect: answer.isCorrect,
+                    isCorrect: answer.isCorrect === 'True', // Chuyển đổi từ chuỗi 'True'/'False' thành boolean true/false
                 })),
                 created_at: data.createdAt,
                 created_by: data.createdBy || '',
@@ -110,9 +110,27 @@ export const getQuestionByChapterId = async (chapterId: string): Promise<IViewLi
 
 export const getQuestionByLessonId = async (lessonId: string): Promise<IViewListQuestionBank[]> => {
     try {
-        const response = await apiClient.get(`/QuestionBank/GetQuestionByLessonIdAsync?lessonId=${lessonId}&pageIndex=0&pageSize=50`);
-        const questions = response.data.data.items
-            .map((data: any) => ({
+        console.log("Calling API with lessonId:", lessonId);
+        const response = await apiClient.get(`/QuestionBank/GetQuestionByLessonId`, {
+            params: {
+                lessonId,
+                pageIndex: 0,
+                pageSize: 50, // Theo yêu cầu API
+            },
+        });
+        
+        const questions = response.data.data.items.map((data: any) => {
+            // Kiểm tra giá trị của answer.isCorrect
+            console.log('Checking answers for question:', data.question);
+            const answers = data.answers.map((answer: any) => {
+                return {
+                    id: answer.answerId,
+                    answerText: answer.answerText,
+                    isCorrect: answer.isCorrect === 'True', // Chuyển đổi từ chuỗi 'True'/'False' thành boolean true/false
+                };
+            });
+
+            return {
                 id: data.questionId,
                 question: data.question,
                 type: data.type,
@@ -121,18 +139,15 @@ export const getQuestionByLessonId = async (lessonId: string): Promise<IViewList
                 chapterName: data.chapterName,
                 lessonId: data.lessonId,
                 lessonName: data.lessonName,
-                answers: data.answers.map((answer: any) => ({
-                    id: answer.answerId,
-                    answerText: answer.answerText,
-                    isCorrect: answer.isCorrect,
-                })),
+                answers,
                 created_at: data.createdAt,
                 created_by: data.createdBy || '',
-            }));
+            };
+        });
 
         return questions;
-    } catch (error) {
-        console.error('Error fetching questions:', error);
+    } catch (error: any) {
+        console.error('Error fetching questions:', error.response?.data || error.message);
         return [];
     }
 };
