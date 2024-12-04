@@ -21,7 +21,7 @@ const GradeFormPage: React.FC = () => {
     useEffect(() => {
         if (id) {
             fetchGradeList().then((gradeData) => {
-                const grade = gradeData.find((cr) => cr.id === id);
+                const grade = gradeData.find((cr) => cr.gradeId === id);
                 if (grade) {
                     setFormData(grade);
                     form.setFieldsValue(grade);

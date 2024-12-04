@@ -2,7 +2,7 @@ import apiClient from '@/data/apiClient';
 // import apiclient from 'apiclient';
 
 export interface IViewListGrade {
-    id: string;
+    gradeId: string;
     name: string;
     description: string | undefined;
 
@@ -74,3 +74,20 @@ export const updateGrade = async (grade: IGradeForm): Promise<boolean> => {
         return false;
     }
 };
+
+export const getAllGrade = async (): Promise<IViewListGrade[]> => {
+    try {
+        const response = await apiClient.get('/Grade/GetAllGrade', {
+            params: {
+                pageIndex: -1,
+            }
+        });
+        if (response.data.success) {
+            return response.data.data.items;
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching grade list:', error);
+        return [];
+    }
+}

@@ -2,7 +2,7 @@ import apiClient from '@/data/apiClient';
 // import apiclient from 'apiclient';
 
 export interface IViewListSubjectInCurriculum {
-    id: string;
+    subjectInCurriculumId: string;
     name: string;
     subject: string;
     grade: string;
@@ -82,3 +82,21 @@ export const updateSubjectInCurriculum = async (subject: ISubjectInCurriculumFor
         return false;
     }
 };
+
+export const getAllSubjectInCurriculumByCurriculumAndGrade = async (curriculum: string, grade: string): Promise<IViewListSubjectInCurriculum[]> => {
+    try {
+        const response = await apiClient.get('/SubjectInCurriculum/GetAllSubjectInCurriculumByCurriculumAndGrade', {
+            params: {
+                curriculum,
+                grade
+            }
+        });
+        if (response.data.success) {
+            return response.data.data;
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching subjects in curriculum list:', error);
+        return [];
+    }
+}

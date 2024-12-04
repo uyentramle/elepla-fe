@@ -35,10 +35,10 @@ const ChapterManagementPage: React.FC = () => {
             if (!chapterToDelete) return;
             setDeleteModalVisible(false);
 
-            const isDeleted = await deleteChapter(chapterToDelete.id);
+            const isDeleted = await deleteChapter(chapterToDelete.chapterId);
             if (isDeleted) {
                 message.success('Đã xóa chương thành công');
-                const updatedChapters = chapters.filter((chapter) => chapter.id !== chapterToDelete.id);
+                const updatedChapters = chapters.filter((chapter) => chapter.chapterId !== chapterToDelete.chapterId);
                 setChapters(updatedChapters);
             } else {
                 message.error('Không xóa được chương');
@@ -71,7 +71,7 @@ const ChapterManagementPage: React.FC = () => {
             dataIndex: 'actions',
             key: 'actions',
             render: (_text: any, _record: IViewListChapter) => (
-                <Link to={`/admin/chapters/edit/${_record.id}`}>
+                <Link to={`/admin/chapters/edit/${_record.chapterId}`}>
                     <Button type="link"><EditOutlined /> Chỉnh sửa</Button>
                 </Link>
             ),

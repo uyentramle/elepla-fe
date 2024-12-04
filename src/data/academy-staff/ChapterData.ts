@@ -2,7 +2,7 @@ import apiClient from '@/data/apiClient';
 // import apiclient from 'apiclient';
 
 export interface IViewListChapter {
-    id: string;
+    chapterId: string;
     name: string;
     description: string | undefined;
 
@@ -98,3 +98,20 @@ export const updateChapter = async (chapter: IChapterForm): Promise<boolean> => 
         return false;
     }
 };
+
+export const getAllChapterBySubjectInCurriculumId = async (subjectInCurriculumId: string): Promise<IViewListChapter[]> => {
+    try {
+        const response = await apiClient.get(`/Chapter/GetAllChapterBySubjectInCurriculumId`, {
+            params: {
+                subjectInCurriculumId
+            }
+    });
+        if (response.data.success) {
+            return response.data.data;
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching chapter list:', error);
+        return [];
+    }
+}

@@ -75,6 +75,16 @@ export const updateCurriculum = async (curriculum: ICurriculumFrameworkForm): Pr
     }
 };
 
+export const getAllCurriculumFramework = async (): Promise<IViewListCurriculum[]> => {
+    try {
+        const response = await apiClient.get('/CurriculumFramework/GetAllCurriculumFramework');
+        return response.data.data.items;
+    } catch (error) {
+        console.error('Error fetching curriculum list:', error);
+        return [];
+    }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export interface ICurriculumFramework {
