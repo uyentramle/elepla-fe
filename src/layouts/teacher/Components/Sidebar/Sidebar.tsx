@@ -43,7 +43,7 @@ export default function MySider({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [setCollapsed]);
 
   const getConditionalItems = (): MenuItem[] => {
     return [

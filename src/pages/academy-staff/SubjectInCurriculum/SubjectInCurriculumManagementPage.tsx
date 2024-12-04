@@ -89,7 +89,8 @@ const SubjectInCurriculumManagementPage: React.FC = () => {
             title: 'Cập nhật',
             dataIndex: 'actions',
             key: 'actions',
-            render: (_text: any, _record: IViewListSubjectInCurriculum) => (
+            // render: (_text: any, _record: IViewListSubjectInCurriculum) => (
+            render: () => (
                 <Link to={`#`}>
                     <Button type="link"><EditOutlined /> Chỉnh sửa</Button>
                 </Link>
