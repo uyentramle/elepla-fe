@@ -125,7 +125,7 @@ const PlanbookLibraryPage: React.FC = () => {
 
       {/* Planbook Detail Modal */}
       {selectedPlanbook && (
-      <PlanbookDetailForm planbookId={selectedPlanbook} isVisible={detailVisible} onClose={() => setDetailVisible(false)} />
+      <PlanbookDetailForm planbookId={selectedPlanbook} isVisible={detailVisible} onClose={() => setDetailVisible(false)} isLibrary= {true} />
       )}
       </div>
   );

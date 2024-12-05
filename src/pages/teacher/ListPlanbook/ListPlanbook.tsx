@@ -215,7 +215,7 @@ const ListPlanbook: React.FC = () => {
       </div>
 
       {selectedPlanbook && (
-        <PlanbookDetailForm planbookId={selectedPlanbook} isVisible={isDetailVisible} onClose={() => setIsDetailVisible(false)} />
+        <PlanbookDetailForm planbookId={selectedPlanbook} isVisible={isDetailVisible} onClose={() => setIsDetailVisible(false)} isLibrary={false} />
       )}
 
       {selectedPlanbook && (

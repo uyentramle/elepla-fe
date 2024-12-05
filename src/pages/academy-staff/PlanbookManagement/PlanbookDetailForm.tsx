@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { message, Spin, Modal, Button } from 'antd';
-import { PlanbookTemplateDetail, getPlanbookById } from "@/data/academy-staff/PlanbookData";
+import { PlanbookTemplateDetail, getPlanbookById, exportPlanbookToWord, exportPlanbookToPdf } from "@/data/academy-staff/PlanbookData";
 import { MessageOutlined, LikeOutlined } from '@ant-design/icons';
+import { getActiveUserPackageByUserId, ServicePackage } from "@/data/manager/UserPackageDatas";
+import { getUserId } from "@/data/apiClient";
+import PackageDetailPage from "@/pages/teacher/User/PackageDetailPage";
 
 interface PlanbookDetailProps {
     planbookId: string;
     isVisible: boolean;
     onClose: () => void;
+    isLibrary: boolean;
 }
 
-const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisible, onClose }) => {
+const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisible, onClose, isLibrary }) => {
     const [planbook, setPlanbook] = useState<PlanbookTemplateDetail | null>(null);
     const [loading, setLoading] = useState(false);
+    const [service, setService] = useState<ServicePackage>();
+    const [showPackageDetail, setShowPackageDetail] = useState(false);
+
     const [isFirstModalVisible, setIsFirstModalVisible] = useState(false);
     const [isSecondModalVisible, setIsSecondModalVisible] = useState(false);
     const toggleSecondModal = () => {
@@ -22,7 +29,6 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
     // const onCloseSecondModal = () => {
     //     setIsSecondModalVisible(false);
     // };
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -38,6 +44,49 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
         };
         fetchData();
     }, [planbookId]);
+
+    useEffect(() => {
+        const fetchUserPackage = async () => {
+            const userPackage = await getActiveUserPackageByUserId(getUserId()!);
+            setService(userPackage);
+        };
+
+        fetchUserPackage();
+    }, []);
+
+    const handleExportToWord = async () => {
+        if (service?.exportWord) {
+            try {
+                // Gọi API exportPlanbookToWord để xuất Word
+                await exportPlanbookToWord(planbookId);
+            } catch (error) {
+                console.error('Error exporting planbook to Word:', error);
+            }
+        } else {
+            setShowPackageDetail(true);
+        }
+    };
+
+    const handleExportToPdf = async (planbookId: string) => {
+        if (service?.exportPdf) {
+            try {
+                // Gọi API exportPlanbookToPdf để xuất PDF
+                await exportPlanbookToPdf(planbookId);
+            } catch (error) {
+                console.error('Error exporting planbook to PDF:', error);
+            }
+        } else {
+            setShowPackageDetail(true);
+        }
+    };
+
+    const handleOk = () => {
+        setShowPackageDetail(false);
+    };
+
+    const handleCancel = () => {
+        setShowPackageDetail(false);
+    };
 
     return (
         <div>
@@ -113,6 +162,7 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
                                 <p className="text-base">{`Môn học: ${planbook?.subject}, Lớp: ${planbook?.className ? planbook.className : "..."}`}</p>
                                 <p className="text-base">{`Thời gian thực hiện: (${planbook?.durationInPeriods} tiết)`}</p>
                             </div>
+
                             <div className="mt-6">
                                 <h3 className="text-lg font-bold">I. Mục tiêu</h3>
                                 <div className="mt-1 text-base">
@@ -156,6 +206,47 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
                                 <h3 className="font-bold">Ghi chú</h3>
                                 <p>{planbook?.notes}</p>
                             </div>
+                            {
+                                !isLibrary && (
+                                    <div className="flex gap-2 mt-11 absolute">
+                                        <Button
+                                            onClick={handleExportToWord}
+                                            loading={loading}
+                                            style={{
+                                                backgroundColor: '#d9d9d9', // Màu xám nhẹ cho "Dữ liệu mẫu"
+                                                borderColor: '#d9d9d9', // Viền màu xám giống background
+                                                color: '#000', // Chữ màu đen cho dễ đọc
+                                            }}
+                                            className="hover:bg-gray-500 hover:border-gray-500 hover:text-white"
+                                        >
+                                            Xuất ra Word
+                                        </Button>
+                                        <Button
+                                            onClick={() => handleExportToPdf(planbookId)}
+                                            loading={loading}
+                                            style={{
+                                                backgroundColor: '#d9d9d9', // Màu xám nhẹ cho "Dữ liệu mẫu"
+                                                borderColor: '#d9d9d9', // Viền màu xám giống background
+                                                color: '#000', // Chữ màu đen cho dễ đọc
+                                            }}
+                                            className="hover:bg-gray-500 hover:border-gray-500 hover:text-white"
+                                        >
+                                            Xuất ra PDF
+                                        </Button>
+                                    </div>
+                                )
+                            }
+
+                            <Modal
+                                visible={showPackageDetail}
+                                onOk={handleOk}
+                                onCancel={handleCancel}
+                                footer={null}
+                                width={800}
+                                style={{ top: '10vh' }}
+                            >
+                                <PackageDetailPage />
+                            </Modal >
                         </>
                     )}
                 </div>
@@ -185,3 +276,4 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
 }
 
 export default PlanbookDetailForm;
+

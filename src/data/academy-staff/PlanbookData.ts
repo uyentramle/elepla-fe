@@ -289,3 +289,36 @@ export const createPlanbookUsingAI = async (lessonId: string): Promise<CreatePla
         return null;
     }
 }
+
+export const exportPlanbookToWord = async (planbookId: string): Promise<void> => {
+    await exportPlanbook('Planbook/ExportPlanbookToWord', planbookId, 'docx');
+};
+
+export const exportPlanbookToPdf = async (planbookId: string): Promise<void> => {
+    await exportPlanbook('Planbook/ExportPlanbookToPdf', planbookId, 'pdf');
+};
+
+const exportPlanbook = async (url: string, planbookId: string, fileExtension: string): Promise<void> => {
+    try {
+        const response = await apiClient.get(url, {
+            params: { planbookId },
+            responseType: 'blob', // Đảm bảo rằng response sẽ trả về dạng Blob
+        });
+
+        if (response.status === 200) {
+            const fileBlob = response.data; // Trả về Blob của file
+
+            // Tạo URL tạm thời cho file Blob
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(fileBlob);
+            link.download = `${planbookId}_Planbook.${fileExtension}`; // Đặt tên file với phần mở rộng
+            document.body.appendChild(link);
+            link.click(); // Mô phỏng click để tải file
+            document.body.removeChild(link); // Xóa liên kết sau khi tải xong
+        } else {
+            console.error(`Failed to export planbook to ${fileExtension.toUpperCase()}:`, response.statusText);
+        }
+    } catch (error) {
+        console.error(`Error calling ExportPlanbookTo${fileExtension.toUpperCase()} API:`, error);
+    }
+};
