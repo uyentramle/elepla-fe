@@ -2,7 +2,7 @@ import apiClient from '@/data/apiClient';
 // import apiclient from 'apiclient';
 
 export interface IViewListLesson {
-    id: string;
+    lessonId: string;
     name: string;
     description: string | undefined;
 
@@ -98,3 +98,20 @@ export const updateLesson = async (lesson: ILessonForm): Promise<boolean> => {
         return false;
     }
 };
+
+export const getAllLessonByChapterId = async (chapterId: string): Promise<IViewListLesson[]> => {
+    try {
+        const response = await apiClient.get(`/Lesson/GetAllLessonByChapterId`, {
+            params: {
+                chapterId
+            }
+        });
+        if (response.data.success) {
+            return response.data.data;
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching lesson list:', error);
+        return [];
+    }
+}

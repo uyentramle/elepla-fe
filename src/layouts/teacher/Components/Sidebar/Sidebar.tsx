@@ -1,4 +1,4 @@
-import { MenuOutlined, SnippetsOutlined, CalendarOutlined, DatabaseOutlined, StarOutlined, CheckSquareOutlined, CaretRightOutlined,ShareAltOutlined } from '@ant-design/icons';
+import { MenuOutlined, SnippetsOutlined, CalendarOutlined, DatabaseOutlined, StarOutlined, CheckSquareOutlined, CaretRightOutlined,ShareAltOutlined, SaveOutlined } from '@ant-design/icons';
 import { Menu, MenuProps, Button } from 'antd';
 import Sider from 'antd/es/layout/Sider';
 import React, { useEffect } from 'react';
@@ -43,11 +43,12 @@ export default function MySider({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [setCollapsed]);
 
   const getConditionalItems = (): MenuItem[] => {
     return [
-      getItem('Bộ Sưu tập của tôi', '1', <SnippetsOutlined />),
+      getItem('Bài dạy của tôi', '1', <SnippetsOutlined />),
+      getItem('Bài dạy đã lưu', '6', <SaveOutlined />),
       getItem('Thư viện kế hoạch', '5', <ShareAltOutlined />),
       getItem('Thời khóa biểu hàng tuần', '2', <CalendarOutlined />),
       getItem('Ngân hàng câu hỏi', '3', <DatabaseOutlined />, [
@@ -58,13 +59,13 @@ export default function MySider({
         getItem('Tạo bài kiểm tra', '4.1', <CaretRightOutlined />),
         getItem('bài kiểm tra của tôi', '4.2', <CaretRightOutlined />),
     ]),
-
     ];
   };
 
   const navUrl = new Map<string, string>();
   navUrl
     .set('1', '/teacher/list-collection')
+    .set('6', '/teacher/saved-collection')
     .set('5', '/teacher/planbook-library')
     .set('2', '/teacher/schedule/weekly')
     .set('3', '/teacher/question-bank/')

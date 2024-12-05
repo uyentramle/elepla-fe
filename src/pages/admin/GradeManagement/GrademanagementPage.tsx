@@ -36,10 +36,10 @@ const GrademanagementPage: React.FC = () => {
             if (!gradeToDelete) return;
             setDeleteModalVisible(false);
 
-            const isDeleted = await deleteGrade(gradeToDelete.id);
+            const isDeleted = await deleteGrade(gradeToDelete.gradeId);
             if (isDeleted) {
                 message.success('Đã xóa khối lớp thành công');
-                const updatedGrades = grades.filter((grade) => grade.id !== gradeToDelete.id);
+                const updatedGrades = grades.filter((grade) => grade.gradeId !== gradeToDelete.gradeId);
                 setGrades(updatedGrades);
             } else {
                 message.error('Không xóa được khối lớp');
@@ -72,7 +72,7 @@ const GrademanagementPage: React.FC = () => {
             dataIndex: 'actions',
             key: 'actions',
             render: (_text: any, _record: IViewListGrade) => (
-                <Link to={`/admin/grades/edit/${_record.id}`}>
+                <Link to={`/admin/grades/edit/${_record.gradeId}`}>
                     <Button type="link"><EditOutlined /> Chỉnh sửa</Button>
                 </Link>
             ),

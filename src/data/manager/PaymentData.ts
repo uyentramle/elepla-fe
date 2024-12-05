@@ -90,7 +90,7 @@ export const getAllPaymentByUserId = async (teacherId: string, pageIndex: number
             }
         });
         if (response.data.success) {
-            console.log(response.data);
+            // console.log(response.data);
             return response.data;
         } else {
             throw new Error(response.data.message);

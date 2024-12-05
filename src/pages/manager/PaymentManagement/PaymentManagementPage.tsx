@@ -153,7 +153,8 @@ const PaymentManagementPage: React.FC = () => {
             title: 'Trạng thái',
             dataIndex: 'status',
             key: 'status',
-            render: (text: string, _record: any) => (
+            // render: (text: string, _record: any) => (
+            render: (text: string) => (
                 // <span style={{ color: text === 'Thành công' ? 'green' : 'red' }}>
                 <span>
                     {text}

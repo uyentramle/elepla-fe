@@ -35,10 +35,10 @@ const LessonManagementPage: React.FC = () => {
             if (!lessonToDelete) return;
             setDeleteModalVisible(false);
 
-            const isDeleted = await deleteLesson(lessonToDelete.id);
+            const isDeleted = await deleteLesson(lessonToDelete.lessonId);
             if (isDeleted) {
                 message.success('Đã xóa bài học thành công');
-                const updatedLessons = lessons.filter((lesson) => lesson.id !== lessonToDelete.id);
+                const updatedLessons = lessons.filter((lesson) => lesson.lessonId !== lessonToDelete.lessonId);
                 setLessons(updatedLessons);
             } else {
                 message.error('Không xóa được bài học');
@@ -71,7 +71,7 @@ const LessonManagementPage: React.FC = () => {
             dataIndex: 'actions',
             key: 'actions',
             render: (_text: any, _record: IViewListLesson) => (
-                <Link to={`/admin/lessons/edit/${_record.id}`}>
+                <Link to={`/admin/lessons/edit/${_record.lessonId}`}>
                     <Button type="link"><EditOutlined /> Chỉnh sửa</Button>
                 </Link>
             ),
