@@ -17,7 +17,7 @@ export interface IViewListCurriculum {
 
 export const fetchCurriculumList = async (): Promise<IViewListCurriculum[]> => {
     try {
-        const response = await apiClient.get('/CurriculumFramework/GetAllCurriculumFramework?pageIndex=0&pageSize=10');
+        const response = await apiClient.get('/CurriculumFramework/GetAllCurriculumFramework?pageIndex=0&pageSize=50');
         if (response.data.success) {
             return response.data.data.items.map((curriculum: any) => ({
                 curriculumId: curriculum.curriculumId,
@@ -74,6 +74,16 @@ export const updateCurriculum = async (curriculum: ICurriculumFrameworkForm): Pr
         return false;
     }
 };
+
+export const getAllCurriculumFramework = async (): Promise<IViewListCurriculum[]> => {
+    try {
+        const response = await apiClient.get('/CurriculumFramework/GetAllCurriculumFramework');
+        return response.data.data.items;
+    } catch (error) {
+        console.error('Error fetching curriculum list:', error);
+        return [];
+    }
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

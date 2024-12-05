@@ -75,6 +75,23 @@ export const updateSubject = async (subject: ISubjectForm): Promise<boolean> => 
     }
 };
 
+export const getAllSubject = async (): Promise<IViewListSubject[]> => {
+    try {
+        const response = await apiClient.get('/Subject/GetAllSubject', {
+            params: {
+                pageIndex: -1,
+            }
+        });
+        if (response.data.success) {
+            return response.data.data.items;
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching subject list:', error);
+        return [];
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export interface ISubject {
     id: string;

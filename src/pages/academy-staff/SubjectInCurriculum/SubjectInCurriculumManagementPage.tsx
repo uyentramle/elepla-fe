@@ -40,10 +40,10 @@ const SubjectInCurriculumManagementPage: React.FC = () => {
             setDeleteModalVisible(false);
 
             // Simulating API response success
-            const isDeleted = await deleteSubjectInCurriculum(subjectInCurriculumToDelete.id);
+            const isDeleted = await deleteSubjectInCurriculum(subjectInCurriculumToDelete.subjectInCurriculumId);
             if (isDeleted) {
                 message.success('Đã xóa môn học trong khung chương trình thành công');
-                const updatedCurriculums = subjectInCurriculums.filter((subjectInCurriculum) => subjectInCurriculum.id !== subjectInCurriculumToDelete.id);
+                const updatedCurriculums = subjectInCurriculums.filter((subjectInCurriculum) => subjectInCurriculum.subjectInCurriculumId !== subjectInCurriculumToDelete.subjectInCurriculumId);
                 setCurriculums(updatedCurriculums);
             } else {
                 message.error('Không xóa được môn học trong khung chương trình');
@@ -89,7 +89,8 @@ const SubjectInCurriculumManagementPage: React.FC = () => {
             title: 'Cập nhật',
             dataIndex: 'actions',
             key: 'actions',
-            render: (_text: any, _record: IViewListSubjectInCurriculum) => (
+            // render: (_text: any, _record: IViewListSubjectInCurriculum) => (
+            render: () => (
                 <Link to={`#`}>
                     <Button type="link"><EditOutlined /> Chỉnh sửa</Button>
                 </Link>

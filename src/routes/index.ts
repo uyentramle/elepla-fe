@@ -52,6 +52,7 @@ import SystemFeedbackManagementPage from '@/pages/academy-staff/FeedbackManageme
 import SubjectInCurriculumManagementPage from '@/pages/academy-staff/SubjectInCurriculum/SubjectInCurriculumManagementPage';
 import ChapterManagementPage from '@/pages/academy-staff/ChapterManagement/ChapterManagementPage';
 import LessonManagementPage from '@/pages/academy-staff/LessonManagement/LessonManagementPage';
+import PlanbookManagementPage from '@/pages/academy-staff/PlanbookManagement/PlanbookManagementPage';
 
 // Teacher
 import UserProfilePage from '@/pages/teacher/User/UserProfilePage';
@@ -65,6 +66,7 @@ import PackageDetailPage from '@/pages/teacher/User/PackageDetailPage';
 import ListPlanbook from '@/pages/teacher/ListPlanbook/ListPlanbook';
 import EventFormPage from '@/pages/teacher/Schedule/EventFormPage';
 import ExamPage from '@/pages/teacher/Exam/ExamPage';
+import ListExamPage from '@/pages/teacher/ListExam/ListExamPage'
 
 interface RouteProps {
     path: string;
@@ -130,6 +132,7 @@ const academyStaffRoutes: RouteProps[] = [
     { path: '/academy-staff/subject-in-curriculum', component: SubjectInCurriculumManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/chapters', component: ChapterManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/lessons', component: LessonManagementPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/planbooks', component: PlanbookManagementPage, layout: DefaultStaffLayout },
 ];
 
 const teacherRoutes: RouteProps[] = [
@@ -146,6 +149,7 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/question-bank/', component: QuestionBankPage, layout: DefaultTeacherLayout },
     { path: '/teacher/exam', component: ExamPage, layout: DefaultTeacherLayout },
     { path: '/teacher/planbook-library', component:PlanbookLibraryPage , layout: DefaultTeacherLayout },
+    { path: '/teacher/list-exam', component:ListExamPage , layout: DefaultTeacherLayout }
 
 ];
 

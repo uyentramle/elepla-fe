@@ -27,7 +27,6 @@ const AddUserForm: React.FC<AddUserFormProps> = ({
         }
     }, [visible, form]);
 
-
     const handleCreateUser = () => {
         form.validateFields().then(async () => {
             form.validateFields().then(async (values) => {
