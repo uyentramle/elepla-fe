@@ -124,7 +124,8 @@ const ListExamPage: React.FC = () => {
             borderBottom: "1px solid #f0f0f0",
             padding: "12px 0",
           }}
-          onClick={() => handleItemClick(exam.id)}
+          onClick={() => handleItemClick(exam.id)
+          }
         >
           <List.Item.Meta
             avatar={
