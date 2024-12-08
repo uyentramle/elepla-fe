@@ -36,6 +36,27 @@ export const getCreatedPlanbookCollectionsByTeacherId = async (teacherId: string
     }
 };
 
+export const getSavedPlanbookCollectionsByTeacherId = async (teacherId: string): Promise<Collection[]> => {
+    try {
+        const response = await apiClient.get(
+            `PlanbookCollection/GetSavedPlanbookCollectionsByTeacherId`,
+            {
+                params: {
+                    teacherId,
+                }
+            },
+        );
+        if (response.data.success) {
+            return response.data.data.items;
+        } else {
+            throw new Error(response.data.message);
+        }
+    } catch (error) {
+        console.error('Error calling DeletePlanbookTemplate API:', error);
+        return [];
+    }
+};
+
 export const createPlanbookCollection = async (collectionName: string, isSaved: boolean, teacherId: string): Promise<boolean> => {
     try {
         const response = await apiClient.post(`PlanbookCollection/CreatePlanbookCollection`, {

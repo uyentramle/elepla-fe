@@ -112,7 +112,34 @@ export const getPlanbookById = async (planbookId: string): Promise<PlanbookTempl
         if (response.data.success) {
             return response.data.data;
         } else {
-            throw new Error(response.data.message);
+            return {
+                planbookId: '',
+                title: '',
+                schoolName: '',
+                teacherName: '',
+                subject: '',
+                className: '',
+                durationInPeriods: 0,
+                knowledgeObjective: '',
+                skillsObjective: '',
+                qualitiesObjective: '',
+                teachingTools: '',
+                notes: '',
+                isDefault: false,
+                isPublic: false,
+                collectionId: '',
+                collectionName: '',
+                lessonId: '',
+                lessonName: '',
+                activities: [],
+                createdAt: '',
+                createdBy: '',
+                updatedAt: '',
+                updatedBy: '',
+                deletedAt: '',
+                deletedBy: '',
+                isDeleted: false,
+            }
         }
     } catch (error) {
         console.error('Error calling PlanbookDetail API:', error);
@@ -229,12 +256,15 @@ export interface Planbook {
     schoolName: string;
     teacherName: string;
     subject: string;
+    curriculum: string;
+    grade: string;
     className: string;
     isPublic: boolean;
     collectionId: string;
     collectionName: string;
     lessonId: string;
     lessonName: string;
+    chapterName: string;
     createdAt: string;
     createdBy: string;
     updatedAt: string;
@@ -242,6 +272,24 @@ export interface Planbook {
     deletedAt: string;
     deletedBy: string;
     isDeleted: boolean;
+}
+
+export const getAllPlanbooks = async (): Promise<Planbook[]> => {
+    try {
+        const response = await apiClient.get(`Planbook/GetAllPlanbooks`, {
+            params: {
+                pageIndex: -1,
+            }
+        });
+        if (response.data.success) {
+            return response.data.data.items;
+        } else {
+            return [];
+        }
+    } catch (error) {
+        console.error('Error calling GetAllPlanbooks API:', error);
+        return [];
+    }
 }
 
 export const getPlanbookByCollectionId = async (collectionId: string): Promise<Planbook[]> => {
@@ -287,6 +335,57 @@ export const createPlanbookUsingAI = async (lessonId: string): Promise<CreatePla
     } catch (error) {
         console.error('Error calling CreatePlanbookUsingAI API:', error);
         return null;
+    }
+}
+
+export const savePlanbook = async (collectionId: string, planbookId: string): Promise<boolean> => {
+    try {
+        const response = await apiClient.post(`Planbook/SavePlanbook`, {
+            collectionId,
+            planbookId
+        });
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error calling SavePlanbook API:', error);
+        return false;
+    }
+}
+
+export const unsavePlanbook = async  (collectionId: string, planbookId: string): Promise<boolean> => {
+    try {
+        const response = await apiClient.post(`Planbook/UnsavePlanbook`, {
+            collectionId,
+            planbookId
+        });
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error calling UnsavePlanbook API:', error);
+        return false;
+    }
+}
+
+export const clonePlanbook = async (planbookId: string, collectionId: string): Promise<boolean> => {
+    try {
+        const response = await apiClient.post(`Planbook/ClonePlanbook`, {
+            planbookId,
+            collectionId
+        });
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error calling ClonePlanbook API:', error);
+        return false;
     }
 }
 
