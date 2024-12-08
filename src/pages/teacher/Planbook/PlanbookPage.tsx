@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Select, Button, Card, Modal, message, Dropdown, Menu, Spin, Avatar } from 'antd';
-import { FileOutlined, ShareAltOutlined, SearchOutlined, BlockOutlined, EllipsisOutlined, BookOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { FileOutlined, ShareAltOutlined, SearchOutlined, BlockOutlined, EllipsisOutlined, BookOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 import { getPlanbookByCollectionId, Planbook, deletePlanbookTemplate } from '@/data/academy-staff/PlanbookData';
 import PlanbookDetailForm from '@/pages/academy-staff/PlanbookManagement/PlanbookDetailForm';
@@ -9,7 +9,7 @@ import CreatePlanbookForm from '@/pages/academy-staff/PlanbookManagement/CreateP
 
 const { Option } = Select;
 
-const ListPlanbook: React.FC = () => {
+const PlanbookPage: React.FC = () => {
   const { id: collectionId } = useParams<{ id: string }>();
   const [planbooks, setPlanbooks] = useState<Planbook[]>([]);  // Khai báo kiểu Planbook[]
   const [selectedPlanbook, setSelectedPlanbook] = useState<string | null>(null);
@@ -20,6 +20,7 @@ const ListPlanbook: React.FC = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isDetailVisible, setIsDetailVisible] = useState(false); // State để điều khiển hiển thị của modal
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<'Public' | 'Private' | 'All'>('All');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,40 +38,46 @@ const ListPlanbook: React.FC = () => {
     fetchData();
   }, [collectionId, isEditModalVisible, isCreateModalVisible, isDeleteModalVisible]);
 
-  const filteredPlanbooks = planbooks
-    .filter((planbook) =>
-      planbook.title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      if (sortOrder === 'newest') {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      } else if (sortOrder === 'oldest') {
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      } else if (sortOrder === 'recentUpdate') {
-        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-      }
-      return 0;
-    });
+  const filteredPlanbooks = planbooks.filter((planbook) => {
+    const matchesSearch = planbook.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+  
+    const matchesStatus =
+      filterStatus === 'All' ||
+      (filterStatus === 'Public' && planbook.isPublic) ||
+      (filterStatus === 'Private' && !planbook.isPublic);
+  
+    return matchesSearch && matchesStatus;
+  }).sort((a, b) => {
+    if (sortOrder === 'newest') {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    } else if (sortOrder === 'oldest') {
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    } else if (sortOrder === 'recentUpdate') {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    }
+    return 0;
+  });  
 
   const handleMenuClick = async (key: string, planbookId: string) => {
-    setSelectedPlanbook(planbookId); // Lưu planbookId vào state
+    setSelectedPlanbook(planbookId); // Lưu ID Planbook được chọn vào state một lần
+  
     switch (key) {
       case "detail":
-        setSelectedPlanbook(planbookId); // Lưu ID Planbook được chọn
-        setIsDetailVisible(true); // Mở Modal
+        setIsDetailVisible(true); // Mở Modal chi tiết
         break;
       case "edit":
-        setSelectedPlanbook(planbookId); // Lưu ID Planbook được chọn
-        setIsEditModalVisible(true); // Mở Modal
+        setIsEditModalVisible(true); // Mở Modal chỉnh sửa
         break;
       case "delete":
-        setIsDeleteModalVisible(true); // Hiển thị Modal xác nhận
+        setIsDeleteModalVisible(true); // Hiển thị Modal xác nhận xóa
         break;
       default:
         break;
     }
   };
-
+  
   const showAddPlanbookModal = () => {
     setIsCreateModalVisible(true);
   };
@@ -134,17 +141,28 @@ const ListPlanbook: React.FC = () => {
             <Option value="oldest">Ngày tạo cũ nhất</Option>
             <Option value="recentUpdate">Cập nhật gần nhất</Option>
           </Select>
+          <Select
+            defaultValue="All"
+            onChange={(value: 'Public' | 'Private' | 'All') => setFilterStatus(value)}
+            className="mb-4"
+            style={{ width: 120 }}
+          >
+            <Option value="All">Tất cả</Option>
+            <Option value="Public">Công khai</Option>
+            <Option value="Private">Riêng tư</Option>
+          </Select>
           <Button
             className="inline-flex items-center rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
             onClick={showAddPlanbookModal}
           >
+            <PlusOutlined />
             Thêm bài dạy
           </Button>
         </div>
       </div>
 
       {/* Planbook Items with Moving Effect - Unchanged */}
-      <div className="grid grid-cols-5 gap-36">
+      <div className="grid grid-cols-4 gap-12">
         {filteredPlanbooks.map(planbook => (
           <Card
             key={planbook.planbookId}
@@ -223,7 +241,7 @@ const ListPlanbook: React.FC = () => {
       )}
 
       {collectionId && (
-        <CreatePlanbookForm collectionId={collectionId} isVisible={isCreateModalVisible} onClose={() => setIsCreateModalVisible(false)} onCreate={handleAddPlanbook}/>
+        <CreatePlanbookForm collectionId={collectionId} isVisible={isCreateModalVisible} onClose={() => setIsCreateModalVisible(false)} onCreate={handleAddPlanbook} />
       )}
 
       <Modal
@@ -241,4 +259,4 @@ const ListPlanbook: React.FC = () => {
   );
 };
 
-export default ListPlanbook;
+export default PlanbookPage;

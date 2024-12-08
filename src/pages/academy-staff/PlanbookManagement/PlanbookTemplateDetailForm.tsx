@@ -54,18 +54,29 @@ const PlanbookTemplateDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId 
                     </div>
                     <div className="mt-6">
                         <h3 className="text-lg font-bold">I. Mục tiêu</h3>
-                        <div className="mt-1 text-base">
-                            <strong>1. Về kiến thức: </strong>
-                            <p>{planbook?.knowledgeObjective}</p>
-                            <strong>2. Về năng lực: </strong>
-                            <p>{planbook?.skillsObjective}</p>
-                            <strong>3. Về phẩm chất: </strong>
-                            <p>{planbook?.qualitiesObjective}</p>
+                        <div className="text-base">
+                            <div className="mt-1">
+                                <strong>1. Về kiến thức: </strong>
+                                <p dangerouslySetInnerHTML={{ __html: planbook?.knowledgeObjective ? planbook.knowledgeObjective.replace(/\n/g, '<br/>') : '' }}></p>
+                            </div>
+                            <div className="mt-1">
+                                <strong>2. Về năng lực: </strong>
+                                <p dangerouslySetInnerHTML={{ __html: planbook?.skillsObjective ? planbook.skillsObjective.replace(/\n/g, '<br/>') : '' }}></p>
+                            </div>
+                            <div className="mt-1">
+                                <strong>3. Về phẩm chất: </strong>
+                                <p dangerouslySetInnerHTML={{ __html: planbook?.qualitiesObjective ? planbook.qualitiesObjective.replace(/\n/g, '<br/>') : '' }}></p>
+                            </div>
                         </div>
-                    </div>
+                    </div>                            
                     <div className="mt-2">
                         <h3 className="text-lg font-bold">II. Thiết bị dạy học và học liệu</h3>
-                        <p className="mt-1 text-base">{planbook?.teachingTools}</p>
+                        <p
+                            className="text-base"
+                            dangerouslySetInnerHTML={{
+                                __html: (planbook?.teachingTools ?? '').replace(/\n/g, '<br/>'),
+                            }}
+                        ></p>
                     </div>
                     <div className="mt-2">
                         <h3 className="text-lg font-bold">III. Tiến trình dạy học</h3>
@@ -74,26 +85,47 @@ const PlanbookTemplateDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId 
                                 <h4 className="font-bold">{`Hoạt động ${index + 1}: ${activity.title}`}</h4>
                                 <div>
                                     <strong>a) Mục tiêu: </strong>
-                                    <p>{activity.objective}</p>
+                                    <p
+                                        dangerouslySetInnerHTML={{
+                                            __html: activity.objective.replace(/\n/g, '<br/>'),
+                                        }}
+                                    ></p>
                                 </div>
-                                <div>
+                                <div className="mt-1">
                                     <strong>b) Nội dung: </strong>
-                                    <p>{activity.content}</p>
+                                    <p
+                                        dangerouslySetInnerHTML={{
+                                            __html: activity.content.replace(/\n/g, '<br/>'),
+                                        }}
+                                    ></p>
                                 </div>
-                                <div>
+                                <div className="mt-1">
                                     <strong>c) Sản phẩm: </strong>
-                                    <p>{activity.product}</p>
+                                    <p
+                                        dangerouslySetInnerHTML={{
+                                            __html: activity.product.replace(/\n/g, '<br/>'),
+                                        }}
+                                    ></p>
                                 </div>
-                                <div>
+                                <div className="mt-1">
                                     <strong>d) Tổ chức thực hiện: </strong>
-                                    <p>{activity.implementation}</p>
+                                    <p
+                                        dangerouslySetInnerHTML={{
+                                            __html: activity.implementation.replace(/\n/g, '<br/>'),
+                                        }}
+                                    ></p>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <div className="mt-2 text-base ">
+
+                    <div className="mt-2 text-base">
                         <h3 className="font-bold">Ghi chú</h3>
-                        <p>{planbook?.notes}</p>
+                        <p
+                            dangerouslySetInnerHTML={{
+                                __html: (planbook?.notes ?? '').replace(/\n/g, '<br/>'),
+                            }}
+                        ></p>
                     </div>
                 </>
             )}
