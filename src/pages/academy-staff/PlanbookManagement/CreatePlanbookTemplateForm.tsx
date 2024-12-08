@@ -185,10 +185,10 @@ const CreatePlanbookTemplateForm: React.FC<CreatePlanbookTemplateFormProps> = ({
             visible={isVisible}
             onCancel={onClose}
             footer={[
-                <Button key="cancel" onClick={onClose}>
+                <Button key="cancel" onClick={onClose} loading={loading}>
                     Hủy
                 </Button>,
-                <Button key="submit" type="primary" onClick={handleCreate} disabled={currentStep === 1 && !form.getFieldValue('lessonId')}
+                <Button key="submit" type="primary" onClick={handleCreate} disabled={currentStep === 1 && !form.getFieldValue('lessonId')} loading={loading}
                 >
                     {currentStep === 1 ? "Tiếp" : "Thêm"}
                 </Button>,
@@ -304,7 +304,7 @@ const CreatePlanbookTemplateForm: React.FC<CreatePlanbookTemplateFormProps> = ({
                                                 min={1}
                                                 max={9}
                                                 className="w-12 text-center border rounded-md"
-                                                placeholder="Số tiết"
+                                                placeholder="1"
                                                 style={{ marginTop: '-5px' }}
                                             />
                                         </Form.Item>

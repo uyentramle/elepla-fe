@@ -151,7 +151,7 @@ const UpdatePlanbookTemplateForm: React.FC<{ planbookId: string }> = ({ planbook
                   min={1} // Đặt giá trị tối thiểu là 1 tiết
                   max={9} // Đặt giá trị tối đa là 100 tiết
                   className="w-12 text-center border rounded-md"
-                  placeholder="Số tiết"
+                  placeholder="1"
                   style={{ marginTop: '-5px' }}
                 />
               </Form.Item>

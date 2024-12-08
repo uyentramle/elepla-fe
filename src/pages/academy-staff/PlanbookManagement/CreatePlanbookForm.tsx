@@ -162,7 +162,7 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
 
     const handleCreate = () => {
         if (currentStep === 1) {
-            setCurrentStep(2);
+            setCurrentStep(6);
             return;
         }
 
@@ -298,7 +298,7 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
             visible={isVisible}
             onCancel={loadingAI ? () => { } : onClose}  // Vô hiệu hóa nút x khi loadingAI là true
             footer={[
-                <Button key="close" onClick={onClose} disabled={loadingAI}> {/* Disable when loadingAI is true */}
+                <Button key="close" onClick={onClose} disabled={loadingAI} loading={loading}> {/* Disable when loadingAI is true */}
                     Hủy
                 </Button>,
                 <Button
@@ -306,6 +306,7 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
                     type="primary"
                     onClick={handleCreate}
                     disabled={loadingAI || currentStep === 1 && !form.getFieldValue('lessonId')} // Disable when loadingAI is true
+                    loading={loading}
                 >
                     {currentStep === 1 ? "Tiếp" : "Thêm"}
                 </Button>,
@@ -315,12 +316,13 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
         >
             <Form form={form} layout="vertical">
                 {currentStep === 1 && (
-                    <>    <Form.Item label="Chọn Khung chương trình" name="curriculumId" rules={[{ required: true }]}>
-                        <Select
-                            options={curriculumFrameworks.map((item) => ({ value: item.curriculumId, label: item.name }))}
-                            onChange={handleCurriculumOrGradeChange} // Trigger fetch when curriculum changes
-                        />
-                    </Form.Item>
+                    <>
+                        <Form.Item label="Chọn Khung chương trình" name="curriculumId" rules={[{ required: true }]}>
+                            <Select
+                                options={curriculumFrameworks.map((item) => ({ value: item.curriculumId, label: item.name }))}
+                                onChange={handleCurriculumOrGradeChange} // Trigger fetch when curriculum changes
+                            />
+                        </Form.Item>
                         <Form.Item label="Chọn Khối" name="gradeId" rules={[{ required: true }]}>
                             <Select
                                 options={grades.map((item) => ({ value: item.gradeId, label: item.name }))}
@@ -347,7 +349,7 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
                         </Form.Item>
                     </>
                 )}
-                {currentStep === 2 && (
+                {currentStep === 6 && (
                     <div className="container mx-auto px-4 py-8">
 
                         {loading ? (

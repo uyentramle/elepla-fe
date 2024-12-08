@@ -1,30 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Dropdown, Menu, Input, Select, Button, Modal, Spin, Form, message } from 'antd';
-import { FolderOpenOutlined, EditOutlined, DeleteOutlined, UnorderedListOutlined, AppstoreOutlined, EllipsisOutlined, SearchOutlined } from '@ant-design/icons';
+import { FolderOpenOutlined, EditOutlined, DeleteOutlined, UnorderedListOutlined, AppstoreOutlined, EllipsisOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getCreatedPlanbookCollectionsByTeacherId, createPlanbookCollection, deletePlanbookCollection, updatePlanbookCollection, Collection } from '@/data/teacher/CollectionData';
 import { getUserId } from '@/data/apiClient';
 
 const { Option } = Select;
 
-const ListCollection: React.FC = () => {
+const CollectionPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'recentUpdate'>('newest');
   const [isGridView, setIsGridView] = useState(true);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [loading, setLoading] = useState<boolean>(true);
-  const navigate = useNavigate();
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'recentUpdate'>('newest');
-  const [form] = Form.useForm();
-  const [isDelete, setIsDelete] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await getCreatedPlanbookCollectionsByTeacherId(getUserId()!);
         setCollections(data);
-        setIsDelete(false);
       } catch (error) {
         console.error("Error fetching collections:", error);
       } finally {
@@ -32,7 +32,7 @@ const ListCollection: React.FC = () => {
       }
     };
     fetchData();
-  }, [isCreateModalVisible, isDelete, isEditModalVisible]);
+  }, [isCreateModalVisible, isDeleteModalVisible, isEditModalVisible]);
 
   useEffect(() => {
     if (isCreateModalVisible) {
@@ -77,13 +77,14 @@ const ListCollection: React.FC = () => {
       const response = await deletePlanbookCollection(collectionId, getUserId()!);
       if (response) {
         message.success('Xóa bộ sưu tập thành công');
-        setIsDelete(true);
       } else {
         message.error('Xóa bộ sưu tập thất bại');
       }
     } catch (error) {
       console.error("Error deleting collection:", error);
       message.error('Có lỗi xảy ra, vui lòng thử lại sau');
+    } finally {
+      setIsDeleteModalVisible(false);
     }
   }
 
@@ -103,7 +104,7 @@ const ListCollection: React.FC = () => {
   }
 
   const handleItemClick = (collectionId: string) => {
-    navigate(`/teacher/list-collection/list-planbook/${collectionId}`);
+    navigate(`/teacher/list-collection/${collectionId}`);
   };
 
   // Mở modal chỉnh sửa
@@ -119,7 +120,8 @@ const ListCollection: React.FC = () => {
         openEditModal(collectionId, currentName); // Mở modal sửa
         break;
       case "delete":
-        handleDeleteCollection(collectionId); // Gọi hàm xóa
+        setIsDeleteModalVisible(true); // Hiển thị Modal xác nhận
+        setSelectedCollection(collectionId); // Lưu ID bộ sưu tập được chọn
         break;
       default:
         break;
@@ -172,6 +174,7 @@ const ListCollection: React.FC = () => {
             className="inline-flex items-center rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
             onClick={() => setIsCreateModalVisible(true)}
           >
+            <PlusOutlined />
             Thêm bộ sưu tập
           </Button>
         </div>
@@ -267,8 +270,20 @@ const ListCollection: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
+
+      <Modal
+        title="Xác nhận xóa"
+        visible={isDeleteModalVisible}
+        onOk={() => selectedCollection && handleDeleteCollection(selectedCollection)} // Thực hiện xóa khi người dùng nhấn "Đồng ý"
+        onCancel={() => setIsDeleteModalVisible(false)} // Đóng Modal nếu người dùng hủy
+        okText="Xóa"
+        cancelText="Hủy"
+        okButtonProps={{ danger: true }} // Nút Xóa màu đỏ
+      >
+        <p>Bạn có chắc muốn xóa bộ sưu tập này không?</p>
+      </Modal>
     </div>
   );
 };
 
-export default ListCollection;
+export default CollectionPage;

@@ -61,9 +61,11 @@ import AccountSettingsPage from '@/pages/teacher/User/AccountSettingsPage';
 import PaymentHistoryPage from '@/pages/teacher/User/PaymentHistoryPage';
 import PackageInUsePage from '@/pages/teacher/User/PackageInUsePage';
 import WeeklySchedulePage from '@/pages/teacher/Schedule/WeeklySchedulePage';
-import ListCollection from '@/pages/teacher/ListPlanbook/ListCollection';
+import CollectionPage from '@/pages/teacher/Planbook/CollectionPage';
+import PlanbookPage from '@/pages/teacher/Planbook/PlanbookPage';
+import SavedCollectionPage from '@/pages/teacher/Planbook/SavedCollectionPage';
+import SavedPlanbookPage from '@/pages/teacher/Planbook/SavedPlanbookPage';
 import PackageDetailPage from '@/pages/teacher/User/PackageDetailPage';
-import ListPlanbook from '@/pages/teacher/ListPlanbook/ListPlanbook';
 import EventFormPage from '@/pages/teacher/Schedule/EventFormPage';
 import ExamPage from '@/pages/teacher/Exam/ExamPage';
 import ListExamPage from '@/pages/teacher/ListExam/ListExamPage'
@@ -142,15 +144,16 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/payment-history', component: PaymentHistoryPage, layout: DefaultClientLayout },
     { path: '/teacher/package', component: PackageInUsePage, layout: DefaultClientLayout },
     { path: '/teacher/schedule/weekly', component: WeeklySchedulePage, layout: DefaultTeacherLayout },
-    { path: '/teacher/list-collection', component: ListCollection, layout: DefaultTeacherLayout },
-    { path: '/teacher/list-collection/list-planbook/:id', component: ListPlanbook, layout: DefaultTeacherLayout },
+    { path: '/teacher/list-collection', component: CollectionPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/list-collection/:id', component: PlanbookPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/saved-collection', component: SavedCollectionPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/saved-collection/:id', component: SavedPlanbookPage, layout: DefaultTeacherLayout },
     { path: '/teacher/schedule/create', component: EventFormPage, layout: DefaultTeacherLayout },
     { path: '/teacher/schedule/edit/:id', component: EventFormPage, layout: DefaultTeacherLayout },
     { path: '/teacher/question-bank/', component: QuestionBankPage, layout: DefaultTeacherLayout },
     { path: '/teacher/exam', component: ExamPage, layout: DefaultTeacherLayout },
     { path: '/teacher/planbook-library', component:PlanbookLibraryPage , layout: DefaultTeacherLayout },
     { path: '/teacher/list-exam', component:ListExamPage , layout: DefaultTeacherLayout }
-
 ];
 
 export { publicRoutes, privateRoutes, adminRoutes, managerRoutes, academyStaffRoutes, teacherRoutes };
