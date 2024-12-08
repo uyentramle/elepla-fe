@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button } from "antd";
+import { Modal, Button, message } from "antd";
 import { ArrowLeftOutlined, ArrowRightOutlined, CalendarOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { Dayjs } from "dayjs";
 import dayjs from "dayjs";
@@ -7,6 +7,14 @@ import { Link } from "react-router-dom";
 import { now, months, SelectedDay, dayName, monthName, capFirstLetter } from "@/utils/GetDays";
 import { fetchTeachingSchedules, IViewSchedule } from "@/data/client/ScheduleData";
 import Day from "./Day"; 
+import { deleteTeachingSchedule } from "@/data/client/ScheduleData";
+
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 
 let index: number = now.weekOfMonth;
 let month: number = now.month;
@@ -26,23 +34,31 @@ const WeeklySchedule: React.FC = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<IViewSchedule | null>(null);
 
-    // Fetch events on mount
+
     useEffect(() => {
         const loadEvents = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const data = await fetchTeachingSchedules();
-                setEvents(data); // Update the events list
-            } catch (err: any) {
-                setError(err.message || "Failed to load schedules");
-            } finally {
-                setIsLoading(false);
-            }
+        setError(null);
+          setIsLoading(true);
+          try {
+            const data = await fetchTeachingSchedules();
+            console.log("Fetched server events:", data);
+      
+            const fixedEvents = data.map(event => ({
+              ...event,
+              date: dayjs.utc(event.date).tz("Asia/Ho_Chi_Minh").add(1, 'day').format("YYYY-MM-DD"),
+            }));
+      
+            console.log("Fixed server events after timezone adjustment:", fixedEvents);
+            setEvents(fixedEvents);
+          } catch (error) {
+            console.error("Error fetching events", error);
+          } finally {
+            setIsLoading(false);
+          }
         };
-
+      
         loadEvents();
-    }, []);
+      }, []);
 
     // Set initial selected date to today
     useEffect(() => {
@@ -100,6 +116,18 @@ const WeeklySchedule: React.FC = () => {
         setIsModalVisible(false);
         setSelectedEvent(null);
     };
+
+    const handleDelete = async (scheduleId: string) => {
+        try {
+            await deleteTeachingSchedule(scheduleId);
+            message.success("Sự kiện đã được xóa thành công!");
+            setEvents((prevEvents) => prevEvents.filter((event) => event.id !== scheduleId));
+            setIsModalVisible(false); // Đóng modal sau khi xóa
+        } catch (error: any) {
+            message.error(error.message || "Không thể xóa sự kiện. Vui lòng thử lại.");
+        }
+    };
+    
 
     return (
  <div className="mb-10 w-full max-w-6xl mx-auto p-6 rounded-lg">
@@ -184,13 +212,24 @@ const WeeklySchedule: React.FC = () => {
                         <p><strong>Ngày:</strong> {selectedEvent.date}</p>
                         <p><strong>Thời gian:</strong> {selectedEvent.startTime} - {selectedEvent.endTime}</p>
                         <p><strong>Lớp học:</strong> {selectedEvent.className}</p>
-                        <p><strong>Mô tả:</strong> {selectedEvent.description}</p>
-                    </div>
+                        <p><strong>Mô tả:</strong></p>
+                        <div
+                            dangerouslySetInnerHTML={{ __html: selectedEvent.description || "" }}
+                            className="description-content"
+                        />                    
+                        </div>
                     <Link to={`/teacher/schedule/edit/${selectedEvent.id}`}>
                         <Button type="default" icon={<EditOutlined />} className="mt-4">
                             Chỉnh sửa
                         </Button>
                     </Link>
+                    <Button
+                        type="primary"
+                        danger
+                        onClick={() => handleDelete(selectedEvent.id)}
+                    >
+                        Xóa
+                    </Button>
                 </Modal>
             )}
         </div>

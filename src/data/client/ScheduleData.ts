@@ -157,3 +157,54 @@ const event_data: IViewSchedule[] = [
 ];
 
 export default event_data;
+
+export interface ICreateSchedule {
+    title: string;
+    description?: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    className: string;
+    teacherId: string;
+    planbookId: string;
+}
+
+export const createTeachingSchedule = async (schedule: ICreateSchedule): Promise<void> => {
+    try {
+        const response = await apiClient.post("TeachingSchedule/AddTeachingSchedule", schedule, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        const { success, message } = response.data;
+
+        if (!success) {
+            throw new Error(message || "Failed to create teaching schedule.");
+        }
+
+    } catch (error) {
+        console.error("Error creating teaching schedule:", error);
+        throw error;
+    }
+};
+
+export const deleteTeachingSchedule = async (scheduleId: string): Promise<void> => {
+    try {
+        const response = await apiClient.delete(
+            "TeachingSchedule/DeleteTeachingSchedule",
+            { params: { scheduleId } }
+        );
+
+        const { success, message } = response.data;
+
+        if (!success) {
+            throw new Error(message || "Failed to delete teaching schedule.");
+        }
+
+        console.log("Teaching schedule deleted successfully.");
+    } catch (error) {
+        console.error("Error deleting teaching schedule:", error);
+        throw error;
+    }
+};

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, DatePicker, TimePicker, Button, Modal, Select } from 'antd';
+import { Form, Input, DatePicker, TimePicker, Button, Modal, Select, message } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Typography } from "antd";
 import ReactQuill from "react-quill";
 import { getPlanbookByCollectionId, Planbook } from '@/data/academy-staff/PlanbookData'; // Import API để lấy planbook
 import { getCreatedPlanbookCollectionsByTeacherId, Collection } from '@/data/teacher/CollectionData'; // Import API lấy bộ sưu tập
 import { getUserId } from '@/data/apiClient';
+import { createTeachingSchedule } from "@/data/client/ScheduleData";
+
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -68,11 +70,34 @@ const CreateEventPage: React.FC = () => {
         }));
     };
 
-    const handleSubmit = (values: any) => {
-        console.log('Form submitted:', values);
-        navigate(-1); // Điều hướng quay lại trang trước
-    };
-
+    const handleSubmit = async (values: any) => {
+        try {
+          if (!values.date) {
+            message.error("Vui lòng chọn ngày!");
+            return;
+          }
+      
+          const scheduleData = {
+            title: values.title,
+            description: formData.description,
+            date: values.date.format("YYYY-MM-DD"), // Ensure date is formatted only if valid
+            startTime: values.startTime.format("HH:mm"),
+            endTime: values.endTime.format("HH:mm"),
+            className: values.className,
+            teacherId: userId || "",
+            planbookId: formData.planbookId || "",
+          };
+      
+      
+          await createTeachingSchedule(scheduleData);
+          message.success("Sự kiện đã được tạo thành công!");
+          navigate(-1);
+        } catch (error) {
+          console.error("Error submitting form:", error);
+          message.error("Không thể lưu thông tin sự kiện. Vui lòng thử lại.");
+        }
+      };
+      
     // Fetch dữ liệu khi component mount
     useEffect(() => {
         fetchCollections();
@@ -99,12 +124,18 @@ const CreateEventPage: React.FC = () => {
                     </Form.Item>
 
                     <div className="flex" style={{ gap: '30px' }}>
-                        <Form.Item
-                            label="Ngày"
-                            name="date"
-                            rules={[{ required: true, message: 'Vui lòng chọn ngày!' }]}
+                    <Form.Item
+                        label="Ngày"
+                        name="date"
+                        rules={[{ required: true, message: 'Vui lòng chọn ngày!' }]}
                         >
-                            <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
+                        <DatePicker
+                            format="YYYY-MM-DD"
+                            style={{ width: '100%' }}
+                            onChange={(date) => {
+                            form.setFieldsValue({ date }); // Set value explicitly to avoid undefined
+                            }}
+                        />
                         </Form.Item>
 
                         <Form.Item
