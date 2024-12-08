@@ -11,7 +11,6 @@ import HomePage from '../pages/client/Home/HomePage';
 import NotFoundPage from '@/pages/client/NotFound/NotFoundPage';
 import ComingSoonPage from '../pages/client/ComingSoon/ComingSoonPage';
 import PlanbookLibraryPage from '../pages/client/PlanbookLibrary/PlanbookLibraryPage';
-import PlanbookDetailPage from '../pages/client/PlanBookDetail/PlanBookDetailPage';
 import { DefaultLayoutProps } from '../types/layout.type';
 import SignInPage from '../pages/authen/SignIn/SignInPage';
 import SignUpPage from '../pages/authen/SignUp/SignUpPage';
@@ -85,7 +84,6 @@ const publicRoutes: RouteProps[] = [
     { path: '/coming-soon', component: ComingSoonPage, layout: DefaultClientLayout },
     { path: '/articles', component: ListArticlePage, layout: DefaultClientLayout },
     { path: '/planbook-library', component: PlanbookLibraryPage, layout: DefaultClientLayout },
-    { path: '/planbook-detail/:id', component: PlanbookDetailPage, layout: DefaultClientLayout },
     { path: '/package-detail', component: PackageDetailPage, layout: DefaultClientLayout },
     { path: '/articles/:id', component: ArticleDetailPage, layout: DefaultClientLayout },
     { path: '/question-bank', component: QuestionBankPage, layout: DefaultClientLayout },
