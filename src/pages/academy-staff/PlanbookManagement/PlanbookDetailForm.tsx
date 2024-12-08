@@ -19,12 +19,12 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
     const [service, setService] = useState<ServicePackage>();
     const [showPackageDetail, setShowPackageDetail] = useState(false);
 
-    const [isFirstModalVisible, setIsFirstModalVisible] = useState(false);
-    const [isSecondModalVisible, setIsSecondModalVisible] = useState(false);
-    const toggleSecondModal = () => {
-        setIsFirstModalVisible(!isFirstModalVisible);
-        setIsSecondModalVisible(!isSecondModalVisible);
-    };
+    // const [isFirstModalVisible, setIsFirstModalVisible] = useState(false);
+    // const [isSecondModalVisible, setIsSecondModalVisible] = useState(false);
+    // const toggleSecondModal = () => {
+    //     setIsFirstModalVisible(!isFirstModalVisible);
+    //     setIsSecondModalVisible(!isSecondModalVisible);
+    // };
 
     // const onCloseSecondModal = () => {
     //     setIsSecondModalVisible(false);
