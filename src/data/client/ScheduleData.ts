@@ -1,4 +1,6 @@
 //ScheduleData.ts
+import apiClient from "@/data/apiClient";
+import { getUserId } from "@/data/apiClient";
 
 export interface IScheduleForm {
     id: string | undefined;
@@ -23,6 +25,51 @@ export interface IViewSchedule {
     planbookId: string | undefined;
     planbookTitle: string | undefined;
 }
+
+
+export const fetchTeachingSchedules = async (pageIndex = 0, pageSize = 10): Promise<IViewSchedule[]> => {
+    const userId = getUserId(); // Lấy userId từ token
+    if (!userId) {
+        throw new Error("User ID not found. Please log in again.");
+    }
+
+    try {
+        const response = await apiClient.get("TeachingSchedule/GetTeachingSchedulesByUserId", {
+            params: {
+                userId,
+                pageIndex,
+                pageSize,
+            },
+        });
+
+        console.log("userId", userId)
+
+        const { success, data, message } = response.data;
+
+        if (!success) {
+            throw new Error(message || "Failed to fetch teaching schedules.");
+        }
+
+        // Ánh xạ dữ liệu API sang định dạng IViewSchedule
+        return data.items.map((item: any) => ({
+            id: item.scheduleId,
+            title: item.title,
+            description: item.description,
+            date: new Date(item.date).toISOString().split("T")[0], // Chuyển đổi ngày
+            startTime: item.startTime,
+            endTime: item.endTime,
+            className: item.className,
+            teacher: item.teacherName,
+            planbookId: undefined, // Nếu API có trả về, thay đổi cho phù hợp
+            planbookTitle: item.planbookTitle,
+        }));
+    } catch (error) {
+        console.error("Error fetching teaching schedules:", error);
+        throw error;
+    }
+};
+
+
 
 const event_data: IViewSchedule[] = [
     {
@@ -112,3 +159,54 @@ const event_data: IViewSchedule[] = [
 ];
 
 export default event_data;
+
+export interface ICreateSchedule {
+    title: string;
+    description?: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    className: string;
+    teacherId: string;
+    planbookId: string;
+}
+
+export const createTeachingSchedule = async (schedule: ICreateSchedule): Promise<void> => {
+    try {
+        const response = await apiClient.post("TeachingSchedule/AddTeachingSchedule", schedule, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        const { success, message } = response.data;
+
+        if (!success) {
+            throw new Error(message || "Failed to create teaching schedule.");
+        }
+
+    } catch (error) {
+        console.error("Error creating teaching schedule:", error);
+        throw error;
+    }
+};
+
+export const deleteTeachingSchedule = async (scheduleId: string): Promise<void> => {
+    try {
+        const response = await apiClient.delete(
+            "TeachingSchedule/DeleteTeachingSchedule",
+            { params: { scheduleId } }
+        );
+
+        const { success, message } = response.data;
+
+        if (!success) {
+            throw new Error(message || "Failed to delete teaching schedule.");
+        }
+
+        console.log("Teaching schedule deleted successfully.");
+    } catch (error) {
+        console.error("Error deleting teaching schedule:", error);
+        throw error;
+    }
+};

@@ -1,18 +1,21 @@
-//EventFormPage.tsx
 import React, { useEffect, useState } from 'react';
-import { Form, Input, DatePicker, TimePicker, Button } from 'antd';
+import { Form, Input, DatePicker, TimePicker, Button, Modal, Select, message } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Typography } from "antd";
 import ReactQuill from "react-quill";
-import dayjs from 'dayjs';
-import event_data, { IScheduleForm } from '@/data/client/ScheduleData';
+import { getPlanbookByCollectionId, Planbook } from '@/data/academy-staff/PlanbookData'; // Import API để lấy planbook
+import { getCreatedPlanbookCollectionsByTeacherId, Collection } from '@/data/teacher/CollectionData'; // Import API lấy bộ sưu tập
+import { getUserId } from '@/data/apiClient';
+import { createTeachingSchedule } from "@/data/client/ScheduleData";
+
 
 const { Title } = Typography;
+const { Option } = Select;
 
 const CreateEventPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [form] = Form.useForm();
-    const [formData, setFormData] = useState<IScheduleForm>({
+    const [formData, setFormData] = useState({
         id: undefined,
         title: "",
         description: "",
@@ -22,31 +25,44 @@ const CreateEventPage: React.FC = () => {
         className: "",
         planbookId: "",
     });
+    const [collections, setCollections] = useState<Collection[]>([]); // Bộ sưu tập
+    const [planbooks, setPlanbooks] = useState<Planbook[]>([]); // Danh sách kế hoạch giảng dạy
+    const [selectedCollection, setSelectedCollection] = useState<string>(""); // Bộ sưu tập đã chọn
+    const [isModalOpen, setIsModalOpen] = useState(false); // Modal hiển thị chọn kế hoạch giảng dạy
     const navigate = useNavigate();
+    const userId = getUserId();
 
-    const formatDate = (date: dayjs.Dayjs | undefined) => {
-        return date ? date.format("YYYY-MM-DD") : "";
-    };
-
-    useEffect(() => {
-        if (id) {
-            const event = event_data.find((e) => e.id === id);
-            if (event) {
-                setFormData({
-                    ...event,
-                    date: formatDate(dayjs(event.date, "YYYY-MM-DD")),
-                    startTime: dayjs(event.startTime, "HH:mm").format("HH:mm"),
-                    endTime: dayjs(event.endTime, "HH:mm").format("HH:mm"),
-                });
-                form.setFieldsValue({
-                    ...event,
-                    date: dayjs(event.date, "YYYY-MM-DD"),
-                    startTime: dayjs(event.startTime, "HH:mm"),
-                    endTime: dayjs(event.endTime, "HH:mm"),
-                });
+    // Lấy danh sách bộ sưu tập từ API
+    const fetchCollections = async () => {
+        if (userId) {
+            try {
+                const collectionsData = await getCreatedPlanbookCollectionsByTeacherId(userId);
+                setCollections(collectionsData);
+            } catch (error) {
+                console.error("Error fetching collections:", error);
             }
         }
-    }, [id, form]);
+    };
+
+    // Khi chọn bộ sưu tập, gọi API lấy kế hoạch giảng dạy
+    const handleCollectionSelect = async (value: string) => {
+        setSelectedCollection(value);
+        try {
+            const planbookData = await getPlanbookByCollectionId(value);
+            setPlanbooks(planbookData);
+        } catch (error) {
+            console.error("Error fetching planbooks:", error);
+        }
+    };
+
+    // Khi chọn một kế hoạch giảng dạy, cập nhật formData
+    const handlePlanbookSelect = (value: string) => {
+        setFormData((prevState) => ({
+            ...prevState,
+            planbookId: value,
+        }));
+    };
+
     const handleContentChange = (value: string) => {
         setFormData((prevState) => ({
             ...prevState,
@@ -54,11 +70,38 @@ const CreateEventPage: React.FC = () => {
         }));
     };
 
-    const handleSubmit = (values: IScheduleForm) => {
-        console.log('Form submitted:', values);
-        // Logic cập nhật sự kiện hoặc lưu thông tin mới
-        navigate(-1); // Điều hướng quay lại trang trước
-    };
+    const handleSubmit = async (values: any) => {
+        try {
+          if (!values.date) {
+            message.error("Vui lòng chọn ngày!");
+            return;
+          }
+      
+          const scheduleData = {
+            title: values.title,
+            description: formData.description,
+            date: values.date.format("YYYY-MM-DD"), // Ensure date is formatted only if valid
+            startTime: values.startTime.format("HH:mm"),
+            endTime: values.endTime.format("HH:mm"),
+            className: values.className,
+            teacherId: userId || "",
+            planbookId: formData.planbookId || "",
+          };
+      
+      
+          await createTeachingSchedule(scheduleData);
+          message.success("Sự kiện đã được tạo thành công!");
+          navigate(-1);
+        } catch (error) {
+          console.error("Error submitting form:", error);
+          message.error("Không thể lưu thông tin sự kiện. Vui lòng thử lại.");
+        }
+      };
+      
+    // Fetch dữ liệu khi component mount
+    useEffect(() => {
+        fetchCollections();
+    }, [userId]);
 
     return (
         <>
@@ -77,18 +120,22 @@ const CreateEventPage: React.FC = () => {
                         name="title"
                         rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}
                     >
-                        <Input
-                            placeholder="Tiêu đề"
-                        />
+                        <Input placeholder="Tiêu đề" />
                     </Form.Item>
 
                     <div className="flex" style={{ gap: '30px' }}>
-                        <Form.Item
-                            label="Ngày"
-                            name="date"
-                            rules={[{ required: true, message: 'Vui lòng chọn ngày!' }]}
+                    <Form.Item
+                        label="Ngày"
+                        name="date"
+                        rules={[{ required: true, message: 'Vui lòng chọn ngày!' }]}
                         >
-                            <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
+                        <DatePicker
+                            format="YYYY-MM-DD"
+                            style={{ width: '100%' }}
+                            onChange={(date) => {
+                            form.setFieldsValue({ date }); // Set value explicitly to avoid undefined
+                            }}
+                        />
                         </Form.Item>
 
                         <Form.Item
@@ -119,7 +166,13 @@ const CreateEventPage: React.FC = () => {
                         label="Liên kết kế hoạch giảng dạy"
                         name="planbookId"
                     >
-                        <Input placeholder="Chọn kế hoạch giảng dạy của bạn" />
+                        <Button onClick={() => setIsModalOpen(true)}>Chọn kế hoạch giảng dạy</Button>
+                        {/* Hiển thị kế hoạch đã chọn */}
+                        {formData.planbookId && (
+                            <div style={{ marginTop: '10px' }}>
+                                <span><strong>Kế hoạch đã chọn: </strong>{planbooks.find(planbook => planbook.planbookId === formData.planbookId)?.title}</span>
+                            </div>
+                        )}
                     </Form.Item>
 
                     <Form.Item
@@ -146,6 +199,64 @@ const CreateEventPage: React.FC = () => {
                     </Form.Item>
                 </Form>
             </div>
+
+            {/* Modal chọn bộ sưu tập và kế hoạch giảng dạy */}
+            <Modal
+                    title="Chọn kế hoạch giảng dạy"
+                    visible={isModalOpen}
+                    onCancel={() => setIsModalOpen(false)}
+                    footer={null}
+                >
+                    <div>
+                        <p>Chọn bộ sưu tập:</p>
+                        <Select
+                            placeholder="Chọn bộ sưu tập"
+                            style={{ width: "100%" }}
+                            onChange={handleCollectionSelect}
+                        >
+                            {collections.map((collection) => (
+                                <Option key={collection.collectionId} value={collection.collectionId}>
+                                    {collection.collectionName}
+                                </Option>
+                            ))}
+                        </Select>
+                    </div>
+
+                    {selectedCollection && (
+                        <div>
+                            <p>Chọn kế hoạch giảng dạy:</p>
+                            <Select
+                                placeholder="Chọn kế hoạch giảng dạy"
+                                style={{ width: "100%" }}
+                                onChange={handlePlanbookSelect}
+                            >
+                                {planbooks.map((planbook) => (
+                                    <Option key={planbook.planbookId} value={planbook.planbookId}>
+                                        {planbook.title}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                    )}
+
+                    <div className="mt-4">
+                        <Button 
+                            type="primary" 
+                            onClick={() => {
+                                if (formData.planbookId) {
+                                    // Lưu lại kế hoạch giảng dạy vào formData
+                                    setFormData((prevState) => ({
+                                        ...prevState,
+                                        planbookId: formData.planbookId, // Lưu kế hoạch giảng dạy đã chọn
+                                    }));
+                                    setIsModalOpen(false); // Đóng Modal
+                                }
+                            }}
+                        >
+                            OK
+                        </Button>
+                    </div>
+                </Modal>
         </>
     );
 };

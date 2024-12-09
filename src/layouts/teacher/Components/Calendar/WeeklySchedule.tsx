@@ -1,35 +1,66 @@
-// WeeklySchedule.tsx
-import { useState, useEffect } from "react";
-import { Modal } from "antd";
-import { now, months, capFirstLetter, monthName, dayName, SelectedDay } from "@/utils/GetDays";
-import Day from "./Day";
-import { ArrowLeftOutlined, ArrowRightOutlined, CalendarOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import dayjs, { Dayjs } from "dayjs";
-import { Button } from "antd";
+import React, { useState, useEffect } from "react";
+import { Modal, Button, message,Popconfirm  } from "antd";
+import { ArrowLeftOutlined, ArrowRightOutlined, CalendarOutlined, EditOutlined, PlusOutlined,DeleteOutlined } from "@ant-design/icons";
+import { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { Link } from "react-router-dom";
-import event_data, { IViewSchedule } from '@/data/client/ScheduleData';
+import { now, months, SelectedDay, dayName, monthName, capFirstLetter } from "@/utils/GetDays";
+import { fetchTeachingSchedules, IViewSchedule } from "@/data/client/ScheduleData";
+import Day from "./Day"; 
+import { deleteTeachingSchedule } from "@/data/client/ScheduleData";
+
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 
 let index: number = now.weekOfMonth;
 let month: number = now.month;
 let unselected: SelectedDay = {
     date: -1,
     month: -1,
-    year: -1
+    year: -1,
 };
 
 const WeeklySchedule: React.FC = () => {
-    //States
+    // States
     const [days, setDays] = useState<Dayjs[]>(months()[now.weekOfMonth]);
     const [selected, setSelected] = useState<SelectedDay>(unselected);
+    const [events, setEvents] = useState<IViewSchedule[]>([]); // Events fetched from API
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<IViewSchedule | null>(null);
+
+
+    useEffect(() => {
+        const loadEvents = async () => {
+        setError(null);
+          setIsLoading(true);
+          try {
+            const data = await fetchTeachingSchedules();      
+            const fixedEvents = data.map(event => ({
+              ...event,
+              date: dayjs.utc(event.date).tz("Asia/Ho_Chi_Minh").add(1, 'day').format("YYYY-MM-DD"),
+            }));
+            setEvents(fixedEvents);
+          } catch (error) {
+            console.error("Error fetching events", error);
+          } finally {
+            setIsLoading(false);
+          }
+        };
+        loadEvents();
+      }, []);
 
     // Set initial selected date to today
     useEffect(() => {
         setSelected({ date: now.date, month: now.month, year: now.year });
     }, []);
 
-    //Function to set selected date state
+    // Function to set selected date state
     const selectDay = (d: number, m: number, y: number): void => {
         if (d === selected.date && m === selected.month && y === selected.year) {
             setSelected(unselected);
@@ -38,15 +69,13 @@ const WeeklySchedule: React.FC = () => {
         setSelected({ date: d, month: m, year: y });
     };
 
-    //Function to navidate between weeks (back and forth)
+    // Function to navigate between weeks
     const navigate = (nav: boolean): void => {
-        //Forth
         if (nav) {
             index++;
             if (index > 4) {
                 index = 0;
                 month++;
-                //same week validation
                 if (days[0].date() === months(month)[index][0].date()) {
                     index++;
                 }
@@ -56,43 +85,62 @@ const WeeklySchedule: React.FC = () => {
             if (index < 0) {
                 index = 4;
                 month--;
-                //same week valiadtion
                 if (days[0].date() === months(month)[index][0].date()) {
                     index--;
                 }
             }
         }
-        //set week days with month and index values obtained from validations
         setDays(months(month)[index]);
     };
 
-    //Function to reset to today
+    // Reset to today
     const reset = (): void => {
         setDays(months()[now.weekOfMonth]);
         index = now.weekOfMonth;
         month = now.month;
     };
 
-    // Xử lý khi click vào sự kiện
+    // Handle event click
     const handleEventClick = (event: IViewSchedule): void => {
         setSelectedEvent(event);
         setIsModalVisible(true);
     };
 
-    // Đóng modal
+    // Close modal
     const handleModalClose = (): void => {
         setIsModalVisible(false);
         setSelectedEvent(null);
     };
 
+    const handleDelete = async (scheduleId: string) => {
+        try {
+            setIsLoading(true); // Bắt đầu trạng thái chờ
+            await deleteTeachingSchedule(scheduleId);
+            message.success("Sự kiện đã được xóa thành công!");
+            setEvents((prevEvents) => prevEvents.filter((event) => event.id !== scheduleId));
+            setIsModalVisible(false);
+        } catch (error: any) {
+            message.error(error.message || "Không thể xóa sự kiện. Vui lòng thử lại.");
+        } finally {
+            setIsLoading(false); // Kết thúc trạng thái chờ
+        }
+    };
+
     return (
         <div className="mb-10 w-full max-w-6xl mx-auto p-6 rounded-lg">
+            {isLoading ? (
+                <div className="flex items-center justify-center h-64">
+                    <span>Đang tải...</span>
+                </div>
+            ) : error ? (
+                <div className="flex items-center justify-center h-64 text-red-500">
+                    <span>{error}</span>
+                </div>
+            ) : (
+        <>
             <div className="flex items-center justify-between mb-4">
                 <Link to="/teacher/schedule/create">
-                    <Button
-                        icon={<PlusOutlined />}
-                        type="primary"
-                    >
+                    <Button icon={<PlusOutlined />} type="primary">
                         Thêm sự kiện
                     </Button>
                 </Link>
@@ -107,20 +155,14 @@ const WeeklySchedule: React.FC = () => {
                     onClick={() => navigate(true)}
                     className="text-xl cursor-pointer p-2 hover:bg-blue-200 rounded"
                 />
-                <Button
-                    // className="ml-4 px-4 py-2 rounded-lg flex items-center"
-                    type="default"
-                    icon={<CalendarOutlined />}
-                    onClick={reset}
-                >
+                <Button type="default" icon={<CalendarOutlined />} onClick={reset}>
                     Hôm nay
                 </Button>
             </div>
             <div className="flex justify-evenly">
                 {days.map((day) => {
-                    // Lọc sự kiện cho từng ngày
-                    const eventsForDay = event_data.filter((event) => {
-                        const eventDate = dayjs(event.date, "DD/MM/YYYY");
+                    const eventsForDay = events.filter((event) => {
+                        const eventDate = dayjs(event.date, "YYYY-MM-DD");
                         return (
                             eventDate.date() === day.date() &&
                             eventDate.month() === day.month() &&
@@ -130,7 +172,7 @@ const WeeklySchedule: React.FC = () => {
 
                     return (
                         <Day
-                            key={day.date()} // Đảm bảo sử dụng key duy nhất cho mỗi ngày
+                            key={day.toString()}
                             day={dayName(day.day())}
                             date={day.date()}
                             month={day.month()}
@@ -146,14 +188,15 @@ const WeeklySchedule: React.FC = () => {
                                 day.month() === selected.month &&
                                 day.year() === selected.year
                             }
-                            events={eventsForDay} // Truyền danh sách sự kiện cho ngày đó
-                            onEventClick={handleEventClick} // Truyền hàm xử lý vào Day
+                            events={eventsForDay}
+                            onEventClick={handleEventClick}
                         />
                     );
                 })}
             </div>
-
-            {/* Modal hiển thị thông tin chi tiết */}
+        </>
+    )}
+            {/* Modal to display event details */}
             {selectedEvent && (
                 <Modal
                     title="Thông tin sự kiện"
@@ -166,13 +209,36 @@ const WeeklySchedule: React.FC = () => {
                         <p><strong>Ngày:</strong> {selectedEvent.date}</p>
                         <p><strong>Thời gian:</strong> {selectedEvent.startTime} - {selectedEvent.endTime}</p>
                         <p><strong>Lớp học:</strong> {selectedEvent.className}</p>
-                        <p><strong>Mô tả:</strong> {selectedEvent.description}</p>
+                        <p><strong>Kế hoạch giảng dạy: </strong> {selectedEvent.planbookTitle || "Không có"}</p>
+                        <p><strong>Mô tả:</strong></p>
+                        <div
+                            dangerouslySetInnerHTML={{ __html: selectedEvent.description || "" }}
+                            className="description-content"
+                        />                    
                     </div>
-
-                    <Link to={`/teacher/schedule/edit/${selectedEvent.id}`}>
-                        <Button type="default" icon={<EditOutlined />} className="mt-4" >Chỉnh sửa</Button>
-                    </Link>
+                    <div className="flex justify-between mt-4">
+                        <Link to={`/teacher/schedule/edit/${selectedEvent.id}`}>
+                            <Button type="default" icon={<EditOutlined />}>
+                                Chỉnh sửa
+                            </Button>
+                        </Link>
+                        <Popconfirm
+                            title="Bạn có chắc chắn muốn xóa sự kiện này?"
+                            onConfirm={() => handleDelete(selectedEvent.id)}
+                            okText="Xóa"
+                            cancelText="Hủy"
+                        >
+                            <Button 
+                                type="text" 
+                                danger 
+                                icon={<DeleteOutlined />}
+                            >
+                                Xóa
+                            </Button>
+                        </Popconfirm>
+                    </div>
                 </Modal>
+
             )}
         </div>
     );

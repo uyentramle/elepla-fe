@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { getExamsByUserId, IExam, deleteExamById } from "@/data/client/ExamData";
-import { Spin, Radio, List, Modal, Dropdown, Menu, message } from "antd";
-import { FileProtectOutlined, AppstoreOutlined, UnorderedListOutlined, MoreOutlined } from "@ant-design/icons";
+import { Spin, Radio, List, Modal, Dropdown, Menu, message, Popconfirm } from "antd";
+import { FileProtectOutlined, AppstoreOutlined, UnorderedListOutlined, MoreOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import { RadioChangeEvent } from "antd/es/radio";
-import ExamDetailPage from "./ExamDetailPage"; // Import ExamPage
+import ExamDetailPage from "./ExamDetailPage";
 
 const ListExamPage: React.FC = () => {
   const [exams, setExams] = useState<IExam[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [isModalOpen, setIsModalOpen] = useState(false); // State quản lý Modal
-  const [selectedExamId, setSelectedExamId] = useState<string | null>(null); // Lưu examId
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchExams = async () => {
       setLoading(true);
-      const data = await getExamsByUserId(); // API lấy danh sách bài kiểm tra
+      const data = await getExamsByUserId();
       if (data) {
         setExams(data);
       }
@@ -29,43 +29,44 @@ const ListExamPage: React.FC = () => {
     setViewMode(e.target.value);
   };
 
-  const handleItemClick = (examId: string) => {
-    setSelectedExamId(examId); // Lưu examId được chọn
-    setIsModalOpen(true); // Mở Modal
+  const handleShowDetail = (examId: string) => {
+    setSelectedExamId(examId);
+    setIsModalOpen(true);
   };
 
   const handleModalClose = () => {
-    setIsModalOpen(false); // Đóng Modal
-    setSelectedExamId(null); // Reset examId
+    setIsModalOpen(false);
+    setSelectedExamId(null);
   };
 
   const handleDeleteExam = async (examId: string) => {
-    console.log("Bắt đầu xóa bài kiểm tra:", examId); // Log id của bài kiểm tra
-  
     try {
       const success = await deleteExamById(examId);
-      console.log("Kết quả xóa bài kiểm tra:", success); // Log kết quả trả về từ API
-  
       if (success) {
-        setExams((prevExams) => {
-          const updatedExams = prevExams.filter((exam) => exam.id !== examId);
-          console.log("Danh sách bài kiểm tra sau khi xóa:", updatedExams); // Log danh sách sau khi xóa
-          return updatedExams;
-        });
+        setExams((prevExams) => prevExams.filter((exam) => exam.id !== examId));
         message.success("Xóa bài kiểm tra thành công!");
       } else {
         message.error("Xóa bài kiểm tra thất bại. Vui lòng thử lại.");
       }
     } catch (error) {
-      console.error("Lỗi khi xóa bài kiểm tra:", error); // Log lỗi nếu xảy ra
       message.error("Đã xảy ra lỗi khi xóa bài kiểm tra.");
     }
   };
-  
+
   const menu = (examId: string) => (
     <Menu>
-      <Menu.Item key="delete" onClick={() => handleDeleteExam(examId)}>
-        Xóa
+      <Menu.Item key="detail" onClick={() => handleShowDetail(examId)}>
+        <EyeOutlined /> Chi tiết
+      </Menu.Item>
+      <Menu.Item key="delete">
+        <Popconfirm
+          title="Bạn có chắc chắn muốn xóa bài kiểm tra này?"
+          onConfirm={() => handleDeleteExam(examId)}
+          okText="Xóa"
+          cancelText="Hủy"
+        >
+          <DeleteOutlined /> Xóa
+        </Popconfirm>
       </Menu.Item>
     </Menu>
   );
@@ -97,14 +98,13 @@ const ListExamPage: React.FC = () => {
           {exams.map((exam) => (
             <div
               key={exam.id}
-              className="relative flex flex-col items-center p-4 bg-white shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
-              onClick={() => handleItemClick(exam.id)} // Thêm sự kiện click
+              className="relative flex flex-col items-center p-4 bg-white shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-300"
             >
+              <div className="absolute top-3 right-3">
                 <Dropdown overlay={menu(exam.id)} trigger={["click"]}>
-                  <div onClick={(e) => e.stopPropagation()} className="absolute top-3 right-3 cursor-pointer">
-                    <MoreOutlined />
-                  </div>
+                  <MoreOutlined className="cursor-pointer" />
                 </Dropdown>
+              </div>
               <div className="bg-gray-100 w-24 h-24 flex items-center justify-center mb-4">
                 <FileProtectOutlined style={{ fontSize: "64px", color: "#1890ff" }} />
               </div>
@@ -118,50 +118,38 @@ const ListExamPage: React.FC = () => {
           itemLayout="horizontal"
           dataSource={exams}
           renderItem={(exam) => (
-        <List.Item
-          key={exam.id}
-          style={{
-            borderBottom: "1px solid #f0f0f0",
-            padding: "12px 0",
-          }}
-          onClick={() => handleItemClick(exam.id)}
-        >
-          <List.Item.Meta
-            avatar={
-              <div className="bg-gray-100 w-16 h-16 flex items-center justify-center">
-                <FileProtectOutlined style={{ fontSize: "40px", color: "#1890ff" }} />
-              </div>
-            }
-            title={
-              <div className="flex justify-between items-center">
-                <span className="font-semibold">{exam.title}</span>
-                <Dropdown overlay={menu(exam.id)} trigger={["click"]}>
-                  <MoreOutlined className="cursor-pointer" />
-                </Dropdown>
-              </div>
-            }
-            description={<span className="text-gray-600">{`Thời gian: ${exam.time || "Không xác định"}`}</span>}
-          />
-        </List.Item>
+            <List.Item key={exam.id} style={{ borderBottom: "1px solid #f0f0f0", padding: "12px 0" }}>
+              <List.Item.Meta
+                avatar={
+                  <div className="bg-gray-100 w-16 h-16 flex items-center justify-center">
+                    <FileProtectOutlined style={{ fontSize: "40px", color: "#1890ff" }} />
+                  </div>
+                }
+                title={
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">{exam.title}</span>
+                    <Dropdown overlay={menu(exam.id)} trigger={["click"]}>
+                      <MoreOutlined className="cursor-pointer" />
+                    </Dropdown>
+                  </div>
+                }
+                description={<span className="text-gray-600">{`Thời gian: ${exam.time || "Không xác định"}`}</span>}
+              />
+            </List.Item>
           )}
         />
       )}
 
       {/* Modal */}
       <Modal
-      title={null} // Xóa tiêu đề
-      visible={isModalOpen}
-      onCancel={handleModalClose}
-      footer={null} // Không có footer
-      width="80%" // Đặt kích thước
-      closable={false} // Ẩn nút đóng
-    >
-        {selectedExamId && (
-          <ExamDetailPage 
-            examId={selectedExamId} 
-          />
-        )}
-    </Modal>
+        title="Chi tiết bài kiểm tra"
+        visible={isModalOpen}
+        onCancel={handleModalClose}
+        footer={null}
+        width="80%"
+      >
+        {selectedExamId && <ExamDetailPage examId={selectedExamId} />}
+      </Modal>
     </div>
   );
 };
