@@ -50,6 +50,8 @@ export interface PlanbookTemplateDetail {
     collectionName: string;
     lessonId: string;
     lessonName: string;
+    commentCount: number;
+    averageRate: number;
     activities: Activity[];
     createdAt: string;
     createdBy: string;
@@ -131,6 +133,8 @@ export const getPlanbookById = async (planbookId: string): Promise<PlanbookTempl
                 collectionName: '',
                 lessonId: '',
                 lessonName: '',
+                commentCount: 0,
+                averageRate: 0,
                 activities: [],
                 createdAt: '',
                 createdBy: '',
