@@ -12,7 +12,7 @@ export interface LessonPlan {
     avatar: string;
     
   }
-  let src: string = "https://chantroisangtao.vn/wp-content/uploads/2024/01/Toan-12-T1-BIT.png"
+  const src: string = "https://chantroisangtao.vn/wp-content/uploads/2024/01/Toan-12-T1-BIT.png"
   
   export const lessonPlans: LessonPlan[] = [
     {
