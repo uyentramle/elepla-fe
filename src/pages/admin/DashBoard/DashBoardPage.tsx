@@ -1,5 +1,6 @@
+// Desc: Dashboard page for admin
 import React, { useEffect, useState } from "react";
-import { Row, Col, Card, Statistic, List, Typography, Avatar } from "antd";
+import { Row, Col, Card, Statistic, List, Typography, Avatar, Spin, } from "antd";
 import { UserOutlined, BookOutlined, TagsOutlined, } from '@ant-design/icons';
 import {
     XAxis,
@@ -17,52 +18,84 @@ import {
 import { countArticles, countArticlesByCategory } from '@/data/admin/ArticleData';
 import { countCategories } from '@/data/admin/CategoryData';
 import { fetchCurriculumList, IViewListCurriculum } from '@/data/admin/CurriculumFramworkData';
+import { countUsers, getUsersSortedByCreationDate, categorizeUsersByRole, getUsersLastLogin } from '@/data/admin/UserData';
 
 const { Text } = Typography;
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
-// Dữ liệu giả để hiển thị
-const userStats = [
-    { name: "Staff", value: 35 },
-    { name: "Giáo viên", value: 240 },
-    { name: "Admin", value: 5 },
-    { name: "Manager", value: 10 },
-];
 
 const DashBoardPage: React.FC = () => {
     const [articleCount, setArticleCount] = useState<number>(0);
     const [categoryCount, setCategoryCount] = useState<number>(0);
+    const [userCount, setUserCount] = useState<number>(0);
     const [curriculums, setCurriculums] = React.useState<IViewListCurriculum[]>([]);
     const [articleStats, setArticleStats] = useState<any[]>([]);
+    const [categoryUserStats, setCategoryUserStats] = useState<any[]>([]);
+    const [recentUsers, setRecentUsers] = useState<any[]>([]);
+    const [lastLoginUsers, setLastLoginUsers] = useState<any[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        const fetchArticleCount = async () => {
-            const count = await countArticles();
-            setArticleCount(count);
-        };
-        fetchArticleCount();
+        const fetchData = async () => {
+            try {
+                setLoading(true);
 
-        const fetchCategoryCount = async () => {
-            const count = await countCategories();
-            setCategoryCount(count);
-        };
-        fetchCategoryCount();
+                const [articleCountRes, categoryCountRes, userCountRes, curriculumsRes,
+                    articleStatsRes, categoryUserStatsRes, recentUsersRes, lastLoginUsersRes] = await Promise.all([
+                        countArticles(),
+                        countCategories(),
+                        countUsers(),
+                        fetchCurriculumList(),
+                        countArticlesByCategory(),
+                        categorizeUsersByRole(),
+                        getUsersSortedByCreationDate(1, 5),
+                        getUsersLastLogin(1, 5),
+                    ]);
 
-        const fetchCurriculums = async () => {
-            const curriculumList = await fetchCurriculumList();
-            curriculumList.splice(5);
-            setCurriculums(curriculumList);
-        };
-        fetchCurriculums();
+                setArticleCount(articleCountRes);
+                setCategoryCount(categoryCountRes);
+                setUserCount(userCountRes);
 
-        const fetchArticleStats = async () => {
-            const statsObj = await countArticlesByCategory();
-            const stats = Object.keys(statsObj).map(key => ({ name: key, value: statsObj[key] }));
-            setArticleStats(stats);
+                curriculumsRes.splice(5);
+                setCurriculums(curriculumsRes);
+
+                setArticleStats(Object.keys(articleStatsRes).map(key => ({ name: key, value: articleStatsRes[key] })));
+
+                if (categoryUserStatsRes) {
+                    setCategoryUserStats(Object.keys(categoryUserStatsRes).map(key => ({ name: key, value: categoryUserStatsRes[key].length })));
+                }
+
+                if (recentUsersRes) {
+                    setRecentUsers(recentUsersRes.map(user => ({
+                        ...user,
+                        value: 1,
+                    })));
+                }
+
+                if (lastLoginUsersRes) {
+                    setLastLoginUsers(lastLoginUsersRes.map(user => ({
+                        ...user,
+                        value: 1,
+                    })));
+                }
+            } catch (error) {
+                console.error("Error fetching dashboard data:", error);
+            } finally {
+                setLoading(false);
+            }
         };
-        fetchArticleStats();
+
+        fetchData();
     }, []);
+
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <Spin size="large" className="dashboard-loading" />
+            </div>
+        );
+    }
 
     return (
         <>
@@ -71,7 +104,7 @@ const DashBoardPage: React.FC = () => {
             <Row gutter={[16, 16]} className="mb-6">
                 <Col span={8}>
                     <Card>
-                        <Statistic title="Người dùng" value={280} prefix={<UserOutlined />} />
+                        <Statistic title="Người dùng" value={userCount} prefix={<UserOutlined />} />
                     </Card>
                 </Col>
                 <Col span={8}>
@@ -90,19 +123,19 @@ const DashBoardPage: React.FC = () => {
             <Row gutter={[16, 16]} className="mb-6">
                 {/* Biểu đồ phân loại người dùng */}
                 <Col span={12}>
-                    <Card title="Phân loại người dùng">
+                    <Card title="Phân loại người dùng theo role">
                         <ResponsiveContainer width="100%" height={300}>
                             <PieChart>
                                 <Pie
-                                    data={userStats}
+                                    data={categoryUserStats}
                                     cx="50%"
                                     cy="50%"
                                     outerRadius={100}
                                     fill="#8884d8"
                                     dataKey="value"
-                                    label
+                                    label={({ name, value }) => `${name}: ${value}`}
                                 >
-                                    {userStats.map((_, index) => (
+                                    {categoryUserStats.map((_, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
@@ -128,9 +161,10 @@ const DashBoardPage: React.FC = () => {
                 </Col>
             </Row>
 
-            {/* Danh sách thống kê khung chương trình và môn học */}
+            {/* Khối thông tin */}
             <Row gutter={[16, 16]}>
                 <Col span={12}>
+                    {/* Danh sách thống kê khung chương trình và môn học */}
                     <Card title="Khung chương trình" extra={<a href="/admin/curriculum-frameworks">Xem thêm</a>}>
                         <List
                             itemLayout="horizontal"
@@ -144,22 +178,44 @@ const DashBoardPage: React.FC = () => {
                             )}
                         />
                     </Card>
+
+                    <Card title="Người dùng đăng nhập gần đây" className="mt-4">
+                        <List
+                            itemLayout="horizontal"
+                            dataSource={lastLoginUsers}
+                            renderItem={(item) => (
+                                <List.Item>
+                                    <List.Item.Meta
+                                        avatar={
+                                            <Avatar icon={item.avatar ?
+                                                <img src={item.avatar} alt="avatar" /> :
+                                                <UserOutlined />
+                                            } />}
+                                        title={<Text strong>{item.firstName} {item.lastName}</Text>}
+                                        description={`Đăng nhập lần cuối: ${new Date(item.lastLogin).toLocaleString('vi-VN')}`}
+                                    />
+                                </List.Item>
+                            )}
+                        />
+                    </Card>
                 </Col>
+
                 <Col span={12}>
                     <Card title="Người dùng mới" extra={<a href="/admin/users">Xem thêm</a>}>
                         <List
                             itemLayout="horizontal"
-                            dataSource={userStats}
+                            dataSource={recentUsers}
                             renderItem={(item) => (
                                 <List.Item>
                                     <List.Item.Meta
-                                        avatar={<Avatar icon={<UserOutlined />} />}
-                                        title={<Text strong>{item.name}</Text>}
-                                    // description={item.time}
+                                        avatar={
+                                            <Avatar icon={item.avatar ?
+                                                <img src={item.avatar} alt="avatar" /> :
+                                                <UserOutlined />
+                                            } />}
+                                        title={<Text strong>{item.firstName} {item.lastName}</Text>}
+                                        description={<>Ngày tạo: {new Date(item.createdAt).toLocaleString('vi-VN')}</>}
                                     />
-                                    {/* <div>
-                                        <Text type="success">Đã xác thực số điện thoại</Text>
-                                    </div> */}
                                 </List.Item>
                             )}
                         />
