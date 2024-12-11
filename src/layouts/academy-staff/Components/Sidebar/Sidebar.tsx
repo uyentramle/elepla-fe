@@ -1,3 +1,4 @@
+import React from 'react';
 import {
     LineChartOutlined,
     MenuOutlined,
@@ -9,7 +10,6 @@ import {
 } from '@ant-design/icons';
 import { Menu, MenuProps } from 'antd';
 import Sider from 'antd/es/layout/Sider';
-import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import img from '/assets/img/logo.png';
@@ -30,22 +30,28 @@ function getItem(
     } as MenuItem;
 }
 
-export default function MySider() {
+export default function MySider({
+    collapsed,
+    setCollapsed,
+}: {
+    collapsed: boolean;
+    setCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
     const navigate = useNavigate();
 
-    const [collapsed, setCollapsed] = useState(window.innerWidth < 1280);
+    // const [collapsed, setCollapsed] = useState(window.innerWidth < 1280);
 
-    useEffect(() => {
-        const handleResize = () => {
-            setCollapsed(window.innerWidth < 1280);
-        };
+    // useEffect(() => {
+    //     const handleResize = () => {
+    //         setCollapsed(window.innerWidth < 1280);
+    //     };
 
-        window.addEventListener('resize', handleResize);
+    //     window.addEventListener('resize', handleResize);
 
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
+    //     return () => {
+    //         window.removeEventListener('resize', handleResize);
+    //     };
+    // }, []);
 
     const getConditionalItems = (): MenuItem[] => {
         return [
@@ -74,7 +80,7 @@ export default function MySider() {
         .set('7-2', '/academy-staff/feedbacks/system/');
 
     return (
-        <>
+        <div className="fixed top-0 left-0 h-full bg-white z-50">
             <Sider
                 theme="light"
                 collapsible
@@ -105,6 +111,6 @@ export default function MySider() {
                     }}
                 ></Menu>
             </Sider>
-        </>
+        </div>
     );
 }

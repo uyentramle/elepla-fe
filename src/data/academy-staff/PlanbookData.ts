@@ -425,3 +425,14 @@ const exportPlanbook = async (url: string, planbookId: string, fileExtension: st
         console.error(`Error calling ExportPlanbookTo${fileExtension.toUpperCase()} API:`, error);
     }
 };
+
+
+export const countPlanbooks = async (): Promise<number> => {
+    try {
+        const planbooks = await getAllPlanbooks();
+        return planbooks.length;
+    } catch (error) {
+        console.error('Error counting planbooks:', error);
+        return 0;
+    }
+};

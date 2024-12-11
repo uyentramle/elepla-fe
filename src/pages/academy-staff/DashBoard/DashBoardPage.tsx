@@ -1,3 +1,4 @@
+// Dashboard page for academy staff
 import React, { useEffect } from 'react';
 import { Row, Col, Card, Statistic, List, Typography } from 'antd';
 import { FileTextOutlined, MessageOutlined, DatabaseOutlined, BookOutlined, } from '@ant-design/icons';
@@ -15,6 +16,7 @@ import {
     Bar,
 } from 'recharts';
 
+import { countPlanbooks } from '@/data/academy-staff/PlanbookData';
 import { countPlanBookFeedback } from '@/data/academy-staff/FeedbackData';
 
 const COLORS = ['#55bfc7', '#00C49F', '#FFBB28', '#9e5493', '#e8744c', '#FF6666'];
@@ -47,9 +49,14 @@ const recentFeedback = [
 ];
 
 const DashBoardStaffPage: React.FC = () => {
+    const [planbookCount, setPlanbookCount] = React.useState<number>(0);
     const [feedbackCount, setFeedbackCount] = React.useState<number>(0);
 
     useEffect(() => {
+        countPlanbooks().then((count) => {
+            setPlanbookCount(count);
+        });
+
         countPlanBookFeedback().then((count) => {
             setFeedbackCount(count);
         });
@@ -62,7 +69,7 @@ const DashBoardStaffPage: React.FC = () => {
             <Row gutter={[16, 16]} className="mb-6">
                 <Col span={8}>
                     <Card>
-                        <Statistic title="Kế hoạch bài dạy" value={35} prefix={<BookOutlined />} />
+                        <Statistic title="Kế hoạch bài dạy" value={planbookCount} prefix={<BookOutlined />} />
                     </Card>
                 </Col>
                 <Col span={8}>
@@ -91,7 +98,7 @@ const DashBoardStaffPage: React.FC = () => {
                                     outerRadius={100}
                                     fill="#8884d8"
                                     dataKey="value"
-                                    label
+                                    label={({ name, value }) => `${name}: ${value}`}
                                 >
                                     {chapterStats.map((_, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -154,7 +161,7 @@ const DashBoardStaffPage: React.FC = () => {
                                     outerRadius={100}
                                     fill="#8884d8"
                                     dataKey="value"
-                                    label
+                                    label={({ name, value }) => `${name}: ${value}`}
                                 >
                                     {feedbackStats.map((_, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
