@@ -1,10 +1,11 @@
-import { MenuOutlined, SnippetsOutlined, CalendarOutlined, DatabaseOutlined, StarOutlined, CheckSquareOutlined, CaretRightOutlined,ShareAltOutlined, SaveOutlined } from '@ant-design/icons';
+import { MenuOutlined, SnippetsOutlined, CalendarOutlined, DatabaseOutlined, StarOutlined, CheckSquareOutlined, CaretRightOutlined,ShareAltOutlined, SaveOutlined, UsergroupAddOutlined } from '@ant-design/icons';
 import { Menu, MenuProps, Button } from 'antd';
 import Sider from 'antd/es/layout/Sider';
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import img from '/assets/img/logo.png';
+import { message } from 'antd'; // Đảm bảo bạn đã import message từ Ant Design
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -30,6 +31,7 @@ export default function MySider({
   setCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // const [collapsed, setCollapsed] = useState(window.innerWidth < 1280);
 
@@ -49,6 +51,7 @@ export default function MySider({
     return [
       getItem('Bài dạy của tôi', '1', <SnippetsOutlined />),
       getItem('Bài dạy đã lưu', '6', <SaveOutlined />),
+      getItem('Được chia sẻ với tôi', '7', <UsergroupAddOutlined />),
       getItem('Thư viện kế hoạch', '5', <ShareAltOutlined />),
       getItem('Thời khóa biểu hàng tuần', '2', <CalendarOutlined />),
       getItem('Ngân hàng câu hỏi', '3', <DatabaseOutlined />, [
@@ -75,6 +78,20 @@ export default function MySider({
     .set('4.1', '/teacher/exam/')
     .set('4.2', '/teacher/list-exam')
 
+    // Kiểm tra xem URL hiện tại có khớp với bất kỳ mục nào trong navUrl hay không
+    const getSelectedKeys = (): string[] => {
+      const currentPath = location.pathname;
+      const selectedKeys: string[] = [];
+    
+      navUrl.forEach((url, key) => {
+        if (currentPath.startsWith(url)) {
+          selectedKeys.push(key);  // Thêm key vào nếu đường dẫn khớp
+        }
+      });
+    
+      return selectedKeys;  // Trả về mảng trống nếu không tìm thấy key khớp
+    };
+    
   return (
     <div className="fixed top-0 left-0 h-full bg-white z-50">
       <Sider
@@ -113,7 +130,7 @@ export default function MySider({
             type="primary"
             block
             size="large"
-            className="bg-blue-500 text-white w-full"  // Đảm bảo nút này rộng full chiều ngang
+            className="bg-blue-500 text-white w-full"
             onClick={() => navigate('/teacher/list-collection')}
           >
             Tạo kế hoạch
@@ -122,13 +139,15 @@ export default function MySider({
 
         {/* Menu Items */}
         <Menu
-          defaultSelectedKeys={['1']}
+          defaultSelectedKeys={getSelectedKeys()}
           mode="inline"
           items={getConditionalItems()}
           onSelect={(e) => {
             const link = navUrl.get(e.key);
             if (link) {
               navigate(link);
+            } else {
+              message.warning('Tính năng đang được phát triển, vui lòng thử lại sau.');
             }
           }}
         />

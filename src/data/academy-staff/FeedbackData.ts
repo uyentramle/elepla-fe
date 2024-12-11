@@ -76,6 +76,102 @@ export const deleteFeedback = async (feedbackId: string): Promise<boolean> => {
     }
 };
 
+export interface Feedback {
+    feedbackId: string;
+    content: string;
+    rate: number;
+    type: string;
+    isFlagged: boolean;
+    teacherId: string;
+    teacherName: string;
+    avatar: string;
+    planbookId: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export const getFeedbackByPlanbookId = async (planbookId: string): Promise<Feedback[]> => {
+    try {
+        const response = await apiClient.get(`/Feedback/GetFeedbackByPlanbookId`, {
+            params: {
+                planbookId,
+                pageIndex: -1,
+            },
+        });
+        if (response.data.success) {
+            return response.data.data.items;
+        } else {
+            return [];
+        }
+    } catch (error) {
+        console.error('Error fetching feedback list:', error);
+        return [];
+    }
+}
+
+export interface CreateFeedback {
+    content: string;
+    rate: number;
+    type: string;
+    teacherId: string;
+    planbookId: string;
+}
+
+export const submitFeedback = async (data: CreateFeedback): Promise<boolean> => {
+    try {
+        const response = await apiClient.post('/Feedback/SubmitFeedback', data);
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error submitting feedback:', error);
+        return false;
+    }
+}
+
+export const hardDeleteFeedback = async (feedbackId: string): Promise<boolean> => {
+    try {
+        const response = await apiClient.delete(`/Feedback/HardDeleteFeedback`, {
+            params: {
+                feedbackId,
+            }
+        });
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error deleting feedback:', error);
+        return false;
+    }
+}
+
+export interface UpdateFeedback {
+    feedbackId: string;
+    content: string;
+    rate: number;
+    teacherId: string;
+    planbookId: string;
+    type: string;
+}
+
+export const updateFeedback = async (data: UpdateFeedback): Promise<boolean> => {
+    try {
+        const response = await apiClient.put('/Feedback/UpdateFeedback', data);
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error updating feedback:', error);
+        return false;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export interface IFeedbackData {
     id: string;
