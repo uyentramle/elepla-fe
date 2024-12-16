@@ -1,124 +1,166 @@
 import React, { useState, useEffect } from "react";
-import { Button, Input, Select, Typography } from "antd";
+import { Typography, Input, Button, Modal, message, Dropdown, Menu } from "antd";
+import {
+  fetchAllQuestions,
+  fetchQuestionsByChapter,
+  fetchQuestionsByLesson,
+  deleteQuestion,
+  IQuestion,
+} from "@/data/academy-staff/QuestionBankData";
+import FilterSection from "@/layouts/teacher/Components/FilterSection/FilterSection";
 import { Link } from "react-router-dom";
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import question_bank_data, { IQuestionBank } from "@/data/academy-staff/QuestionBankData";
+import { PlusOutlined, SearchOutlined, MoreOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
-const { Option } = Select;
 
 const QuestionBankManagementPage: React.FC = () => {
-    const [questionBanks, ] = useState<IQuestionBank[]>(question_bank_data);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [grade, setGrade] = useState<string | null>(null);
-    const [bookSeries, setBookSeries] = useState<string | null>(null);
-    const [subject, setSubject] = useState<string | null>(null);
-    const [chapter, setChapter] = useState<string | null>(null);
-    const [lesson, setLesson] = useState<string | null>(null);
+  const [questions, setQuestions] = useState<IQuestion[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showAnswers, setShowAnswers] = useState<boolean>(false);
+  const [filters, setFilters] = useState<{ chapterId?: string; lessonId?: string }>({});
 
-    useEffect(() => {
-        if (chapter || lesson) {
-            // Call API to fetch questions for the selected chapter or lesson
-            // updateQuestionBanks API call logic goes here
+  const loadQuestions = async () => {
+    try {
+      setLoading(true);
+      let response;
+
+      if (filters.lessonId) {
+        response = await fetchQuestionsByLesson(filters.lessonId, 0, 50);
+      } else if (filters.chapterId) {
+        response = await fetchQuestionsByChapter(filters.chapterId, 0, 50);
+      } else {
+        response = await fetchAllQuestions(0, 50);
+      }
+
+      if (response.success) {
+        setQuestions(response.data.items);
+      } else {
+        setError(response.message);
+      }
+    } catch (err) {
+      setError("Lỗi khi tải dữ liệu từ API.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadQuestions();
+  }, [filters]);
+
+  const handleFilterChange = (newFilters: {
+    gradeId?: string;
+    curriculumId?: string;
+    subjectId?: string;
+    chapterId?: string;
+    lessonId?: string;
+  }) => {
+    setFilters({
+      chapterId: newFilters.chapterId,
+      lessonId: newFilters.lessonId,
+    });
+  };
+
+  const handleDelete = async (questionId: string) => {
+    Modal.confirm({
+      title: "Xác nhận xóa",
+      content: "Bạn có chắc chắn muốn xóa câu hỏi này không?",
+      okText: "Xóa",
+      cancelText: "Hủy",
+      okType: "danger",
+      onOk: async () => {
+        try {
+          const response = await deleteQuestion(questionId);
+          if (response.success) {
+            message.success("Xóa câu hỏi thành công.");
+            loadQuestions();
+          } else {
+            message.error(response.message || "Xóa câu hỏi thất bại.");
+          }
+        } catch (error) {
+          message.error("Lỗi xảy ra khi xóa câu hỏi.");
         }
-    }, [chapter, lesson]);
+      },
+    });
+  };
 
-    const filteredQuestionBanks = questionBanks.filter((q) => 
-        q.initialQuestionData.question.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  const menu = (questionId: string) => (
+    <Menu>
+      <Menu.Item key="edit">
+        <Button type="text" onClick={() => message.info("Chức năng chỉnh sửa sẽ được phát triển sau.")}>
+          Chỉnh sửa
+        </Button>
+      </Menu.Item>
+      <Menu.Item key="delete">
+        <Button type="text" danger onClick={() => handleDelete(questionId)}>
+          Xóa
+        </Button>
+      </Menu.Item>
+    </Menu>
+  );
 
-    return (
-        <>
-            <Title level={2} className="my-4">Quản lý Ngân hàng Câu hỏi</Title>
-            <div className="mb-4 flex justify-between">
-                <Input
-                    type="text"
-                    placeholder="Tìm kiếm..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    suffix={<SearchOutlined />}
-                    className="mr-4"
-                />
-                <Button type="primary">
-                    <Link to="/academy-staff/question-banks/add-new" className="flex items-center">
-                        <PlusOutlined className="mr-2" />
-                        Thêm mới
-                    </Link>
-                </Button>
-            </div>
+  return (
+    <div>
+      <Title level={2} className="my-4">Quản lý Ngân hàng Câu hỏi</Title>
+      <div className="mb-4 flex justify-between">
+        <Input
+          type="text"
+          placeholder="Tìm kiếm..."
+          suffix={<SearchOutlined />}
+          className="mr-4"
+        />
+        <Button type="primary">
+          <Link to="/academy-staff/question-banks/add-new" className="flex items-center">
+            <PlusOutlined className="mr-2" />
+            Thêm mới
+          </Link>
+        </Button>
+      </div>
 
-            <div className="mb-4 flex gap-4">
-                <Select
-                    placeholder="Chọn Khối lớp"
-                    value={grade}
-                    onChange={(value) => setGrade(value)}
-                    style={{ width: 160 }}
-                >
-                    {/* Example options */}
-                    <Option value="1">Khối 1</Option>
-                    <Option value="2">Khối 2</Option>
-                    {/* Add more options as needed */}
-                </Select>
-                <Select
-                    placeholder="Chọn Bộ sách"
-                    value={bookSeries}
-                    onChange={(value) => setBookSeries(value)}
-                    style={{ width: 160 }}
-                    disabled={!grade}
-                >
-                    <Option value="A">Bộ A</Option>
-                    <Option value="B">Bộ B</Option>
-                    {/* Populate based on selected grade */}
-                </Select>
-                <Select
-                    placeholder="Chọn Môn học"
-                    value={subject}
-                    onChange={(value) => setSubject(value)}
-                    style={{ width: 160 }}
-                    disabled={!bookSeries}
-                >
-                    <Option value="Math">Toán</Option>
-                    <Option value="Science">Khoa học</Option>
-                    {/* Populate based on selected book series */}
-                </Select>
-                <Select
-                    placeholder="Chọn Chương"
-                    value={chapter}
-                    onChange={(value) => setChapter(value)}
-                    style={{ width: 160 }}
-                    disabled={!subject}
-                >
-                    <Option value="Chapter1">Chương 1</Option>
-                    <Option value="Chapter2">Chương 2</Option>
-                    {/* Populate based on selected subject */}
-                </Select>
-                <Select
-                    placeholder="Chọn Bài (không bắt buộc)"
-                    value={lesson}
-                    onChange={(value) => setLesson(value)}
-                    style={{ width: 160 }}
-                    disabled={!chapter}
-                >
-                    <Option value="Lesson1">Bài 1</Option>
-                    <Option value="Lesson2">Bài 2</Option>
-                    {/* Populate based on selected chapter */}
-                </Select>
-            </div>
-            
-            {/* List or Table to display questions */}
-            <div>
-                {filteredQuestionBanks.length > 0 ? (
-                    <ul>
-                        {filteredQuestionBanks.map((q, index) => (
-                            <li key={index}>{q.initialQuestionData.question}</li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p>Không có câu hỏi nào trong ngân hàng.</p>
-                )}
-            </div>
-        </>
-    );
+      <FilterSection onFilterChange={handleFilterChange} />
+
+      {loading ? (
+        <p>Đang tải...</p>
+      ) : error ? (
+        <p>{error}</p>
+      ) : questions.length > 0 ? (
+        <div>
+          <Button type="primary" onClick={() => setShowAnswers(!showAnswers)} className="mb-4">
+            {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
+          </Button>
+          <div className="question-list">
+            {questions.map((question, index) => (
+              <div key={question.questionId} className="mb-6 p-4 border rounded-lg">
+                <div className="flex justify-between items-center">
+                  <Title level={5}>
+                    Câu {index + 1}: {question.question}
+                  </Title>
+                  <Dropdown overlay={menu(question.questionId)} trigger={['click']}>
+                    <MoreOutlined className="cursor-pointer text-lg" />
+                  </Dropdown>
+                </div>
+                <ul className="pl-6 list-disc">
+                  {question.answers.map((answer, i) => (
+                    <li key={answer.answerId} className="mb-2">
+                      <span>
+                        {String.fromCharCode(65 + i)}. {answer.answerText}
+                      </span>
+                      {showAnswers && answer.isCorrect && (
+                        <strong className="ml-2 text-green-600">(Đúng)</strong>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <p>Không có câu hỏi nào trong ngân hàng.</p>
+      )}
+    </div>
+  );
 };
 
 export default QuestionBankManagementPage;
