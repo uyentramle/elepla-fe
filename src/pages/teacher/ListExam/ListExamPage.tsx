@@ -4,12 +4,14 @@ import { Spin, Radio, List, Modal, Dropdown, Menu, message, Popconfirm } from "a
 import { FileProtectOutlined, AppstoreOutlined, UnorderedListOutlined, MoreOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import { RadioChangeEvent } from "antd/es/radio";
 import ExamDetailPage from "./ExamDetailPage";
+import UpdateExamPage from "./UpdateExamPage";
 
 const ListExamPage: React.FC = () => {
   const [exams, setExams] = useState<IExam[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -31,11 +33,21 @@ const ListExamPage: React.FC = () => {
 
   const handleShowDetail = (examId: string) => {
     setSelectedExamId(examId);
-    setIsModalOpen(true);
+    setIsDetailModalOpen(true);
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
+  const handleDetailModalClose = () => {
+    setIsDetailModalOpen(false);
+    setSelectedExamId(null);
+  };
+
+  const handleShowEdit = (examId: string) => {
+    setSelectedExamId(examId);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
     setSelectedExamId(null);
   };
 
@@ -57,6 +69,9 @@ const ListExamPage: React.FC = () => {
     <Menu>
       <Menu.Item key="detail" onClick={() => handleShowDetail(examId)}>
         <EyeOutlined /> Chi tiết
+      </Menu.Item>
+      <Menu.Item key="edit" onClick={() => handleShowEdit(examId)}>
+        <AppstoreOutlined /> Chỉnh sửa
       </Menu.Item>
       <Menu.Item key="delete">
         <Popconfirm
@@ -140,15 +155,26 @@ const ListExamPage: React.FC = () => {
         />
       )}
 
-      {/* Modal */}
+      {/* Detail Modal */}
       <Modal
         title="Chi tiết bài kiểm tra"
-        visible={isModalOpen}
-        onCancel={handleModalClose}
+        visible={isDetailModalOpen}
+        onCancel={handleDetailModalClose}
         footer={null}
-        width="80%"
+        width="50%"
       >
         {selectedExamId && <ExamDetailPage examId={selectedExamId} />}
+      </Modal>
+
+      {/* Edit Modal */}
+      <Modal
+        title="Chỉnh sửa bài kiểm tra"
+        visible={isEditModalOpen}
+        onCancel={handleEditModalClose}
+        footer={null}
+        width="50%"
+      >
+        {selectedExamId && <UpdateExamPage examId={selectedExamId} />}
       </Modal>
     </div>
   );

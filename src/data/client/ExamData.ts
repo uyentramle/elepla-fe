@@ -195,3 +195,32 @@ export const createExam = async (
         return null; // Xử lý lỗi và trả về null
     }
 };
+
+export const updateExam = async (
+  examId: string,
+  updatedData: {
+    title: string;
+    time: string;
+    questionIds: string[];
+  }
+): Promise<boolean> => {
+  try {
+    const response = await apiClient.put(
+      "https://elepla-be-production.up.railway.app/api/Exam/UpdateExam",
+      {
+        examId, // ID bài kiểm tra cần cập nhật
+        ...updatedData, // Dữ liệu mới
+      }
+    );
+
+    // Kiểm tra phản hồi từ API
+    if (response.status === 200 && response.data.success) {
+      return true; // Cập nhật thành công
+    }
+    console.error("API update failed:", response.data.message);
+    return false; // Cập nhật không thành công
+  } catch (error) {
+    console.error("Error updating exam:", error);
+    return false; // Xử lý lỗi
+  }
+};

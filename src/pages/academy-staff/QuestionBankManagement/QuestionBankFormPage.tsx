@@ -1,67 +1,37 @@
 import React, { useState } from "react";
-import { Button, Input, Select, Checkbox, Form, Typography, Divider } from "antd";
-import { IQuestionBank, IAnswer } from "@/data/academy-staff/QuestionBankData";
+import { Button, Input, Checkbox, Form, Typography, Divider, Select, message } from "antd";
+import { createQuestion } from "@/data/academy-staff/QuestionBankData";
 import { useNavigate } from "react-router-dom";
+import FilterSection from "@/layouts/teacher/Components/FilterSection/FilterSection";
 
 const { Title } = Typography;
 const { Option } = Select;
 
-interface QuestionBankFormProps {
-    initialQuestionData?: IQuestionBank;
-    onSubmit?: (formData: IQuestionBank) => void;
-}
-
-const QuestionBankFormPage: React.FC<QuestionBankFormProps> = ({ onSubmit }) => {
-    // State for attribute selectors (selected once per form)
-    const [grade, setGrade] = useState<string | null>(null);
-    const [bookSeries, setBookSeries] = useState<string | null>(null);
-    const [subject, setSubject] = useState<string | null>(null);
-    const [chapter, setChapter] = useState<string | null>(null);
-    const [lesson, setLesson] = useState<string | null>(null);
+const QuestionBankFormPage: React.FC = () => {
     const navigate = useNavigate();
 
-    // State for question-related fields
-    const [question, setQuestion] = useState("");
-    const [type, setType] = useState("");
-    const [plum, setPlum] = useState("");
-    const [answers, setAnswers] = useState<IAnswer[]>([{ answerId: "1", answerText: "", isCorrect: false }]);
+    // State for filter data
+    const [filters, setFilters] = useState<{
+        gradeId?: string;
+        curriculumId?: string;
+        subjectId?: string;
+        chapterId?: string;
+        lessonId?: string;
+    }>({});
 
-    // Sample data for dropdown options (replace with actual API data)
-    const gradeOptions = [{ value: "grade1", label: "Grade 1" }, { value: "grade2", label: "Grade 2" }];
-    const bookSeriesOptions = grade ? [{ value: "series1", label: "Series 1" }] : [];
-    const subjectOptions = bookSeries ? [{ value: "math", label: "Math" }] : [];
-    const chapterOptions = subject ? [{ value: "chapter1", label: "Chapter 1" }] : [];
-    const lessonOptions = chapter ? [{ value: "lesson1", label: "Lesson 1" }] : [];
+    // State for question-related fields
+    const [question, setQuestion] = useState<string>("");
+    const [type, setType] = useState<"multiple choice" | "True/False" | "Short Answer" | undefined>();
+    const [plum, setPlum] = useState<"easy" | "medium" | "hard" | undefined>();
+    const [answers, setAnswers] = useState<{ answerId: string; answerText: string; isCorrect: boolean }[]>([
+        { answerId: "1", answerText: "", isCorrect: false },
+    ]);
 
     const addAnswer = () => {
         setAnswers([...answers, { answerId: `${answers.length + 1}`, answerText: "", isCorrect: false }]);
     };
 
-    const handleSubmit = () => {
-        if (!chapter) {
-            alert("Vui lòng chọn chương");
-            return;
-        }
-        const formData: IQuestionBank = {
-            initialQuestionData: {
-                // questionId: initialQuestionData?.initialQuestionData?.questionId, 
-                question,
-                type,
-                plum,
-                answers,
-                chapterId: chapter,
-                lessonId: lesson || null,
-            },
-        };
-        onSubmit?.(formData);
-        setQuestion("");
-        setType("");
-        setPlum("");
-        setAnswers([{ answerId: "1", answerText: "", isCorrect: false }]);
-    };
-
-
-    const updateAnswer = (index: number, field: keyof IAnswer, value: any) => {
+    const updateAnswer = (index: number, field: keyof typeof answers[0], value: any) => {
         const updatedAnswers = answers.map((answer, i) =>
             i === index ? { ...answer, [field]: value } : answer
         );
@@ -71,50 +41,53 @@ const QuestionBankFormPage: React.FC<QuestionBankFormProps> = ({ onSubmit }) => 
     const removeAnswer = (index: number) => {
         setAnswers(answers.filter((_, i) => i !== index));
     };
+    const handleSubmit = async () => {
+        if (!filters.chapterId) {
+            message.error("Vui lòng chọn chương trước khi lưu câu hỏi.");
+            return;
+        }
+        if (!type || !plum) {
+            message.error("Vui lòng chọn đầy đủ loại câu hỏi và mức độ.");
+            return;
+        }
+
+        const formData = {
+            question,
+            type,
+            plum,
+            chapterId: filters.chapterId,
+            lessonId: filters.lessonId || null,
+            answers: answers.map(({ answerText, isCorrect }) => ({
+                answerText,
+                isCorrect,
+            })),
+        };
+
+        try {
+            const result = await createQuestion(formData);
+
+            if (result.success) {
+                message.success(result.message || "Câu hỏi đã được thêm thành công!");
+                setQuestion("");
+                setType(undefined);
+                setPlum(undefined);
+                setAnswers([{ answerId: "1", answerText: "", isCorrect: false }]);
+                navigate("/academy-staff/question-banks/");
+            } else {
+                message.error(result.message || "Lỗi khi thêm câu hỏi.");
+            }
+        } catch (error: any) {
+            message.error(error.message || "Có lỗi xảy ra khi thêm câu hỏi.");
+        }
+    };
 
     return (
         <div className="container mx-auto p-4">
             <Title level={2}>Thêm mới câu hỏi</Title>
             <Form layout="vertical" onFinish={handleSubmit}>
-                <div className="flex gap-4">
-                    <Form.Item label="Khối lớp" style={{ flex: 1 }}>
-                        <Select value={grade} onChange={setGrade} placeholder="Chọn khối lớp">
-                            {gradeOptions.map(option => (
-                                <Option key={option.value} value={option.value}>{option.label}</Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="Bộ sách" style={{ flex: 1 }}>
-                        <Select value={bookSeries} onChange={setBookSeries} placeholder="Chọn bộ sách" disabled={!grade}>
-                            {bookSeriesOptions.map(option => (
-                                <Option key={option.value} value={option.value}>{option.label}</Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="Môn học" style={{ flex: 1 }}>
-                        <Select value={subject} onChange={setSubject} placeholder="Chọn môn học" disabled={!bookSeries}>
-                            {subjectOptions.map(option => (
-                                <Option key={option.value} value={option.value}>{option.label}</Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                </div>
-                <div className="flex gap-4">
-                    <Form.Item label="Chương" style={{ flex: 1 }}>
-                        <Select value={chapter} onChange={setChapter} placeholder="Chọn chương" disabled={!subject}>
-                            {chapterOptions.map(option => (
-                                <Option key={option.value} value={option.value}>{option.label}</Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="Bài (tùy chọn)" style={{ flex: 1 }}>
-                        <Select value={lesson} onChange={setLesson} placeholder="Chọn bài" disabled={!chapter}>
-                            {lessonOptions.map(option => (
-                                <Option key={option.value} value={option.value}>{option.label}</Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                </div>
+                <FilterSection
+                    onFilterChange={(newFilters) => setFilters((prev) => ({ ...prev, ...newFilters }))}
+                />
 
                 <Form.Item label="Câu hỏi">
                     <Input.TextArea
@@ -125,14 +98,27 @@ const QuestionBankFormPage: React.FC<QuestionBankFormProps> = ({ onSubmit }) => 
                 </Form.Item>
                 <div className="flex gap-4">
                     <Form.Item label="Loại câu hỏi" style={{ flex: 1 }}>
-                        <Select value={type} onChange={setType} placeholder="Chọn loại câu hỏi">
-                            <Option value="multiple-choice">Trắc nghiệm</Option>
-                            <Option value="essay">Tự luận</Option>
-                            <Option value="true-false">Đúng / Sai</Option>
+                        <Select
+                            value={type}
+                            onChange={(value) => setType(value)}
+                            placeholder="Chọn loại câu hỏi"
+                        >
+                            <Option value="multiple choice">Câu hỏi trắc nghiệm</Option>
+                            <Option value="True/False">Câu hỏi đúng sai</Option>
+                            <Option value="Short Answer">Câu tự luận ngắn</Option>
                         </Select>
                     </Form.Item>
-                    <Form.Item label="Plum" style={{ flex: 1 }}>
-                        <Input value={plum} onChange={(e) => setPlum(e.target.value)} placeholder="Mức độ câu hỏi" />
+
+                    <Form.Item label="Mức độ câu hỏi" style={{ flex: 1 }}>
+                        <Select
+                            value={plum}
+                            onChange={(value) => setPlum(value)}
+                            placeholder="Chọn mức độ câu hỏi"
+                        >
+                            <Option value="easy">Dễ</Option>
+                            <Option value="medium">Trung bình</Option>
+                            <Option value="hard">Khó</Option>
+                        </Select>
                     </Form.Item>
                 </div>
 
@@ -161,16 +147,10 @@ const QuestionBankFormPage: React.FC<QuestionBankFormProps> = ({ onSubmit }) => 
 
                 <Form.Item className="mt-4">
                     <div className="flex space-x-4">
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                        >
+                        <Button type="primary" htmlType="submit">
                             Lưu
                         </Button>
-                        <Button
-                            type="default"
-                            onClick={() => navigate('/academy-staff/question-banks/')}
-                        >
+                        <Button type="default" onClick={() => navigate("/academy-staff/question-banks/")}>
                             Quay lại
                         </Button>
                     </div>
