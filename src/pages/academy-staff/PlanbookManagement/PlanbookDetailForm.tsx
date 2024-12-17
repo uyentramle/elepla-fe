@@ -6,6 +6,7 @@ import { getActiveUserPackageByUserId, ServicePackage } from "@/data/manager/Use
 import { getUserId } from "@/data/apiClient";
 import PackageDetailPage from "@/pages/teacher/User/PackageDetailPage";
 import FeedbackModal from "@/pages/teacher/Planbook/FeedbackModal";
+import ShareModal from "@/pages/teacher/Planbook/ShareModal";
 
 interface PlanbookDetailProps {
     planbookId: string;
@@ -18,11 +19,12 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
     const [planbook, setPlanbook] = useState<PlanbookTemplateDetail | null>(null);
     const [loading, setLoading] = useState(false);
     const [service, setService] = useState<ServicePackage>();
-    const [showPackageDetail, setShowPackageDetail] = useState(false);
+    const [isShowPackageDetail, setIsShowPackageDetail] = useState(false);
     const [isRightVisible, setIsRightVisible] = useState(false); // Trạng thái hiển thị bên phải
     const [modalWidth, setModalWidth] = useState(800); // Chiều rộng modal mặc định
     const [commentCount, setCommentCount] = useState<number>(0);
     const [averageRate, setAverageRate] = useState<number>(0);
+    const [isShareModalVisible, setIsShareModalVisible] = useState(false);
 
     const handleFeedbackStatsChange = (comments: number, avg: number) => {
         setCommentCount(comments);
@@ -68,7 +70,7 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
                 console.error('Error exporting planbook to Word:', error);
             }
         } else {
-            setShowPackageDetail(true);
+            setIsShowPackageDetail(true);
         }
     };
 
@@ -81,16 +83,16 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
                 console.error('Error exporting planbook to PDF:', error);
             }
         } else {
-            setShowPackageDetail(true);
+            setIsShowPackageDetail(true);
         }
     };
 
-    const handleOk = () => {
-        setShowPackageDetail(false);
+    const handlePackageOk = () => {
+        setIsShowPackageDetail(false);
     };
 
-    const handleCancel = () => {
-        setShowPackageDetail(false);
+    const handlePackageCancel = () => {
+        setIsShowPackageDetail(false);
     };
 
     const handleComment = () => {
@@ -109,6 +111,14 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
         window.open(`/teacher/planbook/${planbookId}`, "_blank");
     }
 
+    const showShareModal = () => {
+        setIsShareModalVisible(true);
+    }
+
+    const closeShareModal = () => {
+        setIsShareModalVisible(false);
+    }
+
     return (
         <div>
             <Modal
@@ -116,9 +126,63 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
                 visible={isVisible}
                 onCancel={onClose}
                 footer={[
-                    <Button key="close" onClick={onClose}>
-                        Đóng
-                    </Button>,
+                    <div key="footer-buttons" className="flex w-full">
+                        {
+                                    !isLibrary && (
+                        <div className="flex gap-2">
+                            <Button
+                                onClick={handleExportToWord}
+                                loading={loading}
+                                style={{
+                                    backgroundColor: '#d9d9d9',
+                                    borderColor: '#d9d9d9',
+                                    color: '#000',
+                                }}
+                                className="hover:bg-gray-500 hover:border-gray-500 hover:text-white"
+                            >
+                                Xuất ra Word
+                            </Button>
+                            <Button
+                                onClick={() => handleExportToPdf(planbookId)}
+                                loading={loading}
+                                style={{
+                                    backgroundColor: '#d9d9d9',
+                                    borderColor: '#d9d9d9',
+                                    color: '#000',
+                                }}
+                                className="hover:bg-gray-500 hover:border-gray-500 hover:text-white"
+                            >
+                                Xuất ra PDF
+                            </Button>
+                        </div>
+                        )
+                        }
+                        <div className="ml-auto flex gap-2">
+            {
+                !isLibrary && (
+                    <Button
+                        onClick={showShareModal}
+                        loading={loading}
+                        style={{
+                            // backgroundColor: '#40a9ff',
+                            // borderColor: '#40a9ff',
+                            // color: '#fff',
+                            backgroundColor: '#d9d9d9',
+                                    borderColor: '#d9d9d9',
+                                    color: '#000',
+                        }}
+                        className="hover:bg-blue-600 hover:border-blue-600"
+                    >
+                        Chia sẻ
+                    </Button>
+                )
+            }
+            <Button key="close" onClick={onClose}>
+                Đóng
+            </Button>
+        </div>
+
+                    </div>
                 ]}
                 width={modalWidth} // Điều chỉnh chiều rộng modal
                 style={{ top: '5vh' }}
@@ -133,7 +197,7 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
                 <div className="flex mt-7">
                     <div className="container mx-auto px-4"
                         style={{
-                            maxHeight: '600px',  // Giới hạn chiều cao của thẻ div
+                            maxHeight: '585px',  // Giới hạn chiều cao của thẻ div
                             overflowY: 'auto',   // Thêm thanh cuộn khi chiều cao vượt quá maxHeight
                             scrollbarWidth: 'thin',
                         }}
@@ -299,7 +363,7 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
                                         }}
                                     ></p>
                                 </div>
-                                {
+                                {/* {
                                     !isLibrary && (
                                         <div className="flex gap-2 mt-5">
                                             <Button
@@ -328,18 +392,20 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
                                             </Button>
                                         </div>
                                     )
-                                }
+                                } */}
 
                                 <Modal
-                                    visible={showPackageDetail}
-                                    onOk={handleOk}
-                                    onCancel={handleCancel}
+                                    visible={isShowPackageDetail}
+                                    onOk={handlePackageOk}
+                                    onCancel={handlePackageCancel}
                                     footer={null}
                                     width={800}
                                     style={{ top: '10vh' }}
                                 >
                                     <PackageDetailPage />
                                 </Modal >
+
+                                <ShareModal planbookId={planbookId} planbookTitle={planbook?.title} isVisible={isShareModalVisible} onClose={closeShareModal} />
                             </>
                         )}
                     </div>
