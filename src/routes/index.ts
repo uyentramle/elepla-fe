@@ -69,6 +69,7 @@ import EventFormPage from '@/pages/teacher/Schedule/EventFormPage';
 import ExamPage from '@/pages/teacher/Exam/ExamPage';
 import ListExamPage from '@/pages/teacher/ListExam/ListExamPage';
 import PlanbookDetailPage from '@/pages/teacher/Planbook/PlanbookDetailPage';
+import PlanbookSharePage from '@/pages/teacher/Planbook/PlanbookSharePage';
 
 interface RouteProps {
     path: string;
@@ -154,6 +155,7 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/planbook-library', component:PlanbookLibraryPage , layout: DefaultTeacherLayout },
     { path: '/teacher/list-exam', component:ListExamPage , layout: DefaultTeacherLayout },
     { path: '/teacher/planbook/:id', component: PlanbookDetailPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/planbook-shared', component: PlanbookSharePage, layout: DefaultTeacherLayout },
 ];
 
 export { publicRoutes, privateRoutes, adminRoutes, managerRoutes, academyStaffRoutes, teacherRoutes };

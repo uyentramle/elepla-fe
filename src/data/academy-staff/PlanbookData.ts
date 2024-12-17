@@ -393,6 +393,73 @@ export const clonePlanbook = async (planbookId: string, collectionId: string): P
     }
 }
 
+export interface SharePlanbook {
+    planbookId: string;
+    sharedTo: PlanbookShareUser[];
+}
+
+interface PlanbookShareUser {
+    userId: string;
+    isEdited: boolean;
+}
+
+export const sharePlanbook = async (data: SharePlanbook): Promise<boolean> => {
+    try {
+        const response = await apiClient.post(`Planbook/SharePlanbook`, data);
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.log("Error calling SharePlanbook API:", error);
+        return false;
+    }
+}
+
+export interface PlanbookShared {
+    planbookId: string;
+    title: string;
+    schoolName: string;
+    teacherName: string;
+    subject: string;
+    curriculum: string;
+    grade: string;
+    className: string;
+    isPublic: boolean;
+    isEdited: boolean;
+    collectionId: string;
+    collectionName: string;
+    lessonId: string;
+    lessonName: string;
+    chapterName: string;
+    createdAt: string;
+    createdBy: string;
+    updatedAt: string;
+    updatedBy: string;
+    deletedAt: string;
+    deletedBy: string;
+    isDeleted: boolean;
+}
+
+export const getSharedPlanbookByUserId = async (userId: string): Promise<PlanbookShared[]> => {
+    try {
+        const response = await apiClient.get(`Planbook/GetSharedPlanbookByUserId`, {
+            params: {
+                userId
+            }
+        });
+        if (response.data.success) {
+            return response.data.data;
+        } else {
+            return [];
+        }
+    } catch (error) {
+        console.error('Error calling GetSharedPlanbookByUserId API:', error);
+        return [];
+    }
+}
+
 export const exportPlanbookToWord = async (planbookId: string): Promise<void> => {
     await exportPlanbook('Planbook/ExportPlanbookToWord', planbookId, 'docx');
 };

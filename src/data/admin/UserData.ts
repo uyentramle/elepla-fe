@@ -105,3 +105,54 @@ export const getUsersLastLogin = async (
     }
     return null;
 };
+
+export interface ListUserToPlanbookShare {
+    userId: string;
+    fullName: string;
+    username: string;
+    email: string;
+    googleEmail: string;
+    facebookEmail: string;
+    avatar: string;
+}
+
+export interface ListUserPlanbookShare extends ListUserToPlanbookShare {
+    isEdited: boolean;
+    isOwner: boolean;
+}
+
+export const getUserShareByPlanbook = async (planbookId: string): Promise<ListUserPlanbookShare[]> => {
+    try {
+        const response = await apiClient.get(`Planbook/GetUserSharedByPlanbook`, {
+            params: {
+                planbookId
+            }
+        });
+        if (response.data.success) {
+            return response.data.data;
+        } else {
+            return [];
+        }
+    } catch (error) {
+        console.log("Error calling GetUserSharedByPlanbook API:", error);
+        return [];
+    }
+}
+
+export const getUserToSharedPlanbook = async (planbookId: string): Promise<ListUserToPlanbookShare[]> => {
+    try {
+        const response = await apiClient.get(`Planbook/GetUserToSharedPlanbook`, {
+            params: {
+                planbookId
+            }
+        });
+        if (response.data.success) {
+            return response.data.data;
+        } else {
+            return [];
+        }
+    } catch (error) {
+        console.log("Error calling GetUserToSharePlanbook API:", error);
+        return [];
+    }
+}
