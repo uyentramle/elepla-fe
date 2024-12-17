@@ -69,6 +69,7 @@ export default function MySider({
   navUrl
     .set('1', '/teacher/list-collection')
     .set('6', '/teacher/saved-collection')
+    .set('7', '/teacher/planbook-shared')
     .set('5', '/teacher/planbook-library')
     .set('2', '/teacher/schedule/weekly')
     .set('3', '/teacher/question-bank/')
