@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Input, Button, Modal, Form, notification } from "antd";
+import { Typography, Input, Button } from "antd";
 import {
   fetchAllQuestions,
   fetchQuestionsByChapter,
   fetchQuestionsByLesson,
   IQuestion,
 } from "@/data/academy-staff/QuestionBankData";
-import { getUserId } from "@/data/apiClient"; // Import hàm getUserId
 import FilterSection from "@/layouts/teacher/Components/FilterSection/FilterSection";
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { createExam } from "@/data/client/ExamData";
+import { SearchOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
-const ExamPage: React.FC = () => {
+interface AddQuestionExamProps {
+    onAddQuestions: (selectedQuestions: IQuestion[]) => void; // Sử dụng IQuestion[]
+  }
+
+const AddQuestionExam: React.FC<AddQuestionExamProps> = ({ onAddQuestions }) => {
   const [questions, setQuestions] = useState<IQuestion[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [showAnswers, setShowAnswers] = useState<boolean>(false);
   const [filters, setFilters] = useState<{ chapterId?: string; lessonId?: string }>({});
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [examTitle, setExamTitle] = useState("");
-  const [examTime, setExamTime] = useState("");
 
   const handleSelectQuestion = (questionId: string) => {
     setSelectedQuestions((prev) =>
@@ -74,39 +73,18 @@ const ExamPage: React.FC = () => {
     });
   };
 
-  const showModal = () => {
-    if (selectedQuestions.length === 0) {
-      notification.error({ message: "Vui lòng chọn ít nhất một câu hỏi!" });
-    } else {
-      setIsModalVisible(true);
-    }
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleSaveExam = async (values: { title: string; time: string }) => {
-    const examData = {
-      title: values.title,
-      time: values.time + " phút",
-      userId: getUserId() || "", // Thay thế bằng hàm getUserId
-      questionIds: selectedQuestions,
-    };
-
-    const response = await createExam(examData);
-    if (response) {
-      notification.success({ message: "Tạo bài kiểm tra thành công!" });
-      setIsModalVisible(false);
-      setSelectedQuestions([]); // Reset danh sách câu hỏi
-    } else {
-      notification.error({ message: "Tạo bài kiểm tra thất bại!" });
-    }
+  const handleAddQuestions = () => {
+    const selectedQuestionObjects = questions.filter((q) =>
+      selectedQuestions.includes(q.questionId)
+    );
+    onAddQuestions(selectedQuestionObjects);
   };
 
   return (
     <div>
-      <Title level={2} className="my-4">Tạo Bài kiểm tra</Title>
+      <Title level={2} className="my-4">
+        Thêm câu hỏi
+      </Title>
       <div className="mb-4 flex justify-between">
         <Input
           type="text"
@@ -114,14 +92,8 @@ const ExamPage: React.FC = () => {
           suffix={<SearchOutlined />}
           className="mr-4"
         />
-        <Button type="primary" onClick={showModal}>
-          <PlusOutlined className="mr-2" />
-          Thêm bài kiểm tra
-        </Button>
       </div>
-
       <FilterSection onFilterChange={handleFilterChange} />
-
       {loading ? (
         <p>Đang tải...</p>
       ) : error ? (
@@ -164,54 +136,20 @@ const ExamPage: React.FC = () => {
               </div>
             ))}
           </div>
+          <Button
+            type="primary"
+            onClick={handleAddQuestions}
+            disabled={selectedQuestions.length === 0}
+            style={{ marginTop: "12px" }}
+          >
+            Thêm câu hỏi đã chọn
+          </Button>
         </div>
       ) : (
         <p>Không có câu hỏi nào trong ngân hàng.</p>
       )}
-
-      <Modal
-        title="Tạo Bài Kiểm Tra"
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        footer={null}
-      >
-        <Form
-          onFinish={(values) => handleSaveExam(values)}
-          layout="vertical"
-          initialValues={{ title: "", time: "" }}
-        >
-          <Form.Item
-            label="Tên bài kiểm tra"
-            name="title"
-            rules={[{ required: true, message: "Vui lòng nhập tên bài kiểm tra" }]}
-          >
-            <Input value={examTitle} onChange={(e) => setExamTitle(e.target.value)} />
-          </Form.Item>
-          <Form.Item
-            label="Thời gian làm bài (phút)"
-            name="time"
-            rules={[{ required: true, message: "Vui lòng nhập thời gian làm bài" }]}
-          >
-            <Input
-              value={examTime}
-              onChange={(e) => setExamTime(e.target.value)}
-              placeholder="Ví dụ: 60"
-            />
-          </Form.Item>
-          <Form.Item>
-            <div className="flex justify-end">
-              <Button type="default" onClick={handleCancel} className="mr-2">
-                Hủy
-              </Button>
-              <Button type="primary" htmlType="submit">
-                Lưu
-              </Button>
-            </div>
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   );
 };
 
-export default ExamPage;
+export default AddQuestionExam;
