@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, message,Popconfirm  } from "antd";
-import { ArrowLeftOutlined, ArrowRightOutlined, CalendarOutlined, EditOutlined, PlusOutlined,DeleteOutlined } from "@ant-design/icons";
+import { MessageOutlined, ArrowLeftOutlined, ArrowRightOutlined, CalendarOutlined, EditOutlined, PlusOutlined,DeleteOutlined } from "@ant-design/icons";
 import { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import { Link } from "react-router-dom";
@@ -8,6 +8,13 @@ import { now, months, SelectedDay, dayName, monthName, capFirstLetter } from "@/
 import { fetchTeachingSchedules, IViewSchedule } from "@/data/client/ScheduleData";
 import Day from "./Day"; 
 import { deleteTeachingSchedule } from "@/data/client/ScheduleData";
+import PlanbookDetailForm from '@/pages/academy-staff/PlanbookManagement/PlanbookDetailForm';
+
+interface WeeklyScheduleProps {
+    events: IViewSchedule[];
+    updateEvents: (updatedEvents: IViewSchedule[]) => void;
+    loading: boolean;
+}
 
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -24,16 +31,17 @@ let unselected: SelectedDay = {
     year: -1,
 };
 
-const WeeklySchedule: React.FC = () => {
-    // States
+
+const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({ events, updateEvents }) => {
     const [days, setDays] = useState<Dayjs[]>(months()[now.weekOfMonth]);
     const [selected, setSelected] = useState<SelectedDay>(unselected);
-    const [events, setEvents] = useState<IViewSchedule[]>([]); // Events fetched from API
+    // const [events, setEvents] = useState<IViewSchedule[]>([]); // Events fetched from API
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<IViewSchedule | null>(null);
-
+    const [isPlanbookModalVisible, setIsPlanbookModalVisible] = useState(false);
+    const [selectedPlanbookId, setSelectedPlanbookId] = useState<string | null>(null);
 
     useEffect(() => {
         const loadEvents = async () => {
@@ -43,9 +51,9 @@ const WeeklySchedule: React.FC = () => {
             const data = await fetchTeachingSchedules();      
             const fixedEvents = data.map(event => ({
               ...event,
-              date: dayjs.utc(event.date).tz("Asia/Ho_Chi_Minh").add(1, 'day').format("YYYY-MM-DD"),
+              date: dayjs.utc(event.date).tz("Asia/Ho_Chi_Minh").format("YYYY-MM-DD"),
             }));
-            setEvents(fixedEvents);
+            updateEvents(fixedEvents);
           } catch (error) {
             console.error("Error fetching events", error);
           } finally {
@@ -114,16 +122,33 @@ const WeeklySchedule: React.FC = () => {
 
     const handleDelete = async (scheduleId: string) => {
         try {
-            setIsLoading(true); // Bắt đầu trạng thái chờ
+            setIsLoading(true); // Start loading state
             await deleteTeachingSchedule(scheduleId);
             message.success("Sự kiện đã được xóa thành công!");
-            setEvents((prevEvents) => prevEvents.filter((event) => event.id !== scheduleId));
-            setIsModalVisible(false);
+
+            // Update events after deletion
+            const updatedEvents = events.filter(event => event.id !== scheduleId);
+            updateEvents(updatedEvents); // Call the updateEvents function passed via props
         } catch (error: any) {
             message.error(error.message || "Không thể xóa sự kiện. Vui lòng thử lại.");
         } finally {
-            setIsLoading(false); // Kết thúc trạng thái chờ
+            setIsLoading(false); // End loading state
         }
+    };
+
+
+    const handlePlanbookView = (planbookId: string | undefined) => {
+        if (planbookId) {
+            setSelectedPlanbookId(planbookId);
+            setIsPlanbookModalVisible(true);
+        } else {
+            message.warning("Sự kiện này không có kế hoạch bài dạy.");
+        }
+    };
+    
+    const closePlanbookModal = () => {
+        setIsPlanbookModalVisible(false);
+        setSelectedPlanbookId(null);
     };
 
     return (
@@ -214,7 +239,15 @@ const WeeklySchedule: React.FC = () => {
                         <div
                             dangerouslySetInnerHTML={{ __html: selectedEvent.description || "" }}
                             className="description-content"
-                        />                    
+                        />      
+                        <Button
+                            type="default"
+                            icon={<MessageOutlined />}
+                            className="mt-4"
+                            onClick={() => handlePlanbookView(selectedEvent?.planbookId)}
+                        >
+                            Xem chi tiết kế hoạch bài dạy
+                        </Button>              
                     </div>
                     <div className="flex justify-between mt-4">
                         <Link to={`/teacher/schedule/edit/${selectedEvent.id}`}>
@@ -228,6 +261,7 @@ const WeeklySchedule: React.FC = () => {
                             okText="Xóa"
                             cancelText="Hủy"
                         >
+                        <Link to={`/teacher/schedule/weekly`}>
                             <Button 
                                 type="text" 
                                 danger 
@@ -235,11 +269,28 @@ const WeeklySchedule: React.FC = () => {
                             >
                                 Xóa
                             </Button>
+                        </Link>
                         </Popconfirm>
                     </div>
                 </Modal>
 
             )}
+                    {isPlanbookModalVisible && selectedPlanbookId && (
+                        <Modal
+                            title="Chi tiết kế hoạch bài dạy"
+                            visible={isPlanbookModalVisible}
+                            onCancel={closePlanbookModal}
+                            footer={null}
+                            width={800} // Đặt kích thước phù hợp
+                        >
+                            <PlanbookDetailForm
+                                planbookId={selectedPlanbookId}
+                                isVisible={isPlanbookModalVisible}
+                                onClose={closePlanbookModal}
+                                isLibrary={false} // Thay đổi nếu cần
+                            />
+                        </Modal>
+                    )}
         </div>
     );
 };

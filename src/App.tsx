@@ -108,8 +108,8 @@ function App() {
                             path={path}
                             element={
                                 <RequireAuth>
-                                    <ProtectedRoute allowedRoles={["Teacher"]}>
-                                        <Layout children={<Component />} />
+                                    <ProtectedRoute allowedRoles={["Admin", "Teacher", "Manager", "AcademicStaff"]}>
+                                    <Layout children={<Component />} />
                                     </ProtectedRoute>
                                 </RequireAuth>
                             }
