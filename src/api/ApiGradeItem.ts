@@ -7,6 +7,7 @@ interface ApiGradeItem {
     name: string;
 }
 
+
 // Function to fetch grade data from the API
 const fetchgrade = async (): Promise<GradeItem[]> => {
   try {
