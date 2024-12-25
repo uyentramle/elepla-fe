@@ -4,39 +4,49 @@ import apiClient from '@/data/apiClient';
 export interface IViewListSubjectInCurriculum {
     subjectInCurriculumId: string;
     name: string;
+    subjectId: string;
     subject: string;
+    gradeId: string;
     grade: string;
+    curriculumId: string;
     curriculum: string;
     description: string;
     chapters: string[];
 
-    created_at: string;
-    created_by: string;
-    updated_at: string | undefined;
-    updated_by: string | undefined;
-    deleted_at: string | undefined;
-    deleted_by: string | undefined;
+    createdAt: string;
+    createdBy: string;
+    updatedAt: string | undefined;
+    updatedBy: string | undefined;
+    deletedAt: string | undefined;
+    deletedBy: string | undefined;
     isDelete: boolean;
 }
 
 export const fetchSubjectInCurriculumList = async (): Promise<IViewListSubjectInCurriculum[]> => {
     try {
-        const response = await apiClient.get('/SubjectInCurriculum/GetAllSubjectInCurriculum?pageIndex=0&pageSize=50');
+        const response = await apiClient.get('/SubjectInCurriculum/GetAllSubjectInCurriculum', {
+            params: {
+                pageIndex: -1,
+            },
+        });
         if (response.data.success) {
             return response.data.data.items.map((subject: any) => ({
-                id: subject.subjectId,
+                subjectInCurriculumId: subject.subjectInCurriculumId,
                 name: subject.name,
-                subject: subject.subjectName,
-                grade: subject.gradeName,
-                curriculum: subject.curriculumName,
+                subjectId: subject.subjectId,
+                subject: subject.subject,
+                gradeId: subject.gradeId,
+                grade: subject.grade,
+                curriculumId: subject.curriculumId,
+                curriculum: subject.curriculum,
                 description: subject.description,
                 chapters: subject.chapters,
-                created_at: subject.createdAt,
-                created_by: subject.createdBy || '',
-                updated_at: subject.updatedAt || undefined,
-                updated_by: subject.updatedBy || undefined,
-                deleted_at: subject.deletedAt || undefined,
-                deleted_by: subject.deletedBy || undefined,
+                createdAt: subject.createdAt,
+                createdBy: subject.createdBy || '',
+                updatedAt: subject.updatedAt || undefined,
+                updatedBy: subject.updatedBy || undefined,
+                deletedAt: subject.deletedAt || undefined,
+                deletedBy: subject.deletedBy || undefined,
                 isDelete: subject.isDelete,
             }));
         }
@@ -98,5 +108,63 @@ export const getAllSubjectInCurriculumByCurriculumAndGrade = async (curriculum: 
     } catch (error) {
         console.error('Error fetching subjects in curriculum list:', error);
         return [];
+    }
+}
+
+interface CreateSubjectInCurriculum {
+    subjectId: string;
+    curriculumId: string;
+    gradeId: string;
+    description: string;
+}
+
+export const createSubjectInCurriculumFunction = async (subject: CreateSubjectInCurriculum): Promise<boolean> => {
+    try {
+        const response = await apiClient.post('/SubjectInCurriculum/CreateSubjectInCurriculum', subject);
+        if (response.data.success) {
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Error creating subject in curriculum:', error);
+        return false;
+    }
+};
+
+interface UpdateSubjectInCurriculum {
+    subjectInCurriculumId: string;
+    subjectId: string;
+    curriculumId: string;
+    gradeId: string;
+    description: string;
+}
+
+export const updateSubjectInCurriculumFunction = async (subject: UpdateSubjectInCurriculum): Promise<boolean> => {
+    try {
+        const response = await apiClient.put('/SubjectInCurriculum/UpdateSubjectInCurriculum', subject);
+        if (response.data.success) {
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Error updating subject in curriculum:', error);
+        return false;
+    }
+}
+
+export const getSubjectInCurriculumById = async (subjectInCurriculumId: string): Promise<IViewListSubjectInCurriculum> => {
+    try {
+        const response = await apiClient.get('/SubjectInCurriculum/GetSubjectInCurriculumById', {
+            params: {
+                subjectInCurriculumId
+            }
+        });
+        if (response.data.success) {
+            return response.data.data;
+        }
+        return {} as IViewListSubjectInCurriculum;
+    } catch (error) {
+        console.error('Error fetching subject in curriculum:', error);
+        return {} as IViewListSubjectInCurriculum;
     }
 }

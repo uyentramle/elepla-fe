@@ -105,6 +105,10 @@ const AccountSettingsPage: React.FC = () => {
         fetchData();
     }, []);
 
+    const handleClick = () => {
+        message.info('Chức năng này đang được phát triển.');
+    }
+
     return (
         <div className="container mx-auto w-4/5 p-4 pt-10">
             <div className="flex flex-col gap-10 lg:flex-row">
@@ -170,9 +174,9 @@ const AccountSettingsPage: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <button className="mt-1 rounded bg-gray-300 px-2 py-1 text-sm text-gray-700">
+                                <Button size="small" className="mt-1 rounded bg-gray-300 px-2 py-1 text-sm text-gray-700" onClick={handleClick}>
                                     {facebookEmail ? 'Hủy liên kết' : 'Liên Kết'}
-                                </button>
+                                </Button>
                             </div>
                             <div className="">
                                 <div className="flex items-center space-x-2">
@@ -184,9 +188,9 @@ const AccountSettingsPage: React.FC = () => {
                                         <div className="text-red-500 text-xs">Chưa liên kết</div>
                                     </div>
                                 </div>
-                                <button className="mt-1 rounded bg-gray-300 px-2 py-1 text-sm text-gray-700">
+                                <Button size="small" className="mt-1 rounded bg-gray-300 px-2 py-1 text-sm text-gray-700" onClick={handleClick}>
                                     Liên Kết
-                                </button>
+                                </Button>
                             </div>
                             <div className="">
                                 <div className="flex items-center space-x-2">
@@ -204,9 +208,9 @@ const AccountSettingsPage: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <button className="mt-1 rounded bg-gray-300 px-2 py-1 text-sm text-gray-700">
+                                <Button size="small" className="mt-1 rounded bg-gray-300 px-2 py-1 text-sm text-gray-700" onClick={handleClick}>
                                     {googleEmail ? 'Hủy liên kết' : 'Liên Kết'}
-                                </button>
+                                </Button>
                             </div>
                         </div>
                     </div>

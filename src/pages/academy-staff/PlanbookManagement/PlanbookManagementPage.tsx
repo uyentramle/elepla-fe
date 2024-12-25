@@ -20,28 +20,29 @@ const PlanbookManagementPage: React.FC = () => {
   const [filterGrade, setFilterGrade] = useState('');
   const [curriculumOptions, setCurriculumOptions] = useState<IViewListCurriculum[]>([]); // Danh sách khung chương trình
   const [filterCurriculum, setFilterCurriculum] = useState('');
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalItemsCount, setTotalItemsCount] = useState(0);
+  // const [pageIndex, setPageIndex] = useState(0);
+  // const [pageSize, setPageSize] = useState(10);
+  // const [totalItemsCount, setTotalItemsCount] = useState(0);
   const [selectedPlanbook, setSelectedPlanbook] = useState<string | null>(null); // State để lưu trữ thông tin planbook được chọn
   const [addVisible, setAddVisible] = useState(false);
   const [detailVisible, setDetailVisible] = useState(false); // State để điều khiển hiển thị của modal
   const [updateVisible, setUpdateVisible] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getAllPlanbookTemplates(pageIndex, pageSize);
+        const response = await getAllPlanbookTemplates();
         setPlanbooks(response.data.items);
-        setTotalItemsCount(response.data.totalItemsCount);
+        // setTotalItemsCount(response.data.totalItemsCount);
         setIsDelete(false);
       } catch (error) {
         message.error('Không thể tải dữ liệu, vui lòng thử lại sau');
       }
     };
     fetchData();
-  }, [pageIndex, pageSize, detailVisible, updateVisible, addVisible, isDelete]);
+  }, [/*pageIndex, pageSize,*/ detailVisible, updateVisible, addVisible, isDelete]);
 
   useEffect(() => {
     const fetchSubjects = async () => {
@@ -76,12 +77,12 @@ const PlanbookManagementPage: React.FC = () => {
     fetchCurriculums();
   }, []);
 
-  const handlePageChange = (page: number, pageSize?: number) => {
-    setPageIndex(page - 1); // Adjust for 0-based index
-    if (pageSize) {
-      setPageSize(pageSize);
-    }
-  };
+  // const handlePageChange = (page: number, pageSize?: number) => {
+  //   setPageIndex(page - 1); // Adjust for 0-based index
+  //   if (pageSize) {
+  //     setPageSize(pageSize);
+  //   }
+  // };
 
   // Lọc dữ liệu kế hoạch bài dạy
   const filteredPlanbooks = planbooks.filter((a) => {
@@ -100,17 +101,8 @@ const PlanbookManagementPage: React.FC = () => {
       setSelectedPlanbook(record.planbookId); // Lưu ID Planbook được chọn
       setUpdateVisible(true); // Mở Modal
     } else if (key === 'delete') {
-      try {
-        const response = await deletePlanbookTemplate(record.planbookId);
-        if (response) {
-          message.success('Xóa kế hoạch bài dạy thành công');
-          setIsDelete(true);
-        } else {
-          message.error('Xóa kế hoạch bài dạy thất bại');
-        }
-      } catch (error) {
-        message.error('Có lỗi xảy ra, vui lòng thử lại sau');
-      }
+      setSelectedPlanbook(record.planbookId); // Lưu ID Planbook được chọn
+      setIsDeleteModalVisible(true); // Mở Modal xác nhận xóa
     }
   };
 
@@ -120,6 +112,21 @@ const PlanbookManagementPage: React.FC = () => {
 
   const handleAddPlanbook = () => {
     setAddVisible(false);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      const response = await deletePlanbookTemplate(selectedPlanbook as string);
+      if (response) {
+        message.success('Xóa kế hoạch bài dạy thành công');
+        setIsDelete(true);
+        setIsDeleteModalVisible(false);
+      } else {
+        message.error('Xóa kế hoạch bài dạy thất bại');
+      }
+    } catch (error) {
+      message.error('Có lỗi xảy ra, vui lòng thử lại sau');
+    }
   };
 
   const columns = [
@@ -177,7 +184,7 @@ const PlanbookManagementPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-6 text-3xl font-semibold">Quản lý Kế hoạch bài dạy mẫu</h1>
+      <h1 className="mb-6 text-3xl font-semibold">Quản lý kế hoạch bài dạy mẫu</h1>
       <div className="mb-4 flex justify-between">
         <div className="flex">
           <div className="relative mr-2">
@@ -246,8 +253,8 @@ const PlanbookManagementPage: React.FC = () => {
           </Button>
         </div>
       </div>
-      <Table columns={columns} dataSource={filteredPlanbooks} rowKey="id" pagination={false} />
-      <Pagination
+      <Table columns={columns} dataSource={filteredPlanbooks} rowKey="id" pagination={{ showQuickJumper: true }} />
+      {/* <Pagination
         className="mt-10 flex justify-center"
         current={pageIndex + 1}
         pageSize={pageSize}
@@ -256,7 +263,7 @@ const PlanbookManagementPage: React.FC = () => {
         // prevIcon={<Button type="text">Trước</Button>}
         // nextIcon={<Button type="text">Sau</Button>}
         showSizeChanger
-      />
+      /> */}
 
       {/* Modal chi tiết Planbook */}
       <Modal
@@ -279,7 +286,7 @@ const PlanbookManagementPage: React.FC = () => {
         visible={updateVisible}
         onCancel={() => setUpdateVisible(false)}
         footer={null}
-        width={800} // Điều chỉnh chiều rộng modal
+        width={850} // Điều chỉnh chiều rộng modal
         style={{ top: '5vh' }}
       >
         {selectedPlanbook && <UpdatePlanbookTemplateForm planbookId={selectedPlanbook} />}
@@ -287,6 +294,18 @@ const PlanbookManagementPage: React.FC = () => {
 
       {/* Modal thêm mới Planbook */}
       <CreatePlanbookTemplateForm isVisible={addVisible} onClose={() => setAddVisible(false)} onCreate={handleAddPlanbook} />
+
+      <Modal
+        title="Xác nhận xóa"
+        visible={isDeleteModalVisible}
+        onOk={handleDeleteConfirm} // Thực hiện xóa khi người dùng nhấn "Đồng ý"
+        onCancel={() => setIsDeleteModalVisible(false)} // Đóng Modal nếu người dùng hủy
+        okText="Xóa"
+        cancelText="Hủy"
+        okButtonProps={{ danger: true }} // Nút Xóa màu đỏ
+      >
+        <p>Bạn có chắc muốn xóa kế hoạch bài dạy này không?</p>
+      </Modal>
     </div>
   );
 }

@@ -48,7 +48,7 @@ interface ApiResponse {
   };
 }
 
-const getAllUsers = async (/*keyword: string | null, status: boolean | null,*/ pageIndex: number, pageSize: number): Promise<ApiResponse> => {
+const getAllUsers = async (/*keyword: string | null, status: boolean | null, pageIndex: number, pageSize: number*/): Promise<ApiResponse> => {
   const accessToken = localStorage.getItem('accessToken');
 
   if (!accessToken) {
@@ -60,8 +60,8 @@ const getAllUsers = async (/*keyword: string | null, status: boolean | null,*/ p
       params: {
         // keyword,
         // status,
-        pageIndex,
-        pageSize
+        pageIndex: -1,
+        // pageSize
       },
       headers: {
         'accept': '*/*',
@@ -121,9 +121,9 @@ const UserManagementPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<Account | null>(null); // State để lưu trữ thông tin người dùng được chọn
   const [addVisible, setAddVisible] = useState(false); // State để điều khiển hiển thị của modal
   const navigate = useNavigate();
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalItemsCount, setTotalItemsCount] = useState(0);
+  // const [pageIndex, setPageIndex] = useState(0);
+  // const [pageSize, setPageSize] = useState(10);
+  // const [totalItemsCount, setTotalItemsCount] = useState(0);
   // const [totalPagesCount, setTotalPagesCount] = useState(1);
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
 
@@ -154,9 +154,9 @@ const UserManagementPage: React.FC = () => {
     if (!isAuthorized) return;
     const fetchData = async () => {
       try {
-        const data = await getAllUsers(/*searchTerm, filterStatus,*/ pageIndex, pageSize);
+        const data = await getAllUsers(/*searchTerm, filterStatus, pageIndex, pageSize*/);
         setAccounts(data.data.items);
-        setTotalItemsCount(data.data.totalItemsCount);
+        // setTotalItemsCount(data.data.totalItemsCount);
         // setTotalPagesCount(data.data.totalPagesCount);
       } catch (error) {
         console.error('Error fetching accounts:', error);
@@ -167,7 +167,7 @@ const UserManagementPage: React.FC = () => {
 
     // return () => clearInterval(interval);
 
-  }, [isAuthorized, searchTerm, filterStatus, pageIndex, pageSize, editVisible, addVisible]);
+  }, [isAuthorized, searchTerm, filterStatus, /*pageIndex, pageSize,*/ editVisible, addVisible]);
 
   // useWebSocket('ws://localhost:5096/ws', (event) => {
   //   console.log('Received WebSocket message:', event.data);
@@ -186,12 +186,12 @@ const UserManagementPage: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const handlePageChange = (page: number, pageSize?: number) => {
-    setPageIndex(page - 1); // Adjust for 0-based index
-    if (pageSize) {
-      setPageSize(pageSize);
-    }
-  };
+  // const handlePageChange = (page: number, pageSize?: number) => {
+  //   setPageIndex(page - 1); // Adjust for 0-based index
+  //   if (pageSize) {
+  //     setPageSize(pageSize);
+  //   }
+  // };
 
   const showUserDetailsModal = (user: Account) => {
     setSelectedUser(user);
@@ -367,8 +367,8 @@ const UserManagementPage: React.FC = () => {
           </Button>
         </div>
       </div>
-      <Table columns={columns} dataSource={filteredAccounts} rowKey="id" pagination={false} />
-      <Pagination
+      <Table columns={columns} dataSource={filteredAccounts} rowKey="id" pagination={{ showQuickJumper: true }} />
+      {/* <Pagination
         className="mt-10 flex justify-center"
         current={pageIndex + 1}
         pageSize={pageSize}
@@ -377,7 +377,7 @@ const UserManagementPage: React.FC = () => {
         // prevIcon={<Button type="text">Trước</Button>}
         // nextIcon={<Button type="text">Sau</Button>}
         showSizeChanger
-      />
+      /> */}
       <AddUserForm
         visible={addVisible}
         onCancel={() => setAddVisible(false)}

@@ -88,17 +88,21 @@ const PackageInUsePage: React.FC = () => {
     const getStatus = (pkg: any) => {
         // Nếu thanh toán thất bại
         if (pkg.paymentStatus === "Failed") {
-            return <span className="text-red-600 font-bold">Thanh toán thất bại</span>;
+            return <span className="text-red-600 font-semibold">Thanh toán thất bại</span>;
         }
 
         // Nếu đang chờ thanh toán
         if (pkg.paymentStatus === "Pending") {
-            return <span className="text-orange-500 font-bold">Đang chờ thanh toán</span>;
+            // return <span className="text-orange-500 font-bold">Đang chờ thanh toán</span>;
+            return (
+            <a href={pkg.paymentUrl} className="text-blue-500 font-semibold underline" target="_blank" rel="noopener noreferrer">
+            Đang chờ thanh toán            </a>
+            );
         }
 
         // Nếu gói đang sử dụng và có `isActive = true`
         if (pkg.isActive) {
-            return <span className="text-green-600 font-bold">Đang sử dụng</span>;
+            return <span className="text-green-600 font-semibold">Đang sử dụng</span>;
         }
 
         // Kiểm tra nếu endDate lớn hơn ngày hiện tại
@@ -110,16 +114,16 @@ const PackageInUsePage: React.FC = () => {
             (pkg.packageName === "Gói miễn phí" && !pkg.isActive) ||
             (pkg.isActive === false && endDate > currentDate)
         ) {
-            return <span className="text-yellow-500 font-bold">Đã nâng cấp</span>;
+            return <span className="text-yellow-500 font-semibold">Đã nâng cấp</span>;
         }
 
         // Nếu gói hết hạn (endDate <= hiện tại)
         if (endDate <= currentDate) {
-            return <span className="text-red-600 font-bold">Hết hạn</span>;
+            return <span className="text-red-600 font-semibold">Hết hạn</span>;
         }
 
         // Default fallback (nếu không vào được bất kỳ điều kiện nào trên)
-        return <span className="text-gray-600 font-bold">Không xác định</span>;
+        return <span className="text-gray-600 font-semibold">Không xác định</span>;
     };
 
     return (
