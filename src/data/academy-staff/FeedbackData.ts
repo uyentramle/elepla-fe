@@ -7,9 +7,12 @@ export interface IViewListFeedback {
     rate: number;
     type: string;
     isFlagged: boolean;
+    flagCount: number;
+    teacherId: string;
     username: string;
+    avatar: string;
     planbookName: string | undefined;
-    created_at: string;
+    createdAt: string;
 }
 
 export const fetchPlanBookFeedbackList = async (): Promise<IViewListFeedback[]> => {
@@ -22,9 +25,12 @@ export const fetchPlanBookFeedbackList = async (): Promise<IViewListFeedback[]> 
                 rate: feedback.rate,
                 type: feedback.type,
                 isFlagged: feedback.isFlagged,
+                flagCount: feedback.flagCount,
+                teacherId: feedback.teacherId,
                 username: feedback.teacherName,
-                planbookName: feedback.planbookName,
-                created_at: feedback.createdAt,
+                avatar: feedback.avatar,
+                planbookName: feedback.planbookTitle,
+                createdAt: feedback.createdAt,
             }));
         }
         return [];
@@ -44,9 +50,12 @@ export const fetchSystemFeedbackList = async (): Promise<IViewListFeedback[]> =>
                 rate: feedback.rate,
                 type: feedback.type,
                 isFlagged: feedback.isFlagged,
+                flagCount: feedback.flagCount,
+                teacherId: feedback.teacherId,
                 username: feedback.teacherName,
-                planbookName: feedback.planbookName,
-                created_at: feedback.createdAt,
+                avatar: feedback.avatar,
+                planbookName: feedback.planbookTitle,
+                createdAt: feedback.createdAt,
             }));
         }
         return [];

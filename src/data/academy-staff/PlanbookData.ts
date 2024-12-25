@@ -73,12 +73,11 @@ interface Activity {
     planbookId: string;
 }
 
-export const getAllPlanbookTemplates = async (pageIndex: number, pageSize: number): Promise<ApiResponse> => {
+export const getAllPlanbookTemplates = async (): Promise<ApiResponse> => {
     try {
         const response = await apiClient.get(`Planbook/GetAllPlanbookTemplates`, {
             params: {
-                pageIndex,
-                pageSize
+                pageIndex: -1,
             }
         });
         if (response.data.success) {
@@ -300,7 +299,8 @@ export const getPlanbookByCollectionId = async (collectionId: string): Promise<P
     try {
         const response = await apiClient.get(`Planbook/GetPlanbookByCollectionId`, {
             params: {
-                collectionId
+                collectionId,
+                pageIndex: -1,
             }
         });
         if (response.data.success) {

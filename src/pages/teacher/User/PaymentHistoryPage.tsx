@@ -246,10 +246,10 @@ const PaymentDetailModal: React.FC<{ isOpen: boolean, paymentId: string; onClose
                 }`}
         >
             {/* max-w-[60rem] */}
-            <div className={`w-full max-w-screen-lg rounded bg-white p-4 shadow-lg ${modalClass}`}>
+            <div className={`w-full max-w-screen-lg rounded bg-white p-6 shadow-lg ${modalClass}`}>
                 <div className="modal-content">
                     <div className="modal-header text-black">
-                        <h5 className="modal-title mb-2 text-center text-xl font-bold">
+                        <h5 className="modal-title mb-6 text-center text-xl font-semibold">
                             Chi tiết thanh toán
                         </h5>
                     </div>
