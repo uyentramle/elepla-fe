@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { SearchOutlined, PlusOutlined, EditOutlined, EllipsisOutlined, DeleteOutlined, BlockOutlined } from '@ant-design/icons';
-import { Input, Select, Button, Table, Space, Dropdown, Menu, Pagination, message, Modal } from 'antd';
+import { Input, Select, Button, Table, Space, Dropdown, Menu, message, Modal } from 'antd';
 import { getAllPlanbookTemplates, PlanbookTemplate, deletePlanbookTemplate } from "@/data/academy-staff/PlanbookData";
 import { getAllCurriculumFramework, IViewListCurriculum } from "@/data/admin/CurriculumFramworkData";
 import { getAllSubject, IViewListSubject } from "@/data/admin/SubjectData";

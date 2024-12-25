@@ -39,7 +39,7 @@ const CreateChapterForm: React.FC<CreateChapterFormProps> = ({ isVisible, onClos
         if (isVisible) {
             fetchData();
         }
-    }, [isVisible]);
+    }, [isVisible, form]);
 
     const fetchSubjectsInCurriculum = async (curriculumId: string, gradeId: string) => {
         if (curriculumId && gradeId) {

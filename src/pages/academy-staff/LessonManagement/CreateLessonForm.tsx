@@ -41,7 +41,7 @@ const CreateLessonForm: React.FC<CreateLessonFormProps> = ({ isVisible, onClose,
         if (isVisible) {
             fetchData();
         }
-    }, [isVisible]);
+    }, [isVisible, form]);
 
     const fetchSubjectsInCurriculum = async (curriculumId: string, gradeId: string) => {
         if (curriculumId && gradeId) {

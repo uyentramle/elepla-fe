@@ -20,7 +20,6 @@ const SubjectInCurriculumFormPage: React.FC<CreateChapterFormProps> = ({ isVisib
 
     useEffect(() => {
         form.resetFields();
-
         const fetchData = async () => {
             try {
                 setLoading(true);
@@ -42,7 +41,7 @@ const SubjectInCurriculumFormPage: React.FC<CreateChapterFormProps> = ({ isVisib
         if (isVisible) {
             fetchData();
         }
-    }, [isVisible]);
+    }, [isVisible, form]);
 
     const handleCreate = async () => {
         try {

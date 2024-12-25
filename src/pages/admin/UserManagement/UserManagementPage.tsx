@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { SearchOutlined, PlusOutlined, EditOutlined, EllipsisOutlined, BlockOutlined, UnlockOutlined } from '@ant-design/icons';
-import { Input, Select, Button, Table, Tag, Space, Avatar, Dropdown, Menu, Pagination, message } from 'antd';
+import { Input, Select, Button, Table, Tag, Space, Avatar, Dropdown, Menu, /*Pagination,*/ message } from 'antd';
 import UserDetailsForm from './UserDetailsForm'; // Đường dẫn đến component UserDetailsForm
 import AddUserForm from './AddUserForm';
 // import { renderMatches } from "react-router-dom";
