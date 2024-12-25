@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Input, Select, Button, Card, message, Dropdown, Menu, Spin, Avatar } from 'antd';
 import { FileOutlined, ShareAltOutlined, SearchOutlined, BlockOutlined, EllipsisOutlined, BookOutlined, EditOutlined } from '@ant-design/icons';
 import { PlanbookShared, getSharedPlanbookByUserId } from '@/data/academy-staff/PlanbookData';
-import PlanbookDetailForm from '@/pages/academy-staff/PlanbookManagement/PlanbookDetailForm';
+import PlanbookShareDetailForm from './PlanbookShareDetailForm';
 import UpdatePlanbookForm from '@/pages/academy-staff/PlanbookManagement/UpdatePlanbookForm';
 import { getUserId } from '@/data/apiClient';
 
@@ -188,7 +188,7 @@ const PlanbookSharePage: React.FC = () => {
             </div>
 
             {selectedPlanbook && (
-                <PlanbookDetailForm planbookId={selectedPlanbook} isVisible={isDetailVisible} onClose={() => setIsDetailVisible(false)} isLibrary={false} />
+                <PlanbookShareDetailForm planbookId={selectedPlanbook} isVisible={isDetailVisible} onClose={() => setIsDetailVisible(false)} isLibrary={false} />
             )}
 
             {selectedPlanbook && (

@@ -45,7 +45,7 @@ const SignInPage: React.FC = () => {
                                 <span className="font-semibold tracking-widest uppercase">Elepla</span>
                                 <div className="flex flex-col justify-center text-center h-full">
                                     <h1 className="text-3xl mb-4">Xin chào!</h1>
-                                    <p className="text-gray-200 font-normal leading-relaxed">Cung cấp thông tin của bạn và cùng chúng tôi khám phá cách đơn giản hóa việc tạo giáo án.</p>
+                                    <p className="text-gray-200 font-normal leading-relaxed">Cung cấp thông tin của bạn và cùng chúng tôi khám phá cách đơn giản hóa việc tạo kế hoạch bài dạy.</p>
                                     <div className="my-8">
                                         <Link to="/sign-up" className="border text-white font-medium text-sm rounded-full transition-all duration-300 hover:bg-white hover:text-black focus:bg-white focus:text-black px-14 py-2.5">
                                             Đăng ký

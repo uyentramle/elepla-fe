@@ -65,7 +65,7 @@ const CreatePlanbookTemplateForm: React.FC<CreatePlanbookTemplateFormProps> = ({
         if (inputRef.current) {
             const inputLength = inputRef.current.input?.value.length || 0; // Lấy độ dài nội dung trong input
             const newWidth = inputLength < 10 ? 200 : inputLength * 10.5; // Đặt chiều rộng dựa trên độ dài
-            setInputWidth(newWidth); // Cập nhật chiều rộng
+            setInputWidth(Math.min(newWidth, 600)); // Cập nhật chiều rộng
         }
     };
 
@@ -247,264 +247,266 @@ const CreatePlanbookTemplateForm: React.FC<CreatePlanbookTemplateFormProps> = ({
                                 }}
                             >
                                 {/* Tên bài dạy và thông tin môn học */}
-                                <div className="text-center mb-6">
-                                    <div className="flex items-center justify-center space-x-2">
-                                        {/* Tên bài dạy */}
-                                        <h1 className="text-lg font-bold">Tên bài dạy:</h1>
+                                <div className="container mx-auto px-4 py-8">
+                                    <div className="text-center mb-6">
+                                        <div className="flex items-center justify-center space-x-2">
+                                            {/* Tên bài dạy */}
+                                            <h1 className="text-lg font-bold">Tên bài dạy:</h1>
+                                            <Form.Item
+                                                name="title"
+                                                rules={[{ required: true, message: 'Vui lòng nhập tên bài dạy' }]}
+                                            >
+                                                <Input
+                                                    ref={inputRef} // Gán ref cho Input
+                                                    style={{
+                                                        fontSize: '17px',
+                                                        fontWeight: 'bold',
+                                                        borderRadius: '8px',
+                                                        paddingLeft: '10px',
+                                                        marginTop: '25px',
+                                                        width: `${inputWidth}px`, // Chiều rộng thay đổi tự động
+                                                        transition: 'width 0.3s ease', // Hiệu ứng chuyển động mượt mà
+                                                    }}
+                                                    onChange={updateInputWidth} // Cập nhật chiều rộng mỗi khi người dùng thay đổi
+                                                />
+                                            </Form.Item>
+                                        </div>
+                                        <Form.Item name="subject" style={{ display: 'none' }}>
+                                            <Input type="hidden" value="" />
+                                        </Form.Item>
+                                        <Form.Item name="className" style={{ display: 'none' }}>
+                                            <Input type="hidden" value="" />
+                                        </Form.Item>
+                                        <div className="text-base mt-1">
+                                            <p className="inline-block">Môn học:</p>
+                                            <Form.Item
+                                                name="subject"
+                                                rules={[{ required: true, message: 'Vui lòng nhập môn học' }]}
+                                                style={{ display: 'inline-block', width: 'auto', marginLeft: '5px' }}
+                                            >
+                                                <Input
+                                                    style={{
+                                                        borderRadius: '8px',
+                                                        marginTop: '-5px',
+                                                        width: '150px',
+                                                    }}
+                                                />
+                                            </Form.Item>
+                                        </div>
+                                        <div className="text-base mt-1">
+                                            <p className="inline-block">Thời gian thực hiện: (</p>
+                                            <Form.Item
+                                                name="durationInPeriods"
+                                                rules={[{ required: true, message: 'Vui lòng nhập số tiết' }]}
+                                                style={{ display: 'inline-block', width: 'auto' }}
+                                            >
+                                                <Input
+                                                    type="number"
+                                                    min={1}
+                                                    max={9}
+                                                    className="w-12 text-center border rounded-md"
+                                                    placeholder="1"
+                                                    style={{ marginTop: '-5px' }}
+                                                />
+                                            </Form.Item>
+                                            <span className="inline-block ml-1">tiết)</span>
+                                        </div>
+
+                                    </div>
+
+                                    {/* Mục tiêu */}
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-bold">I. Mục tiêu</h3>
+                                        {/* Về kiến thức */}
                                         <Form.Item
-                                            name="title"
-                                            rules={[{ required: true, message: 'Vui lòng nhập tên bài dạy' }]}
+                                            label={<span className="font-bold text-base">1. Về kiến thức</span>}
+                                            name="knowledgeObjective"
+                                            rules={[{ required: true, message: "Vui lòng nhập mục tiêu về kiến thức" }]}
                                         >
-                                            <Input
-                                                ref={inputRef} // Gán ref cho Input
+                                            <TextArea
+                                                placeholder="Nhập mục tiêu về kiến thức"
+                                                autoSize
                                                 style={{
-                                                    fontSize: '17px',
-                                                    fontWeight: 'bold',
-                                                    borderRadius: '8px',
-                                                    paddingLeft: '10px',
-                                                    marginTop: '25px',
-                                                    width: `${inputWidth}px`, // Chiều rộng thay đổi tự động
-                                                    transition: 'width 0.3s ease', // Hiệu ứng chuyển động mượt mà
+                                                    fontSize: "14px",
+                                                    lineHeight: "1.5",
+                                                    padding: "10px",
                                                 }}
-                                                onChange={updateInputWidth} // Cập nhật chiều rộng mỗi khi người dùng thay đổi
                                             />
                                         </Form.Item>
-                                    </div>
-                                    <Form.Item name="subject" style={{ display: 'none' }}>
-                                        <Input type="hidden" value="" />
-                                    </Form.Item>
-                                    <Form.Item name="className" style={{ display: 'none' }}>
-                                        <Input type="hidden" value="" />
-                                    </Form.Item>
-                                    <div className="text-base mt-1">
-                                        <p className="inline-block">Môn học:</p>
+                                        {/* Về năng lực */}
                                         <Form.Item
-                                            name="subject"
-                                            rules={[{ required: true, message: 'Vui lòng nhập môn học' }]}
-                                            style={{ display: 'inline-block', width: 'auto', marginLeft: '5px' }}
+                                            label={<span className="font-bold text-base">2. Về năng lực</span>}
+                                            name="skillsObjective"
+                                            rules={[{ required: true, message: "Vui lòng nhập mục tiêu về năng lực" }]}
                                         >
-                                            <Input
+                                            <TextArea
+                                                placeholder="Nhập mục tiêu về năng lực"
+                                                autoSize
                                                 style={{
-                                                    borderRadius: '8px',
-                                                    marginTop: '-5px',
-                                                    width: '150px',
+                                                    fontSize: "14px",
+                                                    lineHeight: "1.5",
+                                                    padding: "10px",
+                                                }}
+                                            />
+                                        </Form.Item>
+                                        {/* Về phẩm chất */}
+                                        <Form.Item
+                                            label={<span className="font-bold text-base">3. Về phẩm chất</span>}
+                                            name="qualitiesObjective"
+                                            rules={[{ required: true, message: "Vui lòng nhập mục tiêu về phẩm chất" }]}
+                                        >
+                                            <TextArea
+                                                placeholder="Nhập mục tiêu về phẩm chất"
+                                                autoSize
+                                                style={{
+                                                    fontSize: "14px",
+                                                    lineHeight: "1.5",
+                                                    padding: "10px",
                                                 }}
                                             />
                                         </Form.Item>
                                     </div>
-                                    <div className="text-base mt-1">
-                                        <p className="inline-block">Thời gian thực hiện: (</p>
+
+                                    {/* Thiết bị dạy học */}
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-bold">II. Thiết bị dạy học và học liệu</h3>
                                         <Form.Item
-                                            name="durationInPeriods"
-                                            rules={[{ required: true, message: 'Vui lòng nhập số tiết' }]}
-                                            style={{ display: 'inline-block', width: 'auto' }}
+                                            name="teachingTools"
+                                            rules={[{ required: true, message: "Vui lòng nhập thiết bị dạy học và học liệu" }]}
                                         >
-                                            <Input
-                                                type="number"
-                                                min={1}
-                                                max={9}
-                                                className="w-12 text-center border rounded-md"
-                                                placeholder="1"
-                                                style={{ marginTop: '-5px' }}
+                                            <TextArea
+                                                placeholder="Nhập thiết bị dạy học và học liệu"
+                                                autoSize
+                                                style={{
+                                                    fontSize: "14px",
+                                                    lineHeight: "1.5",
+                                                    padding: "10px",
+                                                }}
                                             />
                                         </Form.Item>
-                                        <span className="inline-block ml-1">tiết)</span>
                                     </div>
 
-                                </div>
+                                    {/* Tiến trình dạy học */}
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-bold">III. Tiến trình dạy học</h3>
+                                        <Form.List name="activities">
+                                            {(fields, { add, remove }) => (
+                                                <>
+                                                    <Collapse>
+                                                        {fields.map((field, index) => (
+                                                            <Collapse.Panel
+                                                                header={
+                                                                    <h4 className="font-bold">{`Hoạt động ${index + 1}: Chưa có tiêu đề`}</h4>
+                                                                }
+                                                                key={`activity-${index}`}
+                                                            >
+                                                                {/* Tiêu đề */}
+                                                                <Form.Item
+                                                                    label={<strong>Tiêu đề</strong>}
+                                                                    name={[field.name, "title"]}
+                                                                    rules={[{ required: true, message: "Vui lòng nhập tiêu đề" }]}
+                                                                >
+                                                                    <Input placeholder="Nhập tiêu đề hoạt động" />
+                                                                </Form.Item>
+                                                                {/* Mục tiêu */}
+                                                                <Form.Item
+                                                                    label={<strong>a) Mục tiêu</strong>}
+                                                                    name={[field.name, "objective"]}
+                                                                    rules={[{ required: true, message: "Vui lòng nhập mục tiêu" }]}
+                                                                >
+                                                                    <TextArea
+                                                                        placeholder="Nhập mục tiêu"
+                                                                        autoSize
+                                                                        style={{
+                                                                            fontSize: "14px",
+                                                                            lineHeight: "1.5",
+                                                                            padding: "10px",
+                                                                        }}
+                                                                    />
+                                                                </Form.Item>
+                                                                {/* Nội dung */}
+                                                                <Form.Item
+                                                                    label={<strong>b) Nội dung</strong>}
+                                                                    name={[field.name, "content"]}
+                                                                    rules={[{ required: true, message: "Vui lòng nhập nội dung" }]}
+                                                                >
+                                                                    <TextArea
+                                                                        placeholder="Nhập nội dung"
+                                                                        autoSize
+                                                                        style={{
+                                                                            fontSize: "14px",
+                                                                            lineHeight: "1.5",
+                                                                            padding: "10px",
+                                                                        }}
+                                                                    />
+                                                                </Form.Item>
+                                                                {/* Sản phẩm */}
+                                                                <Form.Item
+                                                                    label={<strong>c) Sản phẩm</strong>}
+                                                                    name={[field.name, "product"]}
+                                                                    rules={[{ required: true, message: "Vui lòng nhập sản phẩm" }]}
+                                                                >
+                                                                    <TextArea
+                                                                        placeholder="Nhập sản phẩm"
+                                                                        autoSize
+                                                                        style={{
+                                                                            fontSize: "14px",
+                                                                            lineHeight: "1.5",
+                                                                            padding: "10px",
+                                                                        }}
+                                                                    />
+                                                                </Form.Item>
+                                                                {/* Tổ chức thực hiện */}
+                                                                <Form.Item
+                                                                    label={<strong>d) Tổ chức thực hiện</strong>}
+                                                                    name={[field.name, "implementation"]}
+                                                                    rules={[{ required: true, message: "Vui lòng nhập cách tổ chức thực hiện" }]}
+                                                                >
+                                                                    <TextArea
+                                                                        placeholder="Nhập cách tổ chức thực hiện"
+                                                                        autoSize
+                                                                        style={{
+                                                                            fontSize: "14px",
+                                                                            lineHeight: "1.5",
+                                                                            padding: "10px",
+                                                                        }}
+                                                                    />
+                                                                </Form.Item>
+                                                                <Button type="default" danger onClick={() => remove(field.name)} style={{ marginTop: '10px' }}>
+                                                                    Xóa hoạt động
+                                                                </Button>
+                                                            </Collapse.Panel>
+                                                        ))}
+                                                    </Collapse>
+                                                    <Button type="dashed" onClick={() => add()} style={{ marginTop: '20px' }}>
+                                                        Thêm hoạt động
+                                                    </Button>
+                                                </>
+                                            )}
+                                        </Form.List>
+                                    </div>
 
-                                {/* Mục tiêu */}
-                                <div className="mb-6">
-                                    <h3 className="text-lg font-bold">I. Mục tiêu</h3>
-                                    {/* Về kiến thức */}
-                                    <Form.Item
-                                        label={<span className="font-bold text-base">1. Về kiến thức</span>}
-                                        name="knowledgeObjective"
-                                        rules={[{ required: true, message: "Vui lòng nhập mục tiêu về kiến thức" }]}
-                                    >
-                                        <TextArea
-                                            placeholder="Nhập mục tiêu về kiến thức"
-                                            autoSize
-                                            style={{
-                                                fontSize: "14px",
-                                                lineHeight: "1.5",
-                                                padding: "10px",
-                                            }}
-                                        />
-                                    </Form.Item>
-                                    {/* Về năng lực */}
-                                    <Form.Item
-                                        label={<span className="font-bold text-base">2. Về năng lực</span>}
-                                        name="skillsObjective"
-                                        rules={[{ required: true, message: "Vui lòng nhập mục tiêu về năng lực" }]}
-                                    >
-                                        <TextArea
-                                            placeholder="Nhập mục tiêu về năng lực"
-                                            autoSize
-                                            style={{
-                                                fontSize: "14px",
-                                                lineHeight: "1.5",
-                                                padding: "10px",
-                                            }}
-                                        />
-                                    </Form.Item>
-                                    {/* Về phẩm chất */}
-                                    <Form.Item
-                                        label={<span className="font-bold text-base">3. Về phẩm chất</span>}
-                                        name="qualitiesObjective"
-                                        rules={[{ required: true, message: "Vui lòng nhập mục tiêu về phẩm chất" }]}
-                                    >
-                                        <TextArea
-                                            placeholder="Nhập mục tiêu về phẩm chất"
-                                            autoSize
-                                            style={{
-                                                fontSize: "14px",
-                                                lineHeight: "1.5",
-                                                padding: "10px",
-                                            }}
-                                        />
-                                    </Form.Item>
-                                </div>
+                                    {/* Ghi chú */}
+                                    <div className="mb-6">
+                                        <h3 className="text-base font-bold">Ghi chú</h3>
+                                        <Form.Item name="notes">
+                                            <TextArea
+                                                placeholder="Nhập ghi chú"
+                                                autoSize
+                                                style={{
+                                                    fontSize: "14px",
+                                                    lineHeight: "1.5",
+                                                    padding: "10px",
+                                                }}
+                                            />
+                                        </Form.Item>
+                                    </div>
 
-                                {/* Thiết bị dạy học */}
-                                <div className="mb-6">
-                                    <h3 className="text-lg font-bold">II. Thiết bị dạy học và học liệu</h3>
-                                    <Form.Item
-                                        name="teachingTools"
-                                        rules={[{ required: true, message: "Vui lòng nhập thiết bị dạy học và học liệu" }]}
-                                    >
-                                        <TextArea
-                                            placeholder="Nhập thiết bị dạy học và học liệu"
-                                            autoSize
-                                            style={{
-                                                fontSize: "14px",
-                                                lineHeight: "1.5",
-                                                padding: "10px",
-                                            }}
-                                        />
-                                    </Form.Item>
-                                </div>
-
-                                {/* Tiến trình dạy học */}
-                                <div className="mb-6">
-                                    <h3 className="text-lg font-bold">III. Tiến trình dạy học</h3>
-                                    <Form.List name="activities">
-                                        {(fields, { add, remove }) => (
-                                            <>
-                                                <Collapse>
-                                                    {fields.map((field, index) => (
-                                                        <Collapse.Panel
-                                                            header={
-                                                                <h4 className="font-bold">{`Hoạt động ${index + 1}: Chưa có tiêu đề`}</h4>
-                                                            }
-                                                            key={`activity-${index}`}
-                                                        >
-                                                            {/* Tiêu đề */}
-                                                            <Form.Item
-                                                                label={<strong>Tiêu đề</strong>}
-                                                                name={[field.name, "title"]}
-                                                                rules={[{ required: true, message: "Vui lòng nhập tiêu đề" }]}
-                                                            >
-                                                                <Input placeholder="Nhập tiêu đề hoạt động" />
-                                                            </Form.Item>
-                                                            {/* Mục tiêu */}
-                                                            <Form.Item
-                                                                label={<strong>a) Mục tiêu</strong>}
-                                                                name={[field.name, "objective"]}
-                                                                rules={[{ required: true, message: "Vui lòng nhập mục tiêu" }]}
-                                                            >
-                                                                <TextArea
-                                                                    placeholder="Nhập mục tiêu"
-                                                                    autoSize
-                                                                    style={{
-                                                                        fontSize: "14px",
-                                                                        lineHeight: "1.5",
-                                                                        padding: "10px",
-                                                                    }}
-                                                                />
-                                                            </Form.Item>
-                                                            {/* Nội dung */}
-                                                            <Form.Item
-                                                                label={<strong>b) Nội dung</strong>}
-                                                                name={[field.name, "content"]}
-                                                                rules={[{ required: true, message: "Vui lòng nhập nội dung" }]}
-                                                            >
-                                                                <TextArea
-                                                                    placeholder="Nhập nội dung"
-                                                                    autoSize
-                                                                    style={{
-                                                                        fontSize: "14px",
-                                                                        lineHeight: "1.5",
-                                                                        padding: "10px",
-                                                                    }}
-                                                                />
-                                                            </Form.Item>
-                                                            {/* Sản phẩm */}
-                                                            <Form.Item
-                                                                label={<strong>c) Sản phẩm</strong>}
-                                                                name={[field.name, "product"]}
-                                                                rules={[{ required: true, message: "Vui lòng nhập sản phẩm" }]}
-                                                            >
-                                                                <TextArea
-                                                                    placeholder="Nhập sản phẩm"
-                                                                    autoSize
-                                                                    style={{
-                                                                        fontSize: "14px",
-                                                                        lineHeight: "1.5",
-                                                                        padding: "10px",
-                                                                    }}
-                                                                />
-                                                            </Form.Item>
-                                                            {/* Tổ chức thực hiện */}
-                                                            <Form.Item
-                                                                label={<strong>d) Tổ chức thực hiện</strong>}
-                                                                name={[field.name, "implementation"]}
-                                                                rules={[{ required: true, message: "Vui lòng nhập cách tổ chức thực hiện" }]}
-                                                            >
-                                                                <TextArea
-                                                                    placeholder="Nhập cách tổ chức thực hiện"
-                                                                    autoSize
-                                                                    style={{
-                                                                        fontSize: "14px",
-                                                                        lineHeight: "1.5",
-                                                                        padding: "10px",
-                                                                    }}
-                                                                />
-                                                            </Form.Item>
-                                                            <Button type="default" danger onClick={() => remove(field.name)} style={{ marginTop: '10px' }}>
-                                                                Xóa hoạt động
-                                                            </Button>
-                                                        </Collapse.Panel>
-                                                    ))}
-                                                </Collapse>
-                                                <Button type="dashed" onClick={() => add()} style={{ marginTop: '20px' }}>
-                                                    Thêm hoạt động
-                                                </Button>
-                                            </>
-                                        )}
-                                    </Form.List>
-                                </div>
-
-                                {/* Ghi chú */}
-                                <div className="mb-6">
-                                    <h3 className="text-base font-bold">Ghi chú</h3>
-                                    <Form.Item name="notes">
-                                        <TextArea
-                                            placeholder="Nhập ghi chú"
-                                            autoSize
-                                            style={{
-                                                fontSize: "14px",
-                                                lineHeight: "1.5",
-                                                padding: "10px",
-                                            }}
-                                        />
+                                    {/* Công khai */}
+                                    <Form.Item name="isPublic" valuePropName="checked" style={{ display: 'none' }}>
+                                        <Checkbox>Công khai</Checkbox>
                                     </Form.Item>
                                 </div>
-
-                                {/* Công khai */}
-                                <Form.Item name="isPublic" valuePropName="checked" style={{ display: 'none' }}>
-                                    <Checkbox>Công khai</Checkbox>
-                                </Form.Item>
                             </Form>
                         )}
                     </>

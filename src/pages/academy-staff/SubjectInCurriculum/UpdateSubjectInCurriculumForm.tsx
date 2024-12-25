@@ -3,15 +3,15 @@ import { Modal, Form, Input, Select, message, Button } from "antd";
 import { getAllCurriculumFramework, IViewListCurriculum } from "@/data/admin/CurriculumFramworkData";
 import { getAllGrade, IViewListGrade } from "@/data/admin/GradeData";
 import { getAllSubject, IViewListSubject } from "@/data/admin/SubjectData";
-import { createSubjectInCurriculumFunction } from "@/data/academy-staff/SubjectInCurriculumData";
+import { updateSubjectInCurriculumFunction, getSubjectInCurriculumById } from "@/data/academy-staff/SubjectInCurriculumData";
 
-interface CreateChapterFormProps {
+interface UpdateSubjectFormProps {
+    subjectInCurriculumId: string;
     isVisible: boolean;
     onClose: () => void;
-    onCreate: () => void;
 }
 
-const SubjectInCurriculumFormPage: React.FC<CreateChapterFormProps> = ({ isVisible, onClose, onCreate }) => {
+const UpdateSubjectInCurriculumForm: React.FC<UpdateSubjectFormProps> = ({ subjectInCurriculumId, isVisible, onClose }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [curriculumFrameworks, setCurriculumFrameworks] = useState<IViewListCurriculum[]>([]);
@@ -19,7 +19,6 @@ const SubjectInCurriculumFormPage: React.FC<CreateChapterFormProps> = ({ isVisib
     const [subjects, setSubjects] = useState<IViewListSubject[]>([]);
 
     useEffect(() => {
-        form.resetFields();
         const fetchData = async () => {
             try {
                 setLoading(true);
@@ -41,17 +40,40 @@ const SubjectInCurriculumFormPage: React.FC<CreateChapterFormProps> = ({ isVisib
         if (isVisible) {
             fetchData();
         }
-    }, [isVisible, form]);
+    }, [isVisible]);
 
-    const handleCreate = async () => {
+    useEffect(() => {
+        const fetchSubjectInCurriculum = async () => {
+            try {
+                setLoading(true);
+                const subjectInCurriculum = await getSubjectInCurriculumById(subjectInCurriculumId);
+                form.setFieldsValue({
+                    curriculumId: subjectInCurriculum.curriculumId,
+                    gradeId: subjectInCurriculum.gradeId,
+                    subjectId: subjectInCurriculum.subjectId,
+                    description: subjectInCurriculum.description,
+                });
+            } catch (error) {
+                console.error("Failed to fetch data", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (isVisible) {
+            fetchSubjectInCurriculum();
+        }
+    }, [isVisible, subjectInCurriculumId, form]);
+
+    const handleUpdate = async () => {
         try {
             const values = await form.validateFields();
             setLoading(true);
-            const success = await createSubjectInCurriculumFunction(values);
+            const success = await updateSubjectInCurriculumFunction({ ...values, subjectInCurriculumId });
             if (success) {
-                message.success("Tạo môn học trong khung chương trình thành công");
+                message.success("Cập nhật môn học trong khung chương trình thành công");
                 form.resetFields();
-                onCreate();
+                onClose();
             } else {
                 message.error("Môn học trong khung chương trình đã tồn tại");
             }
@@ -66,7 +88,8 @@ const SubjectInCurriculumFormPage: React.FC<CreateChapterFormProps> = ({ isVisib
         <Modal
             visible={isVisible}
             onCancel={loading ? () => { } : onClose}
-            onOk={handleCreate}
+            loading={loading}
+            onOk={handleUpdate}
             footer={[
                 <Button key="close" onClick={onClose} loading={loading}> {/* Disable when loadingAI is true */}
                     Hủy
@@ -74,25 +97,25 @@ const SubjectInCurriculumFormPage: React.FC<CreateChapterFormProps> = ({ isVisib
                 <Button
                     key="submit"
                     type="primary"
-                    onClick={handleCreate}
+                    onClick={handleUpdate}
                     loading={loading}
                 >
-                    Thêm
+                    Cập nhật
                 </Button>,
             ]}
             style={{ top: '8vh' }}
         >
             <Form form={form} layout="vertical">
-                    <Form.Item label="Chọn Khung chương trình" name="curriculumId" rules={[{ required: true, message: "Vui lòng chọn khung chương trình!" }]}>
-                        <Select
-                            options={curriculumFrameworks.map((item) => ({ value: item.curriculumId, label: item.name }))}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Chọn Khối" name="gradeId" rules={[{ required: true, message: "Vui lòng chọn khối!" }]}>
-                        <Select
-                            options={grades.map((item) => ({ value: item.gradeId, label: item.name }))}
-                        />
-                    </Form.Item>
+                <Form.Item label="Chọn Khung chương trình" name="curriculumId" rules={[{ required: true, message: "Vui lòng chọn khung chương trình!" }]}>
+                    <Select
+                        options={curriculumFrameworks.map((item) => ({ value: item.curriculumId, label: item.name }))}
+                    />
+                </Form.Item>
+                <Form.Item label="Chọn Khối" name="gradeId" rules={[{ required: true, message: "Vui lòng chọn khối!" }]}>
+                    <Select
+                        options={grades.map((item) => ({ value: item.gradeId, label: item.name }))}
+                    />
+                </Form.Item>
                 <Form.Item label="Chọn Môn học" name="subjectId" rules={[{ required: true, message: "Vui lòng chọn môn học!" }]}>
                     <Select
                         options={subjects.map((item) => ({ value: item.subjectId, label: item.name }))}
@@ -110,4 +133,4 @@ const SubjectInCurriculumFormPage: React.FC<CreateChapterFormProps> = ({ isVisib
     );
 };
 
-export default SubjectInCurriculumFormPage;
+export default UpdateSubjectInCurriculumForm;

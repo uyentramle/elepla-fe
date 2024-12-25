@@ -12,7 +12,7 @@ import CustomGoogleLoginButton from '../Button/GoogleLoginButton';
 import CustomFacebookLoginButton from "../Button/FacebookLoginButton";
 // import CustomStep from "../Button/CustomStep";
 import { obfuscateContactInfo } from "@/utils/ObfuscateInfo";
-import { translatePasswordErrorToVietnamese as translatePasswordErrorToVietnamese } from "@/utils/TranslateError";
+import { translatePasswordErrorToVietnamese } from "@/utils/TranslateError";
 import { sendRegisterVerificationCode, verifyRegisterCode } from "@/data/authen/RegisterData";
 import { translateRegisterErrorToVietnamese } from "@/utils/TranslateError";
 
@@ -123,7 +123,41 @@ const SignUpPage: React.FC = () => {
                 }
             }
         } catch (error: any) {
-            message.error('Đã xảy ra lỗi khi đăng ký tài khoản, vui lòng thử lại sau.');
+            if (error.response && error.response.data && error.response.data.message) {
+                switch (error.response.data.message) {
+                    case 'Invalid or expired email registration token.':
+                    case 'Invalid or expired phone registration token.':
+                        message.error('Phiên đăng ký không hợp lệ hoặc đã hết hạn. Vui lòng đăng ký lại tài khoản.');
+                        // trở về bước đầu tiên
+                        setCurrentStep(0);
+                        break;
+                    case `${phoneNumberOrEmail} already exists`:
+                        message.error(`${phoneNumberOrEmail} đã tồn tại.`);
+                        break;
+                    case 'Invalid phone number or email format.':
+                        message.error('Định dạng số điện thoại hoặc email không hợp lệ.');
+                        break;
+                    case `${values.username} already exists`:
+                        message.error(`Tên đăng nhập ${values.username} đã tồn tại.`);
+                        break;
+                    case 'Username must be between 6 and 20 characters long.':
+                        message.error('Tên đăng nhập phải từ 6 đến 20 ký tự.');
+                        break;
+                    case 'Password is not in correct format.':
+                        if (error.response.data.errors && error.response.data.errors.length > 0) {
+                            error.response.data.errors.forEach((err: string) => {
+                                const errorMessage = translatePasswordErrorToVietnamese(err);
+                                message.error(errorMessage);
+                            });
+                        }
+                        break;
+                    default:
+                        message.error(error.response.data.message);
+                        break;
+                }
+            } else {
+                message.error('Đã xảy ra lỗi khi đăng ký tài khoản, vui lòng thử lại sau.');
+            }
         }
     };
 
@@ -164,7 +198,7 @@ const SignUpPage: React.FC = () => {
                                 <span className="font-semibold tracking-widest uppercase">Elepla</span>
                                 <div className="flex flex-col justify-center text-center h-full">
                                     <h1 className="text-3xl mb-4">Chào mừng trở lại!</h1>
-                                    <p className="text-gray-200 font-normal leading-relaxed">Hãy đăng nhập để tiếp tục công việc xây dựng giáo án của bạn.</p>
+                                    <p className="text-gray-200 font-normal leading-relaxed">Hãy đăng nhập để tiếp tục công việc xây dựng kế hoạch bài dạy của bạn.</p>
                                     <div className="my-8">
                                         <Link to="/sign-in" className="border text-white font-medium text-sm rounded-full transition-all duration-300 hover:bg-white hover:text-black focus:bg-white focus:text-black px-14 py-2.5">
                                             Đăng nhập
@@ -220,7 +254,8 @@ const SignUpPage: React.FC = () => {
                                             ]}
                                             style={{ display: 'inline-block', width: 'calc(85% - 8px)', marginRight: '10px' }}
                                         >
-                                            <Input placeholder="Số điện thoại hoặc email" />
+                                            {/* <Input placeholder="Số điện thoại hoặc email" /> */}
+                                            <Input placeholder="Nhập email của bạn" />
                                         </Form.Item>
                                         <Form.Item
                                             style={{ display: 'inline-block', width: 'calc(15% - 8px)' }}>
@@ -307,6 +342,14 @@ const SignUpPage: React.FC = () => {
                                                 Tiếp
                                             </Button>
                                         </Form.Item>
+                                        <Button
+                                            type="link"
+                                            className="w-full border border-blue-500"
+                                            style={{ textAlign: 'center' }}
+                                            onClick={() => setCurrentStep(0)}
+                                        >
+                                            Quay lại
+                                        </Button>
                                     </>
                                 )}
                                 {currentStep === 2 && (

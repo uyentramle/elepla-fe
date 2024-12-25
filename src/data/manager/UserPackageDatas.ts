@@ -63,6 +63,7 @@ export interface UserPackage {
     endDate: string;
     isActive: boolean;
     paymentStatus: string;
+    paymentUrl: string;
     createdAt: string;
     createdBy: string;
     updatedAt: string;

@@ -5,30 +5,49 @@ export interface IViewListChapter {
     chapterId: string;
     name: string;
     description: string | undefined;
-
-    created_at: string;
-    created_by: string;
-    updated_at: string | undefined;
-    updated_by: string | undefined;
-    deleted_at: string | undefined;
-    deleted_by: string | undefined;
+    subjectInCurriculumId: string;
+    subjectInCurriculum: string;
+    subjectId: string;
+    subject: string;
+    gradeId: string;
+    grade: string;
+    curriculumId: string;
+    curriculum: string;
+    createdAt: string;
+    createdBy: string;
+    updatedAt: string | undefined;
+    updatedBy: string | undefined;
+    deletedAt: string | undefined;
+    deletedBy: string | undefined;
     isDelete: boolean;
 }
 
 export const fetchChapterList = async (): Promise<IViewListChapter[]> => {
     try {
-        const response = await apiClient.get('/Chapter/GetAllChapter?pageIndex=0&pageSize=50');
+        const response = await apiClient.get('/Chapter/GetAllChapter', {
+            params: {
+                pageIndex: -1,
+            },
+        });
         if (response.data.success) {
             return response.data.data.items.map((chapter: any) => ({
-                id: chapter.chapterId,
+                chapterId: chapter.chapterId,
                 name: chapter.name,
                 description: chapter.description,
-                created_at: chapter.createdAt,
-                created_by: chapter.createdBy || '',
-                updated_at: chapter.updatedAt || undefined,
-                updated_by: chapter.updatedBy || undefined,
-                deleted_at: chapter.deletedAt || undefined,
-                deleted_by: chapter.deletedBy || undefined,
+                subjectInCurriculumId: chapter.subjectInCurriculumId,
+                subjectInCurriculum: chapter.subjectInCurriculum,
+                subjectId: chapter.subjectId,
+                subject: chapter.subject,
+                gradeId: chapter.gradeId,
+                grade: chapter.grade,
+                curriculumId: chapter.curriculumId,
+                curriculum: chapter.curriculum,
+                createdAt: chapter.createdAt,
+                createdBy: chapter.createdBy || '',
+                updatedAt: chapter.updatedAt || undefined,
+                updatedBy: chapter.updatedBy || undefined,
+                deletedAt: chapter.deletedAt || undefined,
+                deletedBy: chapter.deletedBy || undefined,
                 isDelete: chapter.isDelete,
             }));
         }
@@ -44,15 +63,15 @@ export const fetchChaptersBySubjectInCurriculumId = async (subjectInCurriculumId
         const response = await apiClient.get(`/Chapter/GetAllChapterBySubjectInCurriculumId?subjectInCurriculumId=${subjectInCurriculumId}`);
         if (response.data.success) {
             return response.data.data.items.map((chapter: any) => ({
-                id: chapter.chapterId,
+                chapterId: chapter.chapterId,
                 name: chapter.name,
                 description: chapter.description,
-                created_at: chapter.createdAt,
-                created_by: chapter.createdBy || '',
-                updated_at: chapter.updatedAt || undefined,
-                updated_by: chapter.updatedBy || undefined,
-                deleted_at: chapter.deletedAt || undefined,
-                deleted_by: chapter.deletedBy || undefined,
+                createdAt: chapter.createdAt,
+                createdBy: chapter.createdBy || '',
+                updatedAt: chapter.updatedAt || undefined,
+                updatedBy: chapter.updatedBy || undefined,
+                deletedAt: chapter.deletedAt || undefined,
+                deletedBy: chapter.deletedBy || undefined,
                 isDelete: chapter.isDelete,
             }));
         }
@@ -113,5 +132,59 @@ export const getAllChapterBySubjectInCurriculumId = async (subjectInCurriculumId
     } catch (error) {
         console.error('Error fetching chapter list:', error);
         return [];
+    }
+}
+
+interface CreateChapter {
+    name: string;
+    description: string;
+    subjectInCurriculumId: string;
+}
+
+export const createChapterFunction = async (chapter: CreateChapter): Promise<boolean> => {
+    try {
+        const response = await apiClient.post('/Chapter/CreateChapter', chapter);
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error creating chapter:', error);
+        return false;
+    }
+}
+
+interface UpdateChapter {
+    chapterId: string;
+    name: string;
+    description: string;
+    subjectInCurriculumId: string;
+}
+
+export const updateChapterFunction = async (chapter: UpdateChapter): Promise<boolean> => {
+    try {
+        const response = await apiClient.put('/Chapter/UpdateChapter', chapter);
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error updating chapter:', error);
+        return false;
+    }
+}
+
+export const getChapteById = async (chapterId: string): Promise<IViewListChapter> => {
+    try {
+        const response = await apiClient.get(`/Chapter/GetChapterById?chapterId=${chapterId}`);
+        if (response.data.success) {
+            return response.data.data;
+        }
+        return {} as IViewListChapter;
+    } catch (error) {
+        console.error('Error fetching chapter:', error);
+        return {} as IViewListChapter;
     }
 }

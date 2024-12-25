@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Input, Modal, Table, Typography, message, } from 'antd';
-import { SearchOutlined, FlagFilled, FlagTwoTone, FlagOutlined, DeleteOutlined, } from "@ant-design/icons";
+import { SearchOutlined, FlagFilled, /*FlagTwoTone,*/ FlagOutlined, DeleteOutlined, } from "@ant-design/icons";
 import { IViewListFeedback, fetchPlanBookFeedbackList, deleteFeedback } from "@/data/academy-staff/FeedbackData";
 
 const { Title } = Typography;
@@ -25,13 +25,13 @@ const PlanbookFeedbackManagementPage: React.FC = () => {
         fetchFeedbacks();
     }, []);
 
-    const handleFlagToggle = (id: string) => {
-        setFeedbacks((prevFeedbacks) =>
-            prevFeedbacks.map((feedback) =>
-                feedback.id === id ? { ...feedback, isFlagged: !feedback.isFlagged } : feedback
-            )
-        );
-    };
+    // const handleFlagToggle = (id: string) => {
+    //     setFeedbacks((prevFeedbacks) =>
+    //         prevFeedbacks.map((feedback) =>
+    //             feedback.id === id ? { ...feedback, isFlagged: !feedback.isFlagged } : feedback
+    //         )
+    //     );
+    // };
 
     const handleDeleteFeedback = async () => {
         try {
@@ -63,12 +63,12 @@ const PlanbookFeedbackManagementPage: React.FC = () => {
     };
 
     const columns = [
-        {
-            title: 'No.',
-            dataIndex: '1',
-            key: 'id',
-            render: (_text: any, _record: any, index: number) => index + 1,
-        },
+        // {
+        //     title: 'No.',
+        //     dataIndex: '1',
+        //     key: 'id',
+        //     render: (_text: any, _record: any, index: number) => index + 1,
+        // },
         {
             title: 'Tên kế hoạch giảng dạy',
             dataIndex: 'planbookName',
@@ -101,12 +101,19 @@ const PlanbookFeedbackManagementPage: React.FC = () => {
         },
         {
             title: <FlagFilled />,
-            dataIndex: 'isFlagged',
-            key: 'isFlagged',
-            render: (text: boolean, record: IViewListFeedback) => (
-                <span onClick={() => handleFlagToggle(record.id)}>
-                    {text ? <FlagTwoTone style={{ color: 'red' }} /> : <FlagOutlined />}
-                </span>
+            // dataIndex: 'isFlagged',
+            // key: 'isFlagged',
+            // render: (text: boolean, record: IViewListFeedback) => (
+            //     <span onClick={() => handleFlagToggle(record.id)}>
+            //         {text ? <FlagTwoTone style={{ color: 'red' }} /> : <FlagOutlined />}
+            //     </span>
+            // ),
+            dataIndex: 'flagCount',
+            key: 'flagCount',
+            render: (text: number) => (
+                text > 10 ?
+                    <span className="text-red-500 font-semibold">{text} <FlagFilled /></span> :
+                    <span>{text} <FlagOutlined /></span>
             ),
         },
         {

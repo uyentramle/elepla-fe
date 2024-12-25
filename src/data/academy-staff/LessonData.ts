@@ -4,31 +4,54 @@ import apiClient from '@/data/apiClient';
 export interface IViewListLesson {
     lessonId: string;
     name: string;
-    description: string | undefined;
-
-    created_at: string;
-    created_by: string;
-    updated_at: string | undefined;
-    updated_by: string | undefined;
-    deleted_at: string | undefined;
-    deleted_by: string | undefined;
+    objectives: string | undefined;
+    content: string;
+    subjectInCurriculumId: string;
+    chapterId: string;
+    chapterName: string;
+    subjectId: string;
+    subject: string;
+    gradeId: string;
+    grade: string;
+    curriculumId: string;
+    curriculum: string;
+    createdAt: string;
+    createdBy: string;
+    updatedAt: string | undefined;
+    updatedBy: string | undefined;
+    deletedAt: string | undefined;
+    deletedBy: string | undefined;
     isDelete: boolean;
 }
 
 export const fetchLessonList = async (): Promise<IViewListLesson[]> => {
     try {
-        const response = await apiClient.get('/Lesson/GetAllLesson?pageIndex=0&pageSize=50');
+        const response = await apiClient.get('/Lesson/GetAllLesson', {
+            params: {
+                pageIndex: -1,
+            },
+        });
         if (response.data.success) {
             return response.data.data.items.map((lesson: any) => ({
-                id: lesson.lessonId,
+                lessonId: lesson.lessonId,
                 name: lesson.name,
-                description: lesson.description,
-                created_at: lesson.createdAt,
-                created_by: lesson.createdBy || '',
-                updated_at: lesson.updatedAt || undefined,
-                updated_by: lesson.updatedBy || undefined,
-                deleted_at: lesson.deletedAt || undefined,
-                deleted_by: lesson.deletedBy || undefined,
+                objectives: lesson.objectives,
+                content: lesson.content,
+                subjectInCurriculumId: lesson.subjectInCurriculumId,
+                chapterId: lesson.chapterId,
+                chapterName: lesson.chapterName,
+                subjectId: lesson.subjectId,
+                subject: lesson.subject,
+                gradeId: lesson.gradeId,
+                grade: lesson.grade,
+                curriculumId: lesson.curriculumId,
+                curriculum: lesson.curriculum,
+                createdAt: lesson.createdAt,
+                createdBy: lesson.createdBy || '',
+                updatedAt: lesson.updatedAt || undefined,
+                updatedBy: lesson.updatedBy || undefined,
+                deletedAt: lesson.deletedAt || undefined,
+                deletedBy: lesson.deletedBy || undefined,
                 isDelete: lesson.isDelete,
             }));
         }
@@ -44,15 +67,15 @@ export const fetchLessonsBySubjectInCurriculumId = async (subjectInCurriculumId:
         const response = await apiClient.get(`/Lesson/GetAllLessonBySubjectInCurriculumId?subjectInCurriculumId=${subjectInCurriculumId}`);
         if (response.data.success) {
             return response.data.data.items.map((lesson: any) => ({
-                id: lesson.lessonId,
+                lessonId: lesson.lessonId,
                 name: lesson.name,
                 description: lesson.description,
-                created_at: lesson.createdAt,
-                created_by: lesson.createdBy || '',
-                updated_at: lesson.updatedAt || undefined,
-                updated_by: lesson.updatedBy || undefined,
-                deleted_at: lesson.deletedAt || undefined,
-                deleted_by: lesson.deletedBy || undefined,
+                createdAt: lesson.createdAt,
+                createdBy: lesson.createdBy || '',
+                updatedAt: lesson.updatedAt || undefined,
+                updatedBy: lesson.updatedBy || undefined,
+                deletedAt: lesson.deletedAt || undefined,
+                deletedBy: lesson.deletedBy || undefined,
                 isDelete: lesson.isDelete,
             }));
         }
@@ -66,7 +89,12 @@ export const fetchLessonsBySubjectInCurriculumId = async (subjectInCurriculumId:
 export const deleteLesson = async (lessonId: string): Promise<boolean> => {
     try {
         const response = await apiClient.delete(`/Lesson/DeleteLesson?lessonId=${lessonId}`);
-        return response.status === 200 && response.data.success;
+        // return response.status === 200 && response.data.success;
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
     } catch (error) {
         console.error('Error deleting lesson:', error);
         return false;        
@@ -113,5 +141,61 @@ export const getAllLessonByChapterId = async (chapterId: string): Promise<IViewL
     } catch (error) {
         console.error('Error fetching lesson list:', error);
         return [];
+    }
+};
+
+interface CreateLesson {
+    name: string;
+    objectives: string;
+    content: string;
+    chapterId: string;
+}
+
+export const createLessonFunction = async (lesson: CreateLesson): Promise<boolean> => {
+    try {
+        const response = await apiClient.post('/Lesson/CreateLesson', lesson);
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error creating lesson:', error);
+        return false;
+    }
+}
+
+export const getLessonById = async (lessonId: string): Promise<IViewListLesson> => {
+    try {
+        const response = await apiClient.get(`/Lesson/GetLessonById?lessonId=${lessonId}`);
+        if (response.data.success) {
+            return response.data.data;
+        }
+        return {} as IViewListLesson;
+    } catch (error) {
+        console.error('Error fetching lesson data:', error);
+        return {} as IViewListLesson;
+    }
+}
+
+interface UpdateLesson {
+    lessonId: string;
+    name: string;
+    objectives: string;
+    content: string;
+    chapterId: string;
+}
+
+export const updateLessonFunction = async (lesson: UpdateLesson): Promise<boolean> => {
+    try {
+        const response = await apiClient.put('/Lesson/UpdateLesson', lesson);
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error updating lesson:', error);
+        return false;
     }
 }

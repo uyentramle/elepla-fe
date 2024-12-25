@@ -121,7 +121,7 @@ const UpdatePlanbookForm: React.FC<UpdatePlanbookProps> = ({ planbookId, isVisib
                 </Button>,
             ]
             }
-            width={800} // Điều chỉnh chiều rộng modal
+            width={850} // Điều chỉnh chiều rộng modal
             style={{ top: '5vh' }}
         >
             <div className="container mx-auto px-4 py-8">
