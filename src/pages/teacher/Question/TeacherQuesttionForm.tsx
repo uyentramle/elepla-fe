@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { Button, Input, Checkbox, Form, Typography, Divider, Select, message } from "antd";
+import { Button, Input, Checkbox, Form, Divider, Select, message } from "antd";
 import { createQuestionByTeacher } from "@/data/academy-staff/QuestionBankData";
 import { useNavigate } from "react-router-dom";
 import FilterSection from "@/layouts/teacher/Components/FilterSection/FilterSection";
 
-const { Title } = Typography;
 const { Option } = Select;
 
 const TeacherQuesttionForm: React.FC = () => {
@@ -70,7 +69,7 @@ const TeacherQuesttionForm: React.FC = () => {
             setType(undefined);
             setPlum(undefined);
             setAnswers([{ answerId: "1", answerText: "", isCorrect: false }]);
-            navigate("/academy-staff/question-banks/");
+            navigate("/teacher/question-bank/my-question");
           } else {
             message.error(result.message || "Lỗi khi thêm câu hỏi.");
           }
@@ -79,83 +78,87 @@ const TeacherQuesttionForm: React.FC = () => {
         }
       };
       
-    return (
-      <div className="container mx-auto p-4">
-        <Title level={2}>Thêm mới câu hỏi</Title>
-        <Form layout="vertical" onFinish={handleSubmit}>
-          <FilterSection
-            onFilterChange={(newFilters) => setFilters((prev) => ({ ...prev, ...newFilters }))}
-          />
-  
-          <Form.Item label="Câu hỏi">
-            <Input.TextArea
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Nhập câu hỏi"
+      return (
+        <div className="container mx-auto p-4">
+          <h1 className="text-2xl font-semibold mb-4 text-center">Thêm mới câu hỏi</h1>
+          <Form layout="vertical" onFinish={handleSubmit}>
+            {/* Filter Section */}
+            <FilterSection
+              onFilterChange={(newFilters) => setFilters((prev) => ({ ...prev, ...newFilters }))}
             />
-          </Form.Item>
-          <div className="flex gap-4">
-            <Form.Item label="Loại câu hỏi" style={{ flex: 1 }}>
-              <Select
-                value={type}
-                onChange={(value) => setType(value)}
-                placeholder="Chọn loại câu hỏi"
-              >
-                <Option value="multiple choice">Câu hỏi trắc nghiệm</Option>
-                <Option value="True/False">Câu hỏi đúng sai</Option>
-                <Option value="Short Answer">Câu tự luận ngắn</Option>
-              </Select>
-            </Form.Item>
-  
-            <Form.Item label="Mức độ câu hỏi" style={{ flex: 1 }}>
-              <Select
-                value={plum}
-                onChange={(value) => setPlum(value)}
-                placeholder="Chọn mức độ câu hỏi"
-              >
-                <Option value="easy">Dễ</Option>
-                <Option value="medium">Trung bình</Option>
-                <Option value="hard">Khó</Option>
-              </Select>
-            </Form.Item>
-          </div>
-  
-          <Divider>Danh sách câu trả lời</Divider>
-          {answers.map((answer, index) => (
-            <div key={answer.answerId} className="mb-2 flex gap-2 items-center">
-              <Input
-                placeholder="Nhập câu trả lời"
-                value={answer.answerText}
-                onChange={(e) => updateAnswer(index, "answerText", e.target.value)}
+      
+            {/* Question Text Area */}
+            <Form.Item label="Câu hỏi" className="mt-6"> {/* Thêm khoảng cách */}
+              <Input.TextArea
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                placeholder="Nhập câu hỏi"
               />
-              <Checkbox
-                checked={answer.isCorrect}
-                onChange={(e) => updateAnswer(index, "isCorrect", e.target.checked)}
-              >
-                Đúng
-              </Checkbox>
-              <Button onClick={() => removeAnswer(index)} danger>
-                Xóa
-              </Button>
+            </Form.Item>
+      
+            <div className="flex gap-4">
+              <Form.Item label="Loại câu hỏi" style={{ flex: 1 }}>
+                <Select
+                  value={type}
+                  onChange={(value) => setType(value)}
+                  placeholder="Chọn loại câu hỏi"
+                >
+                  <Option value="multiple choice">Câu hỏi trắc nghiệm</Option>
+                  <Option value="True/False">Câu hỏi đúng sai</Option>
+                  <Option value="Short Answer">Câu tự luận ngắn</Option>
+                </Select>
+              </Form.Item>
+      
+              <Form.Item label="Mức độ câu hỏi" style={{ flex: 1 }}>
+                <Select
+                  value={plum}
+                  onChange={(value) => setPlum(value)}
+                  placeholder="Chọn mức độ câu hỏi"
+                >
+                  <Option value="easy">Dễ</Option>
+                  <Option value="medium">Trung bình</Option>
+                  <Option value="hard">Khó</Option>
+                </Select>
+              </Form.Item>
             </div>
-          ))}
-          <Button type="dashed" onClick={addAnswer} style={{ width: "100%", marginTop: "10px" }}>
-            Thêm câu trả lời
-          </Button>
-  
-          <Form.Item className="mt-4">
-            <div className="flex space-x-4">
-              <Button type="primary" htmlType="submit">
-                Lưu
-              </Button>
-              <Button type="default" onClick={() => navigate("/teacher/question-bank/my-question")}>
-                Quay lại
-              </Button>
-            </div>
-          </Form.Item>
-        </Form>
-      </div>
-    );
+      
+            <Divider>Danh sách câu trả lời</Divider>
+            {answers.map((answer, index) => (
+              <div key={answer.answerId} className="mb-2 flex gap-2 items-center">
+                <Input
+                  placeholder="Nhập câu trả lời"
+                  value={answer.answerText}
+                  onChange={(e) => updateAnswer(index, "answerText", e.target.value)}
+                />
+                <Checkbox
+                  checked={answer.isCorrect}
+                  onChange={(e) => updateAnswer(index, "isCorrect", e.target.checked)}
+                >
+                  Đúng
+                </Checkbox>
+                <Button onClick={() => removeAnswer(index)} danger>
+                  Xóa
+                </Button>
+              </div>
+            ))}
+            <Button type="dashed" onClick={addAnswer} style={{ width: "100%", marginTop: "10px" }}>
+              Thêm câu trả lời
+            </Button>
+      
+            <Form.Item className="mt-4">
+              <div className="flex space-x-4">
+                <Button type="primary" htmlType="submit">
+                  Lưu
+                </Button>
+                <Button type="default" onClick={() => navigate("/teacher/question-bank/my-question")}>
+                  Quay lại
+                </Button>
+              </div>
+            </Form.Item>
+          </Form>
+        </div>
+      );
+      
   };
 
 export default TeacherQuesttionForm

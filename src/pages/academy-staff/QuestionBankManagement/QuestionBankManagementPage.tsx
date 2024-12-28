@@ -120,11 +120,9 @@ const QuestionBankManagementPage: React.FC = () => {
         </Button>
       </Menu.Item>
       <Menu.Item key="2">
-        <Button type="text">
-          <Link to={`/academy-staff/question-banks/edit/${record.questionId}`}>
-            Sửa
-          </Link>
-        </Button>
+        <Link to={`/academy-staff/question-banks/edit/${record.questionId}`}>
+          <Button type="text">Chỉnh sửa</Button>
+        </Link>
       </Menu.Item>
       <Menu.Item key="3">
         <Button type="text" danger onClick={() => handleDelete(record.questionId)}>

@@ -52,6 +52,7 @@ import SubjectInCurriculumManagementPage from '@/pages/academy-staff/SubjectInCu
 import ChapterManagementPage from '@/pages/academy-staff/ChapterManagement/ChapterManagementPage';
 import LessonManagementPage from '@/pages/academy-staff/LessonManagement/LessonManagementPage';
 import PlanbookManagementPage from '@/pages/academy-staff/PlanbookManagement/PlanbookManagementPage';
+import UpdateQuestionPage from '@/pages/academy-staff/QuestionBankManagement/UpdateQuestionPage';
 
 // Teacher
 import UserProfilePage from '@/pages/teacher/User/UserProfilePage';
@@ -130,7 +131,7 @@ const academyStaffRoutes: RouteProps[] = [
     { path: '/academy-staff/', component: DashBoardStaffPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/question-banks', component: QuestionBankManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/question-banks/add-new', component: QuestionBankFormPage, layout: DefaultStaffLayout },
-    { path: '/academy-staff/question-banks/edit/:id', component: QuestionBankFormPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/question-banks/edit/:id', component: UpdateQuestionPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/feedbacks/planbook/', component: PlanbookFeedbackManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/feedbacks/system/', component: SystemFeedbackManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/subject-in-curriculum', component: SubjectInCurriculumManagementPage, layout: DefaultStaffLayout },

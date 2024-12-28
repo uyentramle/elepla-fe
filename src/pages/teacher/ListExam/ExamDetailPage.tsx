@@ -107,8 +107,8 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
   }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="max-w-4xl mx-auto bg-white shadow-none rounded-lg p-6 flex flex-col justify-between h-full border-none">
+    <div className="p-0 bg-transparent">
+        <div className="max-w-4xl mx-auto bg-white shadow-none rounded-lg p-6 flex flex-col justify-between h-full border-none">
         {/* Header */}
         <h1 className="text-3xl font-bold text-center mb-6">{examDetails.title}</h1>
   
@@ -144,32 +144,32 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
         </div>
   
         {/* Buttons */}
-        <div className="flex justify-between gap-4 mt-auto">
-          <Button
-            onClick={() => handleExportFile(exportExamToWord, "docx", false)}
-            style={{ border: "none", boxShadow: "none" }} // Loại bỏ viền và shadow
-          >
-            Xuất file Word
-          </Button>
-          <Button
-            onClick={() => handleExportFile(exportExamToPdf, "pdf", false)}
-            style={{ border: "none", boxShadow: "none" }} // Loại bỏ viền và shadow
-          >
-            Xuất file PDF
-          </Button>
-          <Button
-            onClick={() => handleExportFile(exportExamWithAnswersToWord, "docx", true)}
-            style={{ border: "none", boxShadow: "none" }} // Loại bỏ viền và shadow
-          >
-            Xuất Word (kèm đáp án)
-          </Button>
-          <Button
-            onClick={() => handleExportFile(exportExamWithAnswersToPdf, "pdf", true)}
-            style={{ border: "none", boxShadow: "none" }} // Loại bỏ viền và shadow
-          >
-            Xuất PDF (kèm đáp án)
-          </Button>
-        </div>
+        <div className="flex justify-center gap-2 mt-auto">
+            <Button
+              onClick={() => handleExportFile(exportExamToWord, "docx", false)}
+              className="custom-button"
+            >
+              Xuất file Word
+            </Button>
+            <Button
+              onClick={() => handleExportFile(exportExamToPdf, "pdf", false)}
+              className="custom-button"
+            >
+              Xuất file PDF
+            </Button>
+            <Button
+              onClick={() => handleExportFile(exportExamWithAnswersToWord, "docx", true)}
+              className="custom-button"
+            >
+              Xuất Word (kèm đáp án)
+            </Button>
+            <Button
+              onClick={() => handleExportFile(exportExamWithAnswersToPdf, "pdf", true)}
+              className="custom-button"
+            >
+              Xuất PDF (kèm đáp án)
+            </Button>
+          </div>
       </div>
     </div>
   );

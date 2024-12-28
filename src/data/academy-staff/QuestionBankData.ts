@@ -1,8 +1,14 @@
 import apiClient from "@/data/apiClient";
 
+// Định nghĩa các kiểu dữ liệu
 type QuestionType = "multiple choice" | "True/False" | "Short Answer";
 type PlumLevel = "easy" | "medium" | "hard";
 
+export interface IAnswer {
+  answerId: string;
+  answerText: string;
+  isCorrect: boolean;
+}
 
 export interface IQuestion {
   questionId: string;
@@ -24,9 +30,8 @@ export interface IQuestion {
   deletedAt?: string | null;
   deletedBy?: string | null;
   isDeleted?: boolean;
-  }
+}
 
-  
 export interface IQuestionBank {
   questionId: string;
   question: string;
@@ -43,26 +48,20 @@ export interface IQuestionBank {
   deletedBy?: string | null;
   isDeleted?: boolean;
 }
-  
-  export interface IAnswer {
-    answerId: string;
-    answerText: string;
-    isCorrect: boolean;
-  }
-  
-  export interface IQuestionBankResponse {
-    success: boolean;
-    message: string;
-    data: {
-      totalItemsCount: number;
-      pageSize: number;
-      totalPagesCount: number;
-      pageIndex: number;
-      next: boolean;
-      previous: boolean;
-      items: IQuestion[];
-    };
-  }
+
+export interface IQuestionBankResponse {
+  success: boolean;
+  message: string;
+  data: {
+    totalItemsCount: number;
+    pageSize: number;
+    totalPagesCount: number;
+    pageIndex: number;
+    next: boolean;
+    previous: boolean;
+    items: IQuestion[];
+  };
+}
 
 
   export const fetchAllQuestions = async (
@@ -94,10 +93,11 @@ export interface IQuestionBank {
 
 
 
+
   export const fetchQuestionsByUserId = async (
     userId: string,
     pageIndex: number = 0,
-    pageSize: number = 10
+    pageSize: number = 50
   ): Promise<IQuestionBankResponse> => {
     try {
       const url = `https://elepla-be-production.up.railway.app/api/QuestionBank/GetAllQuestionByUserId?userId=${userId}&pageIndex=${pageIndex}&pageSize=${pageSize}`;
@@ -121,10 +121,6 @@ export interface IQuestionBank {
       throw error;
     }
   };
-
-
-
-  
 
   export const createQuestionByStaff = async (questionData: {
     question: string;

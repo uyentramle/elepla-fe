@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"; 
-import { Typography, Table, Button, Modal, message, Dropdown, Menu, Select, Input, Spin } from "antd";
+import { Table, Button, Modal, message, Dropdown, Menu, Select, Input, Spin } from "antd";
 import { fetchQuestionsByUserId, deleteQuestion, IQuestion } from "@/data/academy-staff/QuestionBankData";
 import { getAllCurriculumFramework, IViewListCurriculum } from "@/data/admin/CurriculumFramworkData";
 import { getAllSubject, IViewListSubject } from "@/data/admin/SubjectData";
@@ -9,7 +9,6 @@ import { PlusOutlined, MoreOutlined, SearchOutlined } from "@ant-design/icons";
 import { getUserId } from "@/data/apiClient";
 
 
-const { Title } = Typography;
 const { Option } = Select;
 
 const MyQuestionPage: React.FC = () => {
@@ -197,9 +196,7 @@ const MyQuestionPage: React.FC = () => {
 
   return (
     <div>
-      <Title level={2} className="my-4">
-          Câu hỏi của tôi
-      </Title>
+      <h1 className="text-2xl font-semibold mb-4 text-center">Câu hỏi của tôi</h1>
       <div className="mb-4 flex justify-between items-center">
         <div className="flex gap-4">
           <Input

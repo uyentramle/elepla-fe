@@ -92,8 +92,8 @@ const ListExamPage: React.FC = () => {
   return (
     <div className="p-6">
       {/* Header */}
+      <h1 className="text-2xl font-semibold mb-4 text-center">Bài kiểm tra của tôi</h1>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Danh sách bài kiểm tra</h1>
         <Radio.Group
           value={viewMode}
           onChange={handleViewModeChange}
@@ -160,11 +160,13 @@ const ListExamPage: React.FC = () => {
 
       {/* Detail Modal */}
       <Modal
-          visible={isDetailModalOpen}
+          open={isDetailModalOpen}
           onCancel={handleDetailModalClose}
           footer={null}
-          width="50%"
-          className="custom-modal"
+          width="40%"
+          bodyStyle={{ padding: 0, background: "transparent" }}
+          style={{ background: "transparent", boxShadow: "none" }}
+          className="custom-modal-no-padding"
         >
           {selectedExamId && <ExamDetailPage examId={selectedExamId} />}
         </Modal>
@@ -174,7 +176,10 @@ const ListExamPage: React.FC = () => {
         visible={isEditModalOpen}
         onCancel={handleEditModalClose}
         footer={null}
-        width="50%"
+        width="40%"
+        bodyStyle={{ padding: 0, background: "transparent" }}
+        style={{ background: "transparent", boxShadow: "none" }}
+        className="custom-modal-no-padding"
       >
         {selectedExamId && <UpdateExamPage examId={selectedExamId} />}
       </Modal>

@@ -135,7 +135,7 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId }) => {
   }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-0 bg-transparent">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
         {/* Header */}
         <h1 className="text-3xl font-bold text-center mb-6">

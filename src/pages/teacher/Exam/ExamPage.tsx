@@ -1,36 +1,47 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Button, Modal, Form, notification, Input } from "antd";
-import Filters from "./Filters"; // Import bộ lọc từ thư mục Filters
-import {
-  fetchAllQuestions,
-  IQuestion,
-} from "@/data/academy-staff/QuestionBankData";
+import { Typography, Button, Modal, Form, notification, Input, Spin, Pagination } from "antd";
+import { fetchAllQuestions, fetchQuestionsByUserId, IQuestion } from "@/data/academy-staff/QuestionBankData";
 import { getUserId } from "@/data/apiClient";
 import { createExam } from "@/data/client/ExamData";
 import { PlusOutlined } from "@ant-design/icons";
+import Filters from "./Filters"; // Import bộ lọc Filters
 
 const { Title } = Typography;
 
 const ExamPage: React.FC = () => {
   const [questions, setQuestions] = useState<IQuestion[]>([]);
+  const [filteredQuestions, setFilteredQuestions] = useState<IQuestion[]>([]); // State cho câu hỏi đã lọc
+  const [currentPage, setCurrentPage] = useState(1); // State cho trang hiện tại
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [showAnswers, setShowAnswers] = useState<boolean>(false); // State để hiển thị đáp án
   const [filters, setFilters] = useState({
     searchTerm: "",
     grade: "",
     curriculum: "",
-  });
-  const [showAnswers, setShowAnswers] = useState<boolean>(false); // New state for showing answers
+    subject: "",
+  }); // State cho bộ lọc
+  const [useMyQuestions, setUseMyQuestions] = useState<boolean>(false); // State để chuyển đổi API
+
+  const itemsPerPage = 5; // Số câu hỏi mỗi trang
 
   useEffect(() => {
     const loadQuestions = async () => {
       try {
         setLoading(true);
+        setError(null);
 
         // Gọi API lấy câu hỏi
-        const response = await fetchAllQuestions(0, 50);
+        let response;
+        if (useMyQuestions) {
+          const userId = getUserId();
+          response = await fetchQuestionsByUserId(userId || "");
+        } else {
+          response = await fetchAllQuestions(0, 50);
+        }
+
         if (response.success) {
           setQuestions(response.data.items);
         } else {
@@ -44,15 +55,30 @@ const ExamPage: React.FC = () => {
     };
 
     loadQuestions();
-  }, []);
+  }, [useMyQuestions]);
 
-  const handleFiltersChange = (updatedFilters: {
-    searchTerm: string;
-    grade: string;
-    curriculum: string;
-  }) => {
-    setFilters(updatedFilters);
-  };
+  useEffect(() => {
+    // Lọc câu hỏi khi bộ lọc thay đổi
+    const applyFilters = () => {
+      const { searchTerm, grade, curriculum, subject } = filters;
+
+      const filtered = questions.filter((question) => {
+        const matchesSearchTerm =
+          searchTerm === "" ||
+          question.question.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesGrade = grade === "" || question.grade === grade;
+        const matchesCurriculum =
+          curriculum === "" || question.curriculum === curriculum;
+        const matchesSubject = subject === "" || question.subject === subject;
+
+        return matchesSearchTerm && matchesGrade && matchesCurriculum && matchesSubject;
+      });
+
+      setFilteredQuestions(filtered);
+    };
+
+    applyFilters();
+  }, [filters, questions]);
 
   const handleSelectQuestion = (questionId: string) => {
     setSelectedQuestions((prev) =>
@@ -61,17 +87,6 @@ const ExamPage: React.FC = () => {
         : [...prev, questionId]
     );
   };
-
-  const filteredQuestions = questions.filter((question) => {
-    const matchesGrade = !filters.grade || question.grade === filters.grade;
-    const matchesCurriculum =
-      !filters.curriculum || question.curriculum === filters.curriculum;
-    const matchesSearch = question.question
-      .toLowerCase()
-      .includes(filters.searchTerm.toLowerCase());
-
-    return matchesGrade && matchesCurriculum && matchesSearch;
-  });
 
   const showModal = () => {
     if (selectedQuestions.length === 0) {
@@ -119,34 +134,62 @@ const ExamPage: React.FC = () => {
     </ul>
   );
 
+  const currentPageQuestions = filteredQuestions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div>
-      <Title level={2} className="my-4">
-        Tạo Bài kiểm tra
-      </Title>
+      <h1 className="text-2xl font-semibold mb-4 text-center">Tạo bài kiểm tra</h1>
+      {/* Layout container for search, filters, and create button */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex space-x-4 w-1/2 items-center">
+          {/* Filters */}
+          <Filters onFiltersChange={(newFilters) => setFilters(newFilters)} />
+        </div>
 
-      <Filters onFiltersChange={handleFiltersChange} />
+        {/* Create Exam Button */}
+        <Button
+          type="primary"
+          onClick={showModal}
+          className="h-9 px-4 flex items-center -mt-5" // Sử dụng negative margin-top
+        >
+          <PlusOutlined className="mr-2" />
+          Thêm bài kiểm tra
+        </Button>
+      </div>
 
       {loading ? (
-        <p>Đang tải...</p>
+        <div className="flex justify-center items-center">
+          <Spin size="large" />
+        </div>
       ) : error ? (
         <p>{error}</p>
       ) : filteredQuestions.length > 0 ? (
         <div>
-          <Button
-            type="primary"
-            onClick={showModal}
-            style={{ marginTop: "12px", marginBottom: "12px" }}
-          >
-            <PlusOutlined className="mr-2" />
-            Thêm bài kiểm tra
-          </Button>
+          {/* Toggle Source Button */}
+          <div className="flex justify-between items-center mb-4">
+            <Button
+              type="primary"
+              onClick={() => setShowAnswers(!showAnswers)}
+              className="h-10"
+            >
+              {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
+            </Button>
+
+            <Button
+              type="default"
+              onClick={() => setUseMyQuestions((prev) => !prev)}
+              className="h-10"
+            >
+              {useMyQuestions ? "Ngân hàng câu hỏi" : "Câu hỏi của tôi"}
+            </Button>
+          </div>
+
           <div className="question-list">
-            {filteredQuestions.map((question, index) => (
-              <div
-                key={question.questionId}
-                className="mb-6 p-4 border rounded-lg"
-              >
+            {currentPageQuestions.map((question, index) => (
+              <div key={question.questionId} className="mb-6 p-4 border rounded-lg">
                 <Title level={5}>
                   <input
                     type="checkbox"
@@ -154,23 +197,24 @@ const ExamPage: React.FC = () => {
                     checked={selectedQuestions.includes(question.questionId)}
                     className="mr-2"
                   />
-                  Câu {index + 1}: {question.question}
+                  Câu {(currentPage - 1) * itemsPerPage + index + 1}: {question.question}
                 </Title>
-                {/* Render answers with the showAnswers state */}
                 {renderAnswers(question.answers)}
               </div>
             ))}
           </div>
-          <Button
-            type="primary"
-            onClick={() => setShowAnswers(!showAnswers)}
-            className="mb-4"
-          >
-            {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
-          </Button>
+
+          {/* Pagination */}
+          <Pagination
+            current={currentPage}
+            pageSize={itemsPerPage}
+            total={filteredQuestions.length}
+            onChange={(page) => setCurrentPage(page)}
+            className="mt-4"
+          />
         </div>
       ) : (
-        <p>Không có câu hỏi nào trong ngân hàng.</p>
+        <p>Ngân hàng chưa có câu hỏi.</p>
       )}
 
       <Modal
