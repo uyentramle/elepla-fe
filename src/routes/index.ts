@@ -70,6 +70,8 @@ import ExamPage from '@/pages/teacher/Exam/ExamPage';
 import ListExamPage from '@/pages/teacher/ListExam/ListExamPage';
 import PlanbookDetailPage from '@/pages/teacher/Planbook/PlanbookDetailPage';
 import PlanbookSharePage from '@/pages/teacher/Planbook/PlanbookSharePage';
+import MyQuestionPage from '@/pages/teacher/Question/MyQuestionPage';
+import TeacherQuesttionForm from '@/pages/teacher/Question/TeacherQuesttionForm'
 
 interface RouteProps {
     path: string;
@@ -151,11 +153,14 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/schedule/create', component: EventFormPage, layout: DefaultTeacherLayout },
     { path: '/teacher/schedule/edit/:id', component: EventFormPage, layout: DefaultTeacherLayout },
     { path: '/teacher/question-bank/', component: QuestionBankPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/question-bank/my-question', component: MyQuestionPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/question-bank/create-question', component: TeacherQuesttionForm, layout: DefaultTeacherLayout },
     { path: '/teacher/exam', component: ExamPage, layout: DefaultTeacherLayout },
     { path: '/teacher/planbook-library', component:PlanbookLibraryPage , layout: DefaultTeacherLayout },
     { path: '/teacher/list-exam', component:ListExamPage , layout: DefaultTeacherLayout },
     { path: '/teacher/planbook/:id', component: PlanbookDetailPage, layout: DefaultTeacherLayout },
     { path: '/teacher/planbook-shared', component: PlanbookSharePage, layout: DefaultTeacherLayout },
+
 ];
 
 export { publicRoutes, privateRoutes, adminRoutes, managerRoutes, academyStaffRoutes, teacherRoutes };

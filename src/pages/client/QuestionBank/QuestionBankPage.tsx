@@ -21,6 +21,7 @@ import {
     IViewListQuestionBank,
 } from '@/data/client/QuestionBankData';
 
+
 const { Title } = Typography;
 const { Search } = Input;
 
@@ -34,6 +35,7 @@ const QuestionBankPage: React.FC = () => {
     const [questions, setQuestions] = useState<IViewListQuestionBank[]>([]);
     const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
     const [, setSearchText] = useState('');
+    
 
     // Gọi API để tìm kiếm câu hỏi
     const fetchQuestions = async (keyword: string) => {
@@ -90,6 +92,7 @@ const QuestionBankPage: React.FC = () => {
                 setQuestions(questions);
             };
             fetchLessons();
+
         }
     }, [selectedChapterId]);
 

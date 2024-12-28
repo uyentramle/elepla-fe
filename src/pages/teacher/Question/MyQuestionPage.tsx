@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react"; 
 import { Typography, Table, Button, Modal, message, Dropdown, Menu, Select, Input, Spin } from "antd";
-import { fetchAllQuestions, deleteQuestion, IQuestion } from "@/data/academy-staff/QuestionBankData";
+import { fetchQuestionsByUserId, deleteQuestion, IQuestion } from "@/data/academy-staff/QuestionBankData";
 import { getAllCurriculumFramework, IViewListCurriculum } from "@/data/admin/CurriculumFramworkData";
 import { getAllSubject, IViewListSubject } from "@/data/admin/SubjectData";
 import { getAllGrade, IViewListGrade } from "@/data/admin/GradeData";
 import { Link } from "react-router-dom";
 import { PlusOutlined, MoreOutlined, SearchOutlined } from "@ant-design/icons";
+import { getUserId } from "@/data/apiClient";
+
 
 const { Title } = Typography;
 const { Option } = Select;
 
-const QuestionBankManagementPage: React.FC = () => {
+const MyQuestionPage: React.FC = () => {
   const [questions, setQuestions] = useState<IQuestion[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +32,12 @@ const QuestionBankManagementPage: React.FC = () => {
   const loadQuestions = async (pageIndex: number) => {
     try {
       setLoading(true);
-      const response = await fetchAllQuestions(pageIndex - 1, pageSize);
+      const userId = getUserId(); // Lấy userId
+      if (!userId) {
+        throw new Error("User ID không hợp lệ");
+      }
+  
+      const response = await fetchQuestionsByUserId(userId, pageIndex - 1, pageSize);
       if (response.success) {
         setQuestions(response.data.items);
         setTotalItems(response.data.totalItemsCount);
@@ -38,11 +45,12 @@ const QuestionBankManagementPage: React.FC = () => {
         setError(response.message);
       }
     } catch (err) {
-      setError("Lỗi khi tải dữ liệu từ API.");
+      setError(err instanceof Error ? err.message : "Lỗi không xác định");
     } finally {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     loadQuestions(currentPage);
@@ -190,7 +198,7 @@ const QuestionBankManagementPage: React.FC = () => {
   return (
     <div>
       <Title level={2} className="my-4">
-        Quản lý Ngân hàng Câu hỏi
+          Câu hỏi của tôi
       </Title>
       <div className="mb-4 flex justify-between items-center">
         <div className="flex gap-4">
@@ -246,7 +254,7 @@ const QuestionBankManagementPage: React.FC = () => {
           </Select>
         </div>
         <Button type="primary">
-          <Link to="/academy-staff/question-banks/add-new" className="flex items-center">
+          <Link to="/teacher/question-bank/create-question" className="flex items-center">
             <PlusOutlined className="mr-2" />
             Thêm mới
           </Link>
@@ -341,6 +349,6 @@ const QuestionBankManagementPage: React.FC = () => {
 
     </div>
   );
-};
+}
 
-export default QuestionBankManagementPage;
+export default MyQuestionPage

@@ -74,7 +74,7 @@ export default function MySider({
     .set('2', '/teacher/schedule/weekly')
     .set('3', '/teacher/question-bank/')
     .set('3.1', '/teacher/question-bank/')
-    .set('3.2', '#')
+    .set('3.2', '/teacher/question-bank/my-question')
     .set('4', '/teacher/exam/')
     .set('4.1', '/teacher/exam/')
     .set('4.2', '/teacher/list-exam')

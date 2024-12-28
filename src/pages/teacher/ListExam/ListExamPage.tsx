@@ -5,6 +5,7 @@ import { FileProtectOutlined, AppstoreOutlined, UnorderedListOutlined, MoreOutli
 import { RadioChangeEvent } from "antd/es/radio";
 import ExamDetailPage from "./ExamDetailPage";
 import UpdateExamPage from "./UpdateExamPage";
+import { getUserId } from "@/data/apiClient";
 
 const ListExamPage: React.FC = () => {
   const [exams, setExams] = useState<IExam[]>([]);
@@ -13,11 +14,13 @@ const ListExamPage: React.FC = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
+  const userId = getUserId();
 
   useEffect(() => {
     const fetchExams = async () => {
       setLoading(true);
       const data = await getExamsByUserId();
+      console.log("userId", userId);
       if (data) {
         setExams(data);
       }
@@ -157,18 +160,17 @@ const ListExamPage: React.FC = () => {
 
       {/* Detail Modal */}
       <Modal
-        title="Chi tiết bài kiểm tra"
-        visible={isDetailModalOpen}
-        onCancel={handleDetailModalClose}
-        footer={null}
-        width="50%"
-      >
-        {selectedExamId && <ExamDetailPage examId={selectedExamId} />}
-      </Modal>
+          visible={isDetailModalOpen}
+          onCancel={handleDetailModalClose}
+          footer={null}
+          width="50%"
+          className="custom-modal"
+        >
+          {selectedExamId && <ExamDetailPage examId={selectedExamId} />}
+        </Modal>
 
       {/* Edit Modal */}
       <Modal
-        title="Chỉnh sửa bài kiểm tra"
         visible={isEditModalOpen}
         onCancel={handleEditModalClose}
         footer={null}
