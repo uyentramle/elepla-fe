@@ -217,11 +217,10 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId }) => {
   
       {/* Modal thêm câu hỏi */}
       <Modal
-        title="Thêm câu hỏi vào bài kiểm tra"
         visible={isAddQuestionModalVisible}
         onCancel={() => setIsAddQuestionModalVisible(false)}
         footer={null}
-        width={800}
+        width={1200}
       >
         <AddQuestionExam onAddQuestions={handleAddQuestions} />
       </Modal>

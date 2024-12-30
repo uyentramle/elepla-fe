@@ -72,6 +72,7 @@ import ListExamPage from '@/pages/teacher/ListExam/ListExamPage';
 import PlanbookDetailPage from '@/pages/teacher/Planbook/PlanbookDetailPage';
 import PlanbookSharePage from '@/pages/teacher/Planbook/PlanbookSharePage';
 import MyQuestionPage from '@/pages/teacher/Question/MyQuestionPage';
+import UpdateMyQuestion from '@/pages/teacher/Question/UpdateMyQuestion'
 import TeacherQuesttionForm from '@/pages/teacher/Question/TeacherQuesttionForm'
 
 interface RouteProps {
@@ -155,6 +156,7 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/schedule/edit/:id', component: EventFormPage, layout: DefaultTeacherLayout },
     { path: '/teacher/question-bank/', component: QuestionBankPage, layout: DefaultTeacherLayout },
     { path: '/teacher/question-bank/my-question', component: MyQuestionPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/question-bank/my-question/edit/:id', component: UpdateMyQuestion, layout: DefaultTeacherLayout },
     { path: '/teacher/question-bank/create-question', component: TeacherQuesttionForm, layout: DefaultTeacherLayout },
     { path: '/teacher/exam', component: ExamPage, layout: DefaultTeacherLayout },
     { path: '/teacher/planbook-library', component:PlanbookLibraryPage , layout: DefaultTeacherLayout },

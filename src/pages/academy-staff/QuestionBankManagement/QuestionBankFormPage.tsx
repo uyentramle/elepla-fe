@@ -39,45 +39,65 @@ const QuestionBankFormPage: React.FC = () => {
     setAnswers(answers.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async () => {
-    if (!filters.chapterId) {
-      message.error("Vui lòng chọn chương trước khi lưu câu hỏi.");
-      return;
-    }
-    if (!type || !plum) {
-      message.error("Vui lòng chọn đầy đủ loại câu hỏi và mức độ.");
-      return;
-    }
+const handleSubmit = async () => {
+  // Kiểm tra thông tin chương
+  if (!filters.chapterId) {
+    message.error("Vui lòng chọn chương trước khi lưu câu hỏi.");
+    return;
+  }
   
-    const formData = {
-      question,
-      type,
-      plum,
-      chapterId: filters.chapterId,
-      lessonId: filters.lessonId || null,
-      answers: answers.map(({ answerText, isCorrect }) => ({
-        answerText,
-        isCorrect,
-      })),
-    };
+  // Kiểm tra loại câu hỏi và mức độ
+  if (!type || !plum) {
+    message.error("Vui lòng chọn đầy đủ loại câu hỏi và mức độ.");
+    return;
+  }
   
-    try {
-      const result = await createQuestionByStaff(formData); // Sử dụng hàm mới
+  // Kiểm tra nội dung câu hỏi
+  if (!question.trim()) {
+    message.error("Câu hỏi không được để trống.");
+    return;
+  }
   
-      if (result.success) {
-        message.success(result.message || "Câu hỏi đã được thêm thành công!");
-        setQuestion("");
-        setType(undefined);
-        setPlum(undefined);
-        setAnswers([{ answerId: "1", answerText: "", isCorrect: false }]);
-        navigate("/academy-staff/question-banks/");
-      } else {
-        message.error(result.message || "Lỗi khi thêm câu hỏi.");
-      }
-    } catch (error: any) {
-      message.error(error.message || "Có lỗi xảy ra khi thêm câu hỏi.");
-    }
+  // Kiểm tra danh sách câu trả lời
+  if (answers.length === 0 || answers.every((answer) => !answer.answerText.trim())) {
+    message.error("Phải có ít nhất một câu trả lời không để trống.");
+    return;
+  }
+  
+  // Kiểm tra ít nhất một đáp án đúng
+  if (!answers.some((answer) => answer.isCorrect)) {
+    message.error("Phải có ít nhất một câu trả lời đúng.");
+    return;
+  }
+
+  const formData = {
+    question,
+    type,
+    plum,
+    chapterId: filters.chapterId,
+    lessonId: filters.lessonId || null,
+    answers: answers.map(({ answerText, isCorrect }) => ({
+      answerText,
+      isCorrect,
+    })),
   };
+
+  try {
+    const result = await createQuestionByStaff(formData);
+    if (result.success) {
+      message.success(result.message || "Câu hỏi đã được thêm thành công!");
+      setQuestion("");
+      setType(undefined);
+      setPlum(undefined);
+      setAnswers([{ answerId: "1", answerText: "", isCorrect: false }]);
+      navigate("/academy-staff/question-banks/");
+    } else {
+      message.error(result.message || "Lỗi khi thêm câu hỏi.");
+    }
+  } catch (error: any) {
+    message.error(error.message || "Có lỗi xảy ra khi thêm câu hỏi.");
+  }
+};
 
   return (
     <div className="container mx-auto p-4">

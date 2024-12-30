@@ -128,7 +128,7 @@ const MyQuestionPage: React.FC = () => {
       </Menu.Item>
       <Menu.Item key="2">
         <Button type="text">
-          <Link to={`/academy-staff/question-banks/edit/${record.questionId}`}>
+          <Link to={`/teacher/question-bank/my-question/edit/${record.questionId}`}>
             Sửa
           </Link>
         </Button>

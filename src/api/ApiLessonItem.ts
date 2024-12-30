@@ -1,4 +1,3 @@
-// import axios from 'axios';
 import apiClient from "@/data/apiClient"; // Import your configured apiClient
 
 
@@ -14,7 +13,6 @@ const fetchLessonByChapter = async (
 ): Promise<lessonItem[]> => {
     try {
         // Construct the API URL with query parameters
-        // const url = `http://localhost/api/Lesson/GetAllLessonByChapterId?chapterId=${chapterId}`;// api local
         const url = `https://elepla-be-production.up.railway.app/api/Lesson/GetAllLessonByChapterId?chapterId=${chapterId}`;// api server
         // Make the GET request
         const response = await apiClient.get<{

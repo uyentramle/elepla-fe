@@ -1,39 +1,35 @@
 import React, { useState, useEffect } from "react"; 
-import { Typography, Table, Button, Modal, message, Dropdown, Menu, Select, Input, Spin } from "antd";
+import { Typography, Table, Button, Modal, message, Dropdown, Menu, Spin } from "antd";
 import { fetchAllQuestions, deleteQuestion, IQuestion } from "@/data/academy-staff/QuestionBankData";
-import { getAllCurriculumFramework, IViewListCurriculum } from "@/data/admin/CurriculumFramworkData";
-import { getAllSubject, IViewListSubject } from "@/data/admin/SubjectData";
-import { getAllGrade, IViewListGrade } from "@/data/admin/GradeData";
 import { Link } from "react-router-dom";
-import { PlusOutlined, MoreOutlined, SearchOutlined } from "@ant-design/icons";
+import { PlusOutlined, MoreOutlined } from "@ant-design/icons";
+import Filters from "@/pages/teacher/Exam/Filters"; // Import bộ lọc Filters
 
 const { Title } = Typography;
-const { Option } = Select;
 
 const QuestionBankManagementPage: React.FC = () => {
   const [questions, setQuestions] = useState<IQuestion[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [totalItems, setTotalItems] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(null);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-  const [filterSubject, setFilterSubject] = useState<string>("");
-  const [filterGrade, setFilterGrade] = useState<string>("");
-  const [filterCurriculum, setFilterCurriculum] = useState<string>("");
-  const [subjectOptions, setSubjectOptions] = useState<IViewListSubject[]>([]);
-  const [gradeOptions, setGradeOptions] = useState<IViewListGrade[]>([]);
-  const [curriculumOptions, setCurriculumOptions] = useState<IViewListCurriculum[]>([]);
-  const [searchTerm, setSearchTerm] = useState<string>("");
   const pageSize = 10;
-
+  const [filters, setFilters] = useState({
+    searchTerm: "",
+    grade: "",
+    curriculum: "",
+    subject: "",
+    chapter: "",
+    lesson: "",
+  });
+  
   const loadQuestions = async (pageIndex: number) => {
     try {
       setLoading(true);
       const response = await fetchAllQuestions(pageIndex - 1, pageSize);
       if (response.success) {
         setQuestions(response.data.items);
-        setTotalItems(response.data.totalItemsCount);
       } else {
         setError(response.message);
       }
@@ -43,51 +39,27 @@ const QuestionBankManagementPage: React.FC = () => {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     loadQuestions(currentPage);
   }, [currentPage]);
 
-  useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        const response = await getAllSubject();
-        setSubjectOptions(response);
-      } catch (error) {
-        message.error("Không thể tải dữ liệu môn học, vui lòng thử lại sau");
-      }
-    };
+  const applyFilters = () => {
+    const { searchTerm, grade, curriculum, subject, chapter, lesson } = filters;
 
-    const fetchGrades = async () => {
-      try {
-        const response = await getAllGrade();
-        setGradeOptions(response);
-      } catch (error) {
-        message.error("Không thể tải dữ liệu khối lớp, vui lòng thử lại sau");
-      }
-    };
+    return questions.filter((question) => {
+      const matchesSearchTerm =
+        searchTerm === "" || question.question.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesGrade = grade === "" || question.grade === grade;
+      const matchesCurriculum = curriculum === "" || question.curriculum === curriculum;
+      const matchesSubject = subject === "" || question.subject === subject;
+      const matchesChapter = chapter === "" || question.chapterName === chapter;
+      const matchesLesson = lesson === "" || question.lessonName === lesson;
 
-    const fetchCurriculums = async () => {
-      try {
-        const response = await getAllCurriculumFramework();
-        setCurriculumOptions(response);
-      } catch (error) {
-        message.error("Không thể tải dữ liệu khung chương trình, vui lòng thử lại sau");
-      }
-    };
-
-    fetchSubjects();
-    fetchGrades();
-    fetchCurriculums();
-  }, []);
-
-  const filteredQuestions = questions.filter((question) => {
-    const matchesSearchTerm = question.question.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSubject = !filterSubject || question.subject === filterSubject;
-    const matchesGrade = !filterGrade || question.grade === filterGrade;
-    const matchesCurriculum = !filterCurriculum || question.curriculum === filterCurriculum;
-    return matchesSearchTerm && matchesSubject && matchesGrade && matchesCurriculum;
-  });
+      return matchesSearchTerm && matchesGrade && matchesCurriculum && matchesSubject && matchesChapter && matchesLesson;
+    });
+  };
 
   const handleDelete = async (questionId: string) => {
     Modal.confirm({
@@ -137,8 +109,8 @@ const QuestionBankManagementPage: React.FC = () => {
     setIsDetailModalVisible(true);
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handleFiltersChange = (newFilters: typeof filters) => {
+    setFilters(newFilters);
   };
 
   const columns = [
@@ -185,6 +157,9 @@ const QuestionBankManagementPage: React.FC = () => {
     setSelectedQuestion(null);
   };
 
+  const filteredQuestions = applyFilters();
+
+
   return (
     <div>
       <Title level={2} className="my-4">
@@ -192,56 +167,7 @@ const QuestionBankManagementPage: React.FC = () => {
       </Title>
       <div className="mb-4 flex justify-between items-center">
         <div className="flex gap-4">
-          <Input
-            placeholder="Tìm kiếm câu hỏi..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            prefix={<SearchOutlined />}
-          />
-            <Select
-            id="subject-filter"
-            className="w-48 mr-2"
-            value={filterSubject}
-            onChange={(value) => setFilterSubject(value)}
-            placeholder="Chọn môn học"
-          >
-            <Option value="">Tất cả môn học</Option>
-            {subjectOptions.map((option) => (
-              <Option key={option.name} value={option.name}>
-                {option.name}
-              </Option>
-            ))}
-          </Select>
-
-          <Select
-            id="grade-filter"
-            className="w-48 mr-2"
-            value={filterGrade}
-            onChange={(value) => setFilterGrade(value)}
-            placeholder="Chọn khối lớp"
-          >
-            <Option value="">Tất cả lớp</Option>
-            {gradeOptions.map((option) => (
-              <Option key={option.name} value={option.name}>
-                {option.name}
-              </Option>
-            ))}
-          </Select>
-
-          <Select
-            id="curriculum-filter"
-            className="w-48 mr-2"
-            value={filterCurriculum}
-            onChange={(value) => setFilterCurriculum(value)}
-            placeholder="Chọn khung chương trình"
-          >
-            <Option value="">Tất cả khung chương trình</Option>
-            {curriculumOptions.map((option) => (
-              <Option key={option.name} value={option.name}>
-                {option.name}
-              </Option>
-            ))}
-          </Select>
+         <Filters onFiltersChange={handleFiltersChange} />
         </div>
         <Button type="primary">
           <Link to="/academy-staff/question-banks/add-new" className="flex items-center">
@@ -259,13 +185,13 @@ const QuestionBankManagementPage: React.FC = () => {
         ) : (
           <Table
             columns={columns}
-            dataSource={filteredQuestions}
+            dataSource={filteredQuestions.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
             rowKey={(record) => record.questionId}
             pagination={{
               current: currentPage,
               pageSize,
-              total: totalItems,
-              onChange: handlePageChange,
+              total: filteredQuestions.length,
+              onChange: (page) => setCurrentPage(page),
             }}
             className="mt-4"
           />
@@ -312,7 +238,7 @@ const QuestionBankManagementPage: React.FC = () => {
             </div>
 
             <p style={{ marginTop: "20px" }}><strong>Câu trả lời:</strong></p>
-            <ol type="A" style={{ paddingLeft: "20px", marginBottom: "10px" }}> {/* Danh sách đáp án */}
+            <ol type="A" style={{ paddingLeft: "20px", marginBottom: "10px" }}>
               {selectedQuestion.answers.map((answer, index) => (
                 <li key={answer.answerId} style={{ marginBottom: "5px" }}>
                   {String.fromCharCode(65 + index)}. {answer.answerText}
@@ -334,9 +260,6 @@ const QuestionBankManagementPage: React.FC = () => {
           </div>
         )}
       </Modal>
-
-
-
     </div>
   );
 };

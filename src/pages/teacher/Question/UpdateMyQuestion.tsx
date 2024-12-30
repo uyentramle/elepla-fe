@@ -6,7 +6,7 @@ import { useParams, useNavigate } from "react-router-dom";
 const { Title } = Typography;
 const { Option } = Select;
 
-const UpdateQuestionPage: React.FC = () => {
+const UpdateMyQuestion: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -19,7 +19,7 @@ const UpdateQuestionPage: React.FC = () => {
       try {
         if (!id) {
           message.error("Không tìm thấy ID câu hỏi.");
-          navigate("/academy-staff/question-banks/");
+          navigate("/teacher/question-bank/my-question");
           return;
         }
 
@@ -31,7 +31,7 @@ const UpdateQuestionPage: React.FC = () => {
       } catch (error: any) {
         // Chuyển hướng nếu xảy ra lỗi
         message.warning("Dữ liệu không hợp lệ, chuyển hướng về danh sách câu hỏi.");
-        navigate("/academy-staff/question-banks/");
+        navigate("/teacher/question-bank/my-question");
       } finally {
         setLoading(false);
       }
@@ -43,40 +43,66 @@ const UpdateQuestionPage: React.FC = () => {
   const handleSave = async () => {
     if (!questionData) {
       message.warning("Dữ liệu câu hỏi không hợp lệ, chuyển hướng về danh sách.");
-      navigate("/academy-staff/question-banks/");
+      navigate("/teacher/question-bank/my-question");
       return;
     }
-
+  
+    // Kiểm tra tính hợp lệ của câu hỏi và câu trả lời
+    if (!questionData.question.trim()) {
+      message.error("Câu hỏi không được để trống.");
+      return;
+    }
+  
+    if (!questionData.answers || questionData.answers.length === 0) {
+      message.error("Phải có ít nhất một câu trả lời.");
+      return;
+    }
+  
+    const hasCorrectAnswer = questionData.answers.some((answer) => answer.isCorrect);
+    if (!hasCorrectAnswer) {
+      message.error("Phải có ít nhất một câu trả lời đúng.");
+      return;
+    }
+  
+    const hasEmptyAnswer = questionData.answers.some(
+      (answer) => !answer.answerText.trim()
+    );
+    if (hasEmptyAnswer) {
+      message.error("Không được để trống câu trả lời.");
+      return;
+    }
+  
     setSaving(true);
     try {
-      const updatedAnswers = questionData.answers?.map(answer => ({
+      const updatedAnswers = questionData.answers.map((answer) => ({
         answerId: answer.answerId,
-        answerText: answer.answerText || "", // Đảm bảo không để trống
+        answerText: answer.answerText.trim(), // Loại bỏ khoảng trắng dư thừa
         isCorrect: !!answer.isCorrect, // Luôn là boolean
-      })) || [];
-
+      }));
+  
       await updateQuestion({
         questionId: questionData.questionId,
-        question: questionData.question,
+        question: questionData.question.trim(),
         type: questionData.type,
         plum: questionData.plum,
         chapterId: questionData.chapterId,
         lessonId: questionData.lessonId || null,
         answers: updatedAnswers,
       });
-
+  
       message.success("Cập nhật câu hỏi thành công!");
       setTimeout(() => {
-        navigate("/academy-staff/question-banks/");
+        navigate("/teacher/question-bank/my-question");
       }, 1500);
     } catch (error: any) {
       // Luôn hiển thị thành công và chuyển trang
       message.success("Cập nhật câu hỏi thành công!");
-      navigate("/academy-staff/question-banks/");
+      navigate("/teacher/question-bank/my-question");
     } finally {
       setSaving(false);
     }
   };
+  
 
   if (loading) {
     return (
@@ -180,4 +206,4 @@ const UpdateQuestionPage: React.FC = () => {
   );
 };
 
-export default UpdateQuestionPage;
+export default UpdateMyQuestion;

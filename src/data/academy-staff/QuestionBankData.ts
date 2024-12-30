@@ -64,35 +64,33 @@ export interface IQuestionBankResponse {
 }
 
 
-  export const fetchAllQuestions = async (
-    pageIndex: number = 0,
-    pageSize: number = 50,
-  ): Promise<IQuestionBankResponse> => {
-    try {
-      let url = `QuestionBank/GetAllQuestionBank?pageIndex=${pageIndex}&pageSize=${pageSize}`;
-      const response = await apiClient.get<IQuestionBankResponse>(url);
-  
-      return {
-        ...response.data,
-        data: {
-          ...response.data.data,
-          items: response.data.data.items.map((question) => ({
-            ...question,
-            answers: question.answers.map((answer: any) => ({
-              ...answer,
-              isCorrect: answer.isCorrect === "True", // Chuyển đổi thành boolean
-            })),
+// Hàm lấy danh sách câu hỏi
+export const fetchAllQuestions = async (
+  pageIndex: number = 0,
+  pageSize: number = 50
+): Promise<IQuestionBankResponse> => {
+  try {
+    const url = `QuestionBank/GetAllQuestionBank?pageIndex=${pageIndex}&pageSize=${pageSize}`;
+    const response = await apiClient.get<IQuestionBankResponse>(url);
+
+    return {
+      ...response.data,
+      data: {
+        ...response.data.data,
+        items: response.data.data.items.map((question) => ({
+          ...question,
+          answers: question.answers.map((answer: any) => ({
+            ...answer,
+            isCorrect: answer.isCorrect === "True", // Chuyển đổi thành boolean
           })),
-        },
-      };
-    } catch (error) {
-      console.error("Error fetching question bank:", error);
-      throw error;
-    }
-  };
-
-
-
+        })),
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching question bank:", error);
+    throw error;
+  }
+};
 
   export const fetchQuestionsByUserId = async (
     userId: string,
@@ -118,6 +116,83 @@ export interface IQuestionBankResponse {
       };
     } catch (error) {
       console.error("Error fetching questions by userId:", error);
+      throw error;
+    }
+  };
+
+  export const updateQuestion = async (
+    updatedQuestion: {
+      questionId: string;
+      question: string;
+      type: QuestionType;
+      plum: PlumLevel;
+      chapterId: string;
+      lessonId?: string | null;
+      answers: IAnswer[]; // Đảm bảo luôn là mảng
+    }
+  ): Promise<IQuestion> => {
+    try {
+      const url = "https://elepla-be-production.up.railway.app/api/QuestionBank/UpdateQuestion";
+  
+      const payload = {
+        ...updatedQuestion,
+        answers: (updatedQuestion.answers || []).map(answer => ({
+          answerId: answer.answerId,
+          answerText: answer.answerText || "", 
+          isCorrect: !!answer.isCorrect, // Chuyển giá trị thành boolean
+        })),
+      };
+  
+      const response = await apiClient.put<{
+        success: boolean;
+        message: string;
+        data: IQuestion;
+      }>(url, payload);
+  
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Lỗi không xác định.");
+      }
+  
+      const updatedData = response.data.data;
+  
+      return {
+        ...updatedData,
+        answers: updatedData.answers?.map(answer => ({
+          answerId: answer.answerId,
+          answerText: answer.answerText || "", // Giá trị mặc định nếu thiếu
+          isCorrect: !!answer.isCorrect, // Chuyển đổi giá trị thành boolean
+        })) || [],
+      };
+    } catch (error) {
+      // Không in lỗi ra console, thay vào đó chỉ ném lỗi tiếp
+      throw error; // hoặc return giá trị null hoặc giá trị xử lý khác theo nhu cầu
+    }
+  };
+  
+  
+  // Hàm lấy chi tiết câu hỏi theo ID
+  export const fetchQuestionById = async (id: string): Promise<IQuestion> => {
+    try {
+      const url = `https://elepla-be-production.up.railway.app/api/QuestionBank/GetQuestionBankById?id=${id}`;
+      const response = await apiClient.get<{
+        success: boolean;
+        message: string;
+        data: IQuestion;
+      }>(url);
+  
+      if (response.data.success) {
+        return {
+          ...response.data.data,
+          answers: response.data.data.answers.map((answer: any) => ({
+            ...answer,
+            isCorrect: answer.isCorrect === "True", // Chuyển đổi thành boolean
+          })),
+        };
+      } else {
+        throw new Error(response.data.message || "Lỗi không xác định.");
+      }
+    } catch (error) {
+      console.error("Error fetching question by ID:", error);
       throw error;
     }
   };

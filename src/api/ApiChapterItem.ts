@@ -14,7 +14,6 @@ const fetchChaptersBySubjectInCurriculumId = async (
 ): Promise<ChapterItem[]> => {
     try {
         // Construct the API URL with the subjectInCurriculumId query parameter
-        // const url = `http://localhost/api/Chapter/GetAllChapterBySubjectInCurriculumId?subjectInCurriculumId=${subjectInCurriculumId}`; // api local
         const url = `https://elepla-be-production.up.railway.app/api/Chapter/GetAllChapterBySubjectInCurriculumId?subjectInCurriculumId=${subjectInCurriculumId}`; //api server
 
         // Make the GET request

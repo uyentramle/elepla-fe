@@ -22,6 +22,8 @@ const ExamPage: React.FC = () => {
     grade: "",
     curriculum: "",
     subject: "",
+    chapter: "", // Thêm bộ lọc chương
+    lesson: "",  // Thêm bộ lọc bài
   }); // State cho bộ lọc
   const [useMyQuestions, setUseMyQuestions] = useState<boolean>(false); // State để chuyển đổi API
 
@@ -60,7 +62,9 @@ const ExamPage: React.FC = () => {
   useEffect(() => {
     // Lọc câu hỏi khi bộ lọc thay đổi
     const applyFilters = () => {
-      const { searchTerm, grade, curriculum, subject } = filters;
+      const { searchTerm, grade, curriculum, subject, chapter, lesson } = filters;
+
+      console.log("Filters applied:", filters); // Debug filters
 
       const filtered = questions.filter((question) => {
         const matchesSearchTerm =
@@ -70,10 +74,20 @@ const ExamPage: React.FC = () => {
         const matchesCurriculum =
           curriculum === "" || question.curriculum === curriculum;
         const matchesSubject = subject === "" || question.subject === subject;
+        const matchesChapter = chapter === "" || question.chapterName === chapter;
+        const matchesLesson = lesson === "" || question.lessonName === lesson;
 
-        return matchesSearchTerm && matchesGrade && matchesCurriculum && matchesSubject;
+        return (
+          matchesSearchTerm &&
+          matchesGrade &&
+          matchesCurriculum &&
+          matchesSubject &&
+          matchesChapter &&
+          matchesLesson
+        );
       });
 
+      console.log("Filtered Questions:", filtered); // Debug filtered questions
       setFilteredQuestions(filtered);
     };
 

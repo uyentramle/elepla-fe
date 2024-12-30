@@ -1,78 +1,83 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Input, Button } from "antd";
+import { Typography, Button, Pagination, Spin } from "antd";
 import {
   fetchAllQuestions,
-  fetchQuestionsByChapter,
-  fetchQuestionsByLesson,
+  fetchQuestionsByUserId,
   IQuestion,
 } from "@/data/academy-staff/QuestionBankData";
-import FilterSection from "@/layouts/teacher/Components/FilterSection/FilterSection";
-import { SearchOutlined } from "@ant-design/icons";
 
+import { getUserId } from "@/data/apiClient"; // Import getUserId
+import Filters from "@/pages/teacher/Exam/Filters"; // Import bộ lọc Filters
 
 const { Title } = Typography;
 
 interface AddQuestionExamProps {
-    onAddQuestions: (selectedQuestions: IQuestion[]) => void; // Sử dụng IQuestion[]
-  }
+  onAddQuestions: (selectedQuestions: IQuestion[]) => void;
+}
 
 const AddQuestionExam: React.FC<AddQuestionExamProps> = ({ onAddQuestions }) => {
   const [questions, setQuestions] = useState<IQuestion[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalQuestions, setTotalQuestions] = useState<number>(0);
   const [showAnswers, setShowAnswers] = useState<boolean>(false);
-  const [filters, setFilters] = useState<{ chapterId?: string; lessonId?: string }>({});
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
+  const [isMyQuestions, setIsMyQuestions] = useState<boolean>(false);
+  const pageSize = 10;
+  const [filters, setFilters] = useState({
+    searchTerm: "",
+    grade: "",
+    curriculum: "",
+    subject: "",
+    chapter: "",
+    lesson: "",
+  });
+
+  const userId = getUserId();
 
   const handleSelectQuestion = (questionId: string) => {
     setSelectedQuestions((prev) =>
       prev.includes(questionId)
-        ? prev.filter((id) => id !== questionId) // Bỏ chọn nếu đã chọn trước đó
-        : [...prev, questionId] // Thêm vào danh sách nếu chưa chọn
+        ? prev.filter((id) => id !== questionId)
+        : [...prev, questionId]
     );
   };
 
-  const loadQuestions = async () => {
+  const loadQuestions = async (pageIndex: number) => {
     try {
       setLoading(true);
       let response;
 
-      if (filters.lessonId) {
-        response = await fetchQuestionsByLesson(filters.lessonId, 0, 50);
-      } else if (filters.chapterId) {
-        response = await fetchQuestionsByChapter(filters.chapterId, 0, 50);
+      if (isMyQuestions) {
+        if (!userId) {
+          throw new Error("User ID is required to fetch personal questions.");
+        }
+        response = await fetchQuestionsByUserId(userId, pageIndex - 1, pageSize);
       } else {
-        response = await fetchAllQuestions(0, 50);
+        response = await fetchAllQuestions(pageIndex - 1, pageSize);
       }
 
       if (response.success) {
         setQuestions(response.data.items);
+        setTotalQuestions(response.data.totalItemsCount); // Lấy tổng số câu hỏi để phân trang
       } else {
         setError(response.message);
       }
     } catch (err) {
-      setError("Lỗi khi tải dữ liệu từ API.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An unknown error occurred while loading questions."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadQuestions();
-  }, [filters]);
-
-  const handleFilterChange = (newFilters: {
-    gradeId?: string;
-    curriculumId?: string;
-    subjectId?: string;
-    chapterId?: string;
-    lessonId?: string;
-  }) => {
-    setFilters({
-      chapterId: newFilters.chapterId,
-      lessonId: newFilters.lessonId,
-    });
-  };
+    loadQuestions(currentPage);
+  }, [isMyQuestions, currentPage]);
 
   const handleAddQuestions = () => {
     const selectedQuestionObjects = questions.filter((q) =>
@@ -81,42 +86,93 @@ const AddQuestionExam: React.FC<AddQuestionExamProps> = ({ onAddQuestions }) => 
     onAddQuestions(selectedQuestionObjects);
   };
 
+  const applyFilters = () => {
+    const { searchTerm, grade, curriculum, subject, chapter, lesson } = filters;
+
+    return questions.filter((question) => {
+      const matchesSearchTerm =
+        searchTerm === "" ||
+        question.question.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesGrade = grade === "" || question.grade === grade;
+      const matchesCurriculum =
+        curriculum === "" || question.curriculum === curriculum;
+      const matchesSubject = subject === "" || question.subject === subject;
+      const matchesChapter =
+        chapter === "" || question.chapterName === chapter;
+      const matchesLesson = lesson === "" || question.lessonName === lesson;
+
+      return (
+        matchesSearchTerm &&
+        matchesGrade &&
+        matchesCurriculum &&
+        matchesSubject &&
+        matchesChapter &&
+        matchesLesson
+      );
+    });
+  };
+
+  const handleFiltersChange = (newFilters: typeof filters) => {
+    setFilters(newFilters);
+  };
+
+  const filteredQuestions = applyFilters();
+
   return (
     <div>
-      <Title level={2} className="my-4">
-        Thêm câu hỏi
-      </Title>
-      <div className="mb-4 flex justify-between">
-        <Input
-          type="text"
-          placeholder="Tìm kiếm..."
-          suffix={<SearchOutlined />}
-          className="mr-4"
-        />
+      <h1 className="text-2xl font-semibold mb-4 text-center">Thêm câu hỏi</h1>
+
+      <div className="mb-4 flex justify-between items-center">
+        <div className="flex gap-4">
+          <Filters onFiltersChange={handleFiltersChange} />
+        </div>
       </div>
-      <FilterSection onFilterChange={handleFilterChange} />
       {loading ? (
-        <p>Đang tải...</p>
+        <Spin size="large" />
       ) : error ? (
         <p>{error}</p>
-      ) : questions.length > 0 ? (
+      ) : filteredQuestions.length > 0 ? (
         <div>
-          <Button
-            type="primary"
-            onClick={() => setShowAnswers(!showAnswers)}
-            style={{ marginTop: "12px", marginBottom: "12px" }}
-          >
-            {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
-          </Button>
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <Button
+                type="primary"
+                onClick={() => setShowAnswers(!showAnswers)}
+                style={{ marginRight: "12px" }}
+              >
+                {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
+              </Button>
+              <Button
+                type="primary"
+                onClick={handleAddQuestions}
+                disabled={selectedQuestions.length === 0}
+              >
+                Thêm câu hỏi đã chọn
+              </Button>
+            </div>
+            <Button
+              type="default"
+              onClick={() => setIsMyQuestions(!isMyQuestions)}
+            >
+              {isMyQuestions ? "Ngân hàng câu hỏi" : "Câu hỏi của tôi"}
+            </Button>
+          </div>
           <div className="question-list">
-            {questions.map((question, index) => (
-              <div key={question.questionId} className="mb-6 p-4 border rounded-lg">
+            {filteredQuestions.map((question, index) => (
+              <div
+                key={question.questionId}
+                className="mb-6 p-4 border rounded-lg"
+              >
                 <div className="flex justify-between items-center">
                   <Title level={5}>
                     <input
                       type="checkbox"
-                      onChange={() => handleSelectQuestion(question.questionId)}
-                      checked={selectedQuestions.includes(question.questionId)}
+                      onChange={() =>
+                        handleSelectQuestion(question.questionId)
+                      }
+                      checked={selectedQuestions.includes(
+                        question.questionId
+                      )}
                       className="mr-2"
                     />
                     Câu {index + 1}: {question.question}
@@ -137,20 +193,20 @@ const AddQuestionExam: React.FC<AddQuestionExamProps> = ({ onAddQuestions }) => 
               </div>
             ))}
           </div>
-          <Button
-            type="primary"
-            onClick={handleAddQuestions}
-            disabled={selectedQuestions.length === 0}
-            style={{ marginTop: "12px" }}
-          >
-            Thêm câu hỏi đã chọn
-          </Button>
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={totalQuestions}
+            onChange={(page) => setCurrentPage(page)}
+            className="mt-4"
+          />
         </div>
       ) : (
-        <p>Không có câu hỏi nào trong ngân hàng.</p>
+        <p>Không có câu hỏi nào trong danh mục.</p>
       )}
     </div>
   );
+  
 };
 
 export default AddQuestionExam;
