@@ -99,8 +99,8 @@ const PackageDetailPage: React.FC = () => {
       const createPayment = await createPaymentLink(getUserId() || '', packageId);
       window.open(createPayment.paymentUrl, '_blank');
     } catch (error) {
-      console.error('Error upgrading package:', error);
-      message.error('Không thể nâng cấp gói dịch vụ.');
+      // console.error('Error upgrading package:', error);
+      message.error('Bạn đang có thanh toán đang chờ xử lý, vui lòng thanh toán hoặc hủy thanh toán trước khi thực hiện thao tác này.');
     }
   };
 
@@ -134,18 +134,18 @@ const PackageDetailPage: React.FC = () => {
                 {pkg.description || ''}
               </p>
               <ul className="text-left mb-8" style={{ height: '200px' }}>
-                <li>- {pkg.useTemplate ? 'Hỗ trợ sử dụng mẫu bài giảng.' : 'Không hỗ trợ sử dụng mẫu bài giảng.'}</li>
+                <li>- {pkg.useTemplate ? 'Hỗ trợ sử dụng mẫu kế hoạch bài dạy.' : 'Không hỗ trợ sử dụng mẫu kế hoạch bài dạy.'}</li>
                 <li>
-                  - {pkg.useAI ? 'Tích hợp AI hỗ trợ tạo nội dung và kiểm tra lỗi.' : 'Không tích hợp AI.'}
+                  - {pkg.useAI ? 'Tích hợp AI hỗ trợ tạo nội dung.' : 'Không tích hợp AI.'}
                 </li>
                 <li>
                   - {pkg.exportWord
-                    ? 'Cho phép xuất giáo án sang định dạng Word.'
+                    ? 'Cho phép xuất sang định dạng Word.'
                     : 'Không hỗ trợ xuất sang Word.'}
                 </li>
                 <li>
                   - {pkg.exportPdf
-                    ? 'Cho phép xuất giáo án sang định dạng PDF.'
+                    ? 'Cho phép xuất sang định dạng PDF.'
                     : 'Không hỗ trợ xuất sang PDF.'}
                 </li>
                 <li>- Quản lý tối đa {pkg.maxLessonPlans} kế hoạch bài học trong năm học.</li>

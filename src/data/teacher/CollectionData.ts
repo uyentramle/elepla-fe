@@ -22,6 +22,7 @@ export const getCreatedPlanbookCollectionsByTeacherId = async (teacherId: string
             {
                 params: {
                     teacherId,
+                    pageIndex: -1,
                 }
             },
         );
@@ -43,6 +44,7 @@ export const getSavedPlanbookCollectionsByTeacherId = async (teacherId: string):
             {
                 params: {
                     teacherId,
+                    pageIndex: -1,
                 }
             },
         );

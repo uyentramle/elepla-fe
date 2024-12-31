@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Dropdown, Menu, Input, Select, Button, Modal, Spin, Form, message } from 'antd';
-import { FolderOpenOutlined, EditOutlined, DeleteOutlined, UnorderedListOutlined, AppstoreOutlined, EllipsisOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import { Dropdown, Menu, Input, Select, Button, Modal, Spin, Form, message, Pagination } from 'antd';
+import { FolderOpenOutlined, EditOutlined, DeleteOutlined, UnorderedListOutlined, AppstoreOutlined, EllipsisOutlined, SearchOutlined, PlusOutlined, FolderOpenFilled } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getCreatedPlanbookCollectionsByTeacherId, createPlanbookCollection, deletePlanbookCollection, updatePlanbookCollection, Collection } from '@/data/teacher/CollectionData';
 import { getUserId } from '@/data/apiClient';
@@ -19,6 +19,8 @@ const CollectionPage: React.FC = () => {
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const pageSize = 16; // Số lượng planbook mỗi trang
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,7 +42,6 @@ const CollectionPage: React.FC = () => {
     }
   }, [isCreateModalVisible, form]);
 
-
   const filteredCollections = collections
     .filter((collection) =>
       collection.collectionName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -55,6 +56,27 @@ const CollectionPage: React.FC = () => {
       }
       return 0;
     });
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const currentCollections = filteredCollections.slice(startIndex, startIndex + pageSize);
+
+  // Cập nhật lại trang hiện tại khi tìm kiếm hoặc sắp xếp thay đổi
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, sortOrder]);
+
+  // Hàm xử lý thay đổi trang
+  const onPageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   const handleCreateCollection = async (collectionName: string) => {
     try {
@@ -181,53 +203,77 @@ const CollectionPage: React.FC = () => {
       </div>
 
       {/* Collection Items */}
-      <div className={isGridView ? 'grid grid-cols-4 gap-6' : 'flex flex-col gap-4'}>
-        {filteredCollections.map(item => (
-          <div
-            key={item.collectionId}
-            className="relative group p-4 bg-gray-500 text-white rounded-lg shadow-md hover:shadow-xl transform hover:rotate-1 hover:scale-105 transition-all duration-300"
-            onClick={() => handleItemClick(item.collectionId)}
-          >
-            {/* Background effect */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-yellow-100 to-blue-300 opacity-20 rounded-lg group-hover:opacity-30 transition-opacity duration-300"></div>
-
-            {/* Icon */}
-            <div className="relative z-10 flex flex-col items-center">
-              <FolderOpenOutlined className="text-5xl text-white group-hover:text-blue-900 transition-colors duration-300" />
-              <h2 className="mt-4 text-center text-lg group-hover:text-blue-900 font-semibold">{item.collectionName}</h2>
-            </div>
-
-            {/* Dropdown & Actions */}
-            <div className="absolute top-3 right-5 z-10">
-              <Dropdown
-                overlay={
-                  <Menu onClick={({ key, domEvent }) => {
-                    domEvent.stopPropagation(); // Ngừng sự kiện lan truyền
-                    handleMenuClick(key, item.collectionId, item.collectionName);
-                  }}>
-                    {/* Chức năng sửa */}
-                    <Menu.Item key="edit" icon={<EditOutlined />}>
-                      Sửa
-                    </Menu.Item>
-
-                    {/* Chức năng xóa */}
-                    <Menu.Item key="delete" danger icon={<DeleteOutlined />}>
-                      Xóa
-                    </Menu.Item>
-                  </Menu>
-                }
-                trigger={['click']}  // Dropdown sẽ hiển thị khi nhấn vào
-                placement="bottomLeft"  // Đặt menu sổ xuống về phía bên trái
+      {collections.length > 0 ? (
+        <>
+          <div className={isGridView ? 'grid grid-cols-4 gap-6' : 'flex flex-col gap-4'}>
+            {currentCollections.map(item => (
+              <div
+                key={item.collectionId}
+                className="relative group p-4 bg-gray-500 text-white rounded-lg shadow-md hover:shadow-xl transform hover:rotate-1 hover:scale-105 transition-all duration-300"
+                onClick={() => handleItemClick(item.collectionId)}
               >
-                <EllipsisOutlined className="text-white hover:text-gray-300 text-xl cursor-pointer"
-                  onClick={(e) => e.stopPropagation()}  // Ngừng sự kiện lan truyền
-                />
-              </Dropdown>
+                {/* Background effect */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-yellow-100 to-blue-300 opacity-20 rounded-lg group-hover:opacity-30 transition-opacity duration-300"></div>
 
-            </div>
+                {/* Icon */}
+                <div className="relative z-10 flex flex-col items-center">
+                  <FolderOpenOutlined className="text-5xl text-white group-hover:text-blue-900 transition-colors duration-300" />
+                  <h2 className="mt-4 text-center text-lg group-hover:text-blue-900 font-semibold">{item.collectionName}</h2>
+                </div>
+
+                {/* Dropdown & Actions */}
+                <div className="absolute top-3 right-5 z-10">
+                  <Dropdown
+                    overlay={
+                      <Menu onClick={({ key, domEvent }) => {
+                        domEvent.stopPropagation(); // Ngừng sự kiện lan truyền
+                        handleMenuClick(key, item.collectionId, item.collectionName);
+                      }}>
+                        {/* Chức năng sửa */}
+                        <Menu.Item key="edit" icon={<EditOutlined />}>
+                          Sửa
+                        </Menu.Item>
+
+                        {/* Chức năng xóa */}
+                        <Menu.Item key="delete" danger icon={<DeleteOutlined />}>
+                          Xóa
+                        </Menu.Item>
+                      </Menu>
+                    }
+                    trigger={['click']}  // Dropdown sẽ hiển thị khi nhấn vào
+                    placement="bottomLeft"  // Đặt menu sổ xuống về phía bên trái
+                  >
+                    <EllipsisOutlined className="text-white hover:text-gray-300 text-xl cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}  // Ngừng sự kiện lan truyền
+                    />
+                  </Dropdown>
+
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      ) : (
+        <div className="flex flex-col justify-center items-center h-80">
+          <FolderOpenFilled className="text-8xl text-gray-400 mb-6" />
+          <div className="flex justify-center items-center">
+            <p className="text-lg text-gray-500">Bạn chưa có bộ sưu tập nào</p>
+          </div>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {filteredCollections.length > 16 && (
+        <div className="flex justify-center mt-6">
+          <Pagination
+            current={currentPage}
+            pageSize={pageSize}
+            total={filteredCollections.length}
+            onChange={onPageChange}
+            showSizeChanger={false} // Tắt chức năng thay đổi số lượng item mỗi trang
+          />
+        </div>
+      )}
 
       {/* Modal for Adding New Collection */}
       <Modal

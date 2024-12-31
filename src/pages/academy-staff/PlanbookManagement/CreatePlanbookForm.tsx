@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Modal, Button, Form, message, Spin, InputRef, Select, Input, Collapse, Switch } from "antd";
+import ReactQuill from "react-quill";
 import { CreatePlanbookTemplate, createPlanbookTemplate, createPlanbookFromTemplate, createPlanbookUsingAI } from "@/data/academy-staff/PlanbookData";
 import { getAllCurriculumFramework, IViewListCurriculum } from "@/data/admin/CurriculumFramworkData";
 import { getAllGrade, IViewListGrade } from "@/data/admin/GradeData";
@@ -465,7 +466,7 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
                                             >
                                                 <Input
                                                     ref={subjectRef} // Gán ref cho Input
-                                                    placeholder="Nhập môn học"
+                                                    placeholder="..."
                                                     style={{
                                                         fontSize: "14px",
                                                         padding: "4px 8px",
@@ -744,7 +745,6 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
                                     </Form.Item>
                                 </Form>
                             </Spin>
-
                         )}
 
                         <Modal

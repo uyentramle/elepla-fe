@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Spin, Card, Avatar, Button, Input, Dropdown, Menu, message, List, Modal, Radio, Select } from "antd";
+import { Spin, Card, Avatar, Button, Input, Dropdown, Menu, message, List, Modal, Radio, Select, Pagination } from "antd";
 import { FileOutlined, UserOutlined, BookOutlined, SearchOutlined, EllipsisOutlined, SaveOutlined, BlockOutlined } from "@ant-design/icons";
 import PlanbookDetailForm from "@/pages/academy-staff/PlanbookManagement/PlanbookDetailForm";
 import { getSavedPlanbookCollectionsByTeacherId, Collection, createPlanbookCollection } from "@/data/teacher/CollectionData";
@@ -30,7 +30,9 @@ const PlanbookLibraryPage: React.FC = () => {
   const [curriculumOptions, setCurriculumOptions] = useState<IViewListCurriculum[]>([]); // Danh sách khung chương trình
   const [filterCurriculum, setFilterCurriculum] = useState<string[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]); // Lưu trữ các giá trị đã chọn
-
+  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const pageSize = 12; // Số lượng planbook mỗi trang
+  
   useEffect(() => {
     const fetchPlanbooks = async () => {
       try {
@@ -106,6 +108,7 @@ const PlanbookLibraryPage: React.FC = () => {
     setFilterCurriculum(curriculumFilter);
 
     setSelectedFilters(values);
+    setCurrentPage(1); // Reset lại trang về trang 1
   };
 
   const handleMenuClick = (key: string, planbookId: string) => {
@@ -149,7 +152,7 @@ const PlanbookLibraryPage: React.FC = () => {
       const response = await savePlanbook(collectionId, selectedPlanbook);
 
       if (response) {
-        message.success("Lưu Planbook thành công!");
+        message.success("Đã lưu");
       } else {
         message.error("Bài dạy đã tồn tại trong bộ sưu tập này!");
       }
@@ -210,6 +213,14 @@ const PlanbookLibraryPage: React.FC = () => {
     } finally {
       setLoadingCollections(false); // Ẩn trạng thái loading
     }
+  };
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const currentPlanbooks = filteredPlanbooks.slice(startIndex, startIndex + pageSize);
+
+  // Hàm xử lý thay đổi trang
+  const onPageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   if (loading) {
@@ -324,10 +335,10 @@ const PlanbookLibraryPage: React.FC = () => {
         </Select>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {filteredPlanbooks.map((planbook) => (
+        {currentPlanbooks.map((planbook) => (
           <Card
             key={planbook.planbookId}
-            className="shadow-md hover:shadow-lg transition-shadow duration-300 bg-white rounded-lg overflow-hidden w-[260px] relative"
+            className="shadow-md hover:shadow-lg transition-shadow duration-300 bg-white rounded-lg overflow-hidden w-full relative"
             hoverable
           >
             {/* Dropdown menu ở góc trên bên phải */}
@@ -375,6 +386,17 @@ const PlanbookLibraryPage: React.FC = () => {
             </div>
           </Card>
         ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-6">
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={filteredPlanbooks.length}
+          onChange={onPageChange}
+          showSizeChanger={false} // Tắt chức năng thay đổi số lượng item mỗi trang
+        />
       </div>
 
       {/* Planbook Detail Modal */}
