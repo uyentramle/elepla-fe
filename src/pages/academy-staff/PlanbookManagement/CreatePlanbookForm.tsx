@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Modal, Button, Form, message, Spin, InputRef, Select, Input, Collapse, Switch } from "antd";
-import ReactQuill from "react-quill";
 import { CreatePlanbookTemplate, createPlanbookTemplate, createPlanbookFromTemplate, createPlanbookUsingAI } from "@/data/academy-staff/PlanbookData";
 import { getAllCurriculumFramework, IViewListCurriculum } from "@/data/admin/CurriculumFramworkData";
 import { getAllGrade, IViewListGrade } from "@/data/admin/GradeData";
@@ -184,7 +183,7 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
                 form.resetFields();
                 onCreate();
             } else {
-                message.error('Có lỗi xảy ra khi thêm bài dạy!');
+                message.error('Thêm bài dạy thất bại!');
             }
         });
     }
@@ -330,9 +329,9 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
                                 onChange={handleCurriculumOrGradeChange} // Trigger fetch when grade changes
                             />
                         </Form.Item>
-                        <Form.Item label="Chọn Môn học trong Chương trình" name="subjectInCurriculumId" rules={[{ required: true }]}>
+                        <Form.Item label="Chọn Môn học" name="subjectInCurriculumId" rules={[{ required: true }]}>
                             <Select
-                                options={subjectsInCurriculum.map((item) => ({ value: item.subjectInCurriculumId, label: item.name }))}
+                                options={subjectsInCurriculum.map((item) => ({ value: item.subjectInCurriculumId, label: item.subject }))}
                                 onChange={handleSubjectInCurriculumSelect}
                             />
                         </Form.Item>
@@ -351,8 +350,13 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
                     </>
                 )}
                 {currentStep === 6 && (
-                    <div className="container mx-auto px-4 py-8">
-
+                    <div className="container mx-auto px-4 mt-7"
+                    // style={{
+                    //     maxHeight: '585px',  // Giới hạn chiều cao của thẻ div
+                    //     overflowY: 'auto',   // Thêm thanh cuộn khi chiều cao vượt quá maxHeight
+                    //     scrollbarWidth: 'thin',
+                    // }}
+                    >
                         {loading ? (
                             <div className="flex justify-center items-center h-full">
                                 <Spin size="large" />

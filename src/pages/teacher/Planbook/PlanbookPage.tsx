@@ -6,6 +6,8 @@ import { getPlanbookByCollectionId, Planbook, deletePlanbookTemplate } from '@/d
 import PlanbookDetailForm from '@/pages/academy-staff/PlanbookManagement/PlanbookDetailForm';
 import UpdatePlanbookForm from '@/pages/academy-staff/PlanbookManagement/UpdatePlanbookForm';
 import CreatePlanbookForm from '@/pages/academy-staff/PlanbookManagement/CreatePlanbookForm';
+import { getCollectionById } from '@/data/teacher/CollectionData';
+import { getUserId } from '@/data/apiClient';
 
 const { Option } = Select;
 
@@ -22,6 +24,7 @@ const PlanbookPage: React.FC = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [filterStatus, setFilterStatus] = useState<'Public' | 'Private' | 'All'>('All');
   const [collectionExists, setCollectionExists] = useState<boolean>(true);
+  const [isOwner, setIsOwner] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
   const pageSize = 8;
 
@@ -32,6 +35,13 @@ const PlanbookPage: React.FC = () => {
           const response = await getPlanbookByCollectionId(collectionId);
           setPlanbooks(response.items);
           setCollectionExists(response.collectionExists);
+
+          const collection = await getCollectionById(collectionId);
+          if (collection.teacherId === getUserId()) {
+            setIsOwner(true);
+          } else {
+            setIsOwner(false);
+          }
         }
       } catch (error) {
         console.error('Error fetching planbooks:', error);
@@ -42,6 +52,7 @@ const PlanbookPage: React.FC = () => {
     };
     fetchData();
   }, [collectionId, isEditModalVisible, isCreateModalVisible, isDeleteModalVisible]);
+
 
   const filteredPlanbooks = planbooks.filter((planbook) => {
     const matchesSearch = planbook.title
@@ -142,7 +153,7 @@ const PlanbookPage: React.FC = () => {
   return (
     <div>
       {collectionExists ? (
-        <>
+        isOwner ? (
           <div className="p-6 bg-gray-100 min-h-screen">
             <h1 className="text-2xl font-semibold mb-4 text-center">Kế hoạch bài dạy</h1>
             {/* Search and Sort - Unchanged */}
@@ -245,16 +256,31 @@ const PlanbookPage: React.FC = () => {
                         {/* Thông tin chi tiết */}
                         <div className="flex flex-grow justify-between items-center w-full text-gray-500 text-sm mt-4">
                           <div className="flex items-center justify-start w-1/2">
-                            <ShareAltOutlined className="mr-2" />
-                            <span>{planbook.isPublic ? "Công khai" : "Riêng tư"}</span>
+                            <div className="flex flex-col">
+                              <div>
+                                <ShareAltOutlined className="mr-2" />
+                                <span>{planbook.isPublic ? "Công khai" : "Riêng tư"}</span>
+                              </div>
+                              <div className="flex items-center">
+                                <BookFilled className="mr-2 text-gray-400" />
+                                <span>
+                                  {planbook.lessonName.includes(':')
+                                    ? planbook.lessonName.split(':')[0]
+                                    : planbook.subject}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                           <div className="flex items-center justify-end w-1/2">
-                            <BookOutlined className="mr-2" />
-                            <span>
-                              {planbook.lessonName.includes(':')
-                                ? planbook.lessonName.split(':')[0]
-                                : planbook.subject}
-                            </span>
+                            <div className="flex flex-col">
+                              <div>
+                                <BookOutlined className="mr-1" />
+                                <span>{planbook.subject} {planbook.grade.replace('Lớp ', '')}</span>
+                              </div>
+                              <div>
+                                <span>{planbook.curriculum.split(" ").slice(0, 2).join(" ")}</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -308,7 +334,19 @@ const PlanbookPage: React.FC = () => {
               <p>Bạn có chắc muốn xóa kế hoạch bài dạy này không?</p>
             </Modal>
           </div>
-        </>
+        ) : (
+          <div className="flex flex-col justify-center items-center bg-gray-100 text-center mt-10">
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h1 className="text-3xl font-bold text-red-500 mb-2">403</h1>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+                Bạn không có quyền truy cập
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Bộ sưu tập này không thuộc về bạn. Vui lòng kiểm tra lại thông tin đăng nhập.
+              </p>
+            </div>
+          </div>
+        )
       ) : (
         <div className="flex flex-col justify-center items-center bg-gray-100 text-center mt-10">
           <div className="bg-white shadow-md rounded-lg p-8">

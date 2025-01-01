@@ -112,7 +112,7 @@ const PackageDetailPage: React.FC = () => {
           <Spin size="large" />
           <span className="ml-3">Đang tải dữ liệu...</span>
         </div> :
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-1">
           {servicePackages.map((pkg) => (
             <Card
               key={pkg.packageId}
@@ -134,9 +134,9 @@ const PackageDetailPage: React.FC = () => {
                 {pkg.description || ''}
               </p>
               <ul className="text-left mb-8" style={{ height: '200px' }}>
-                <li>- {pkg.useTemplate ? 'Hỗ trợ sử dụng mẫu kế hoạch bài dạy.' : 'Không hỗ trợ sử dụng mẫu kế hoạch bài dạy.'}</li>
+                <li>- {pkg.useTemplate ? 'Hỗ trợ sử dụng mẫu để tạo kế hoạch bài dạy.' : 'Không hỗ trợ sử dụng mẫu để tạo kế hoạch bài dạy.'}</li>
                 <li>
-                  - {pkg.useAI ? 'Tích hợp AI hỗ trợ tạo nội dung.' : 'Không tích hợp AI.'}
+                  - {pkg.useAI ? 'Tích hợp AI hỗ trợ tạo nội dung.' : 'Không tích hợp AI tạo nội dung.'}
                 </li>
                 <li>
                   - {pkg.exportWord
@@ -150,10 +150,15 @@ const PackageDetailPage: React.FC = () => {
                 </li>
                 <li>- Quản lý tối đa {pkg.maxLessonPlans} kế hoạch bài học trong năm học.</li>
               </ul>
-              <div className="text-xl font-bold mb-6" style={{ height: '40px', display: 'flex', justifyContent: 'center', alignItems: pkg.price > 0 ? 'center' : 'flex-end' }}>
-                {pkg.price > 0
-                  ? `${pkg.price.toLocaleString()}đ/năm học (Giảm giá: ${pkg.discount}%)`
-                  : 'Miễn phí'}
+              <div className="mb-4 h-10">
+                <div className="price text-xl font-bold">
+                  {pkg.price > 0 ? `${pkg.price.toLocaleString()}đ/năm học` : 'Miễn phí'}
+                </div>
+                {pkg.price > 0 && pkg.discount > 0 && (
+                  <div className="discount text-sm text-red-500">
+                    Giảm giá: {pkg.discount}%
+                  </div>
+                )}
               </div>
               <Button
                 type={pkg.price > 0 ? 'primary' : 'default'}

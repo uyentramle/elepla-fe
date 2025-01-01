@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Select, Button, Card, message, Dropdown, Menu, Spin, Avatar, Pagination } from 'antd';
-import { FileOutlined, ShareAltOutlined, SearchOutlined, BlockOutlined, EllipsisOutlined, BookOutlined, EditOutlined, UsergroupAddOutlined } from '@ant-design/icons';
+import { FileOutlined, ShareAltOutlined, SearchOutlined, BlockOutlined, EllipsisOutlined, BookOutlined, EditOutlined, UsergroupAddOutlined, BookFilled } from '@ant-design/icons';
 import { PlanbookShared, getSharedPlanbookByUserId } from '@/data/academy-staff/PlanbookData';
 import PlanbookShareDetailForm from './PlanbookShareDetailForm';
 import UpdatePlanbookForm from '@/pages/academy-staff/PlanbookManagement/UpdatePlanbookForm';
@@ -186,16 +186,31 @@ const PlanbookSharePage: React.FC = () => {
                                     {/* Thông tin chi tiết */}
                                     <div className="flex flex-grow justify-between items-center w-full text-gray-500 text-sm mt-4">
                                         <div className="flex items-center justify-start w-1/2">
-                                            <ShareAltOutlined className="mr-2" />
-                                            <span>{planbook.isPublic ? "Công khai" : "Riêng tư"}</span>
+                                            <div className="flex flex-col">
+                                                <div>
+                                                    <ShareAltOutlined className="mr-2" />
+                                                    <span>{planbook.isPublic ? "Công khai" : "Riêng tư"}</span>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <BookFilled className="mr-2 text-gray-400" />
+                                                    <span>
+                                                        {planbook.lessonName.includes(':')
+                                                            ? planbook.lessonName.split(':')[0]
+                                                            : planbook.subject}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div className="flex items-center justify-end w-1/2">
-                                            <BookOutlined className="mr-2" />
-                                            <span>
-                                                {planbook.lessonName.includes(':')
-                                                    ? planbook.lessonName.split(':')[0]
-                                                    : planbook.subject}
-                                            </span>
+                                            <div className="flex flex-col">
+                                                <div>
+                                                    <BookOutlined className="mr-1" />
+                                                    <span>{planbook.subject} {planbook.grade.replace('Lớp ', '')}</span>
+                                                </div>
+                                                <div>
+                                                    <span>{planbook.curriculum.split(" ").slice(0, 2).join(" ")}</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

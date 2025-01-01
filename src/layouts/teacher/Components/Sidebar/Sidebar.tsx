@@ -1,4 +1,4 @@
-import { MenuOutlined, SnippetsOutlined, CalendarOutlined, DatabaseOutlined, StarOutlined, CheckSquareOutlined, CaretRightOutlined,ShareAltOutlined, SaveOutlined, UsergroupAddOutlined } from '@ant-design/icons';
+import { MenuOutlined, SnippetsOutlined, CalendarOutlined, DatabaseOutlined, StarOutlined, CheckSquareOutlined, CaretRightOutlined,ShareAltOutlined, SaveOutlined, UsergroupAddOutlined, PlusOutlined } from '@ant-design/icons';
 import { Menu, MenuProps, Button } from 'antd';
 import Sider from 'antd/es/layout/Sider';
 import React, { useEffect } from 'react';
@@ -124,7 +124,7 @@ export default function MySider({
             icon={<StarOutlined />}
             onClick={() => navigate('/teacher/package')}
           >
-            Nâng cấp tài khoản
+            {!collapsed ? "Nâng cấp tài khoản" : null}
           </Button>
 
           <Button
@@ -134,7 +134,7 @@ export default function MySider({
             className="bg-blue-500 text-white w-full"
             onClick={() => navigate('/teacher/list-collection')}
           >
-            Tạo kế hoạch
+            {!collapsed ? "Tạo kế hoạch" : <PlusOutlined />} 
           </Button>
         </div>
 

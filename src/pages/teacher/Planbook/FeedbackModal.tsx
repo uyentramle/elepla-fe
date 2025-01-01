@@ -99,6 +99,11 @@ const FeedbackModal: React.FC<{
     };
 
     const handleMenuClick = async (key: string, feedbackId: string) => {
+        if (!getUserId()) { // Kiểm tra nếu chưa đăng nhập
+            message.info('Vui lòng đăng nhập để thực hiện hành động này.');
+            return; // Dừng xử lý nếu người dùng chưa đăng nhập
+        }
+        
         const selectedFeedback = feedbacks.find(feedback => feedback.feedbackId === feedbackId);
         switch (key) {
             case "edit":
@@ -309,6 +314,7 @@ const FeedbackModal: React.FC<{
                     )}
 
                     {/* Ô nhập bình luận */}
+                    {getUserId() && (
                     <div className="mt-4 p-4 border-t border-gray-300 ml-5">
                         <TextArea
                             placeholder="Nhập bình luận của bạn..."
@@ -348,6 +354,7 @@ const FeedbackModal: React.FC<{
                             </div>
                         )}
                     </div>
+                    )}
                 </>
             )}
 

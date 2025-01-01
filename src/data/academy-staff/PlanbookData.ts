@@ -305,9 +305,7 @@ export const getPlanbookByCollectionId = async (collectionId: string): Promise<{
                 pageIndex: -1,
             }
         });
-
-        console.log('response', response.data.success);
-        
+                
         if (response.data.success) {
             return {
                 collectionExists: true,

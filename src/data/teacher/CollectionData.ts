@@ -113,3 +113,24 @@ export const updatePlanbookCollection = async (collectionId: string, collectionN
         return false;
     }
 };
+
+export const getCollectionById = async (collectionId: string): Promise<Collection> => {
+    try {
+        const response = await apiClient.get(
+            `PlanbookCollection/GetCollectionById`,
+            {
+                params: {
+                    collectionId,
+                }
+            },
+        );
+        if (response.data.success) {
+            return response.data.data;
+        } else {
+            return {} as Collection;
+        }
+    } catch (error) {
+        console.error('Error calling GetPlanbookCollectionById API:', error);
+        return {} as Collection;
+    }
+};

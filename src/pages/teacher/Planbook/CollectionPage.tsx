@@ -11,6 +11,7 @@ const CollectionPage: React.FC = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingForm, setLoadingForm] = useState<boolean>(false);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,6 +42,12 @@ const CollectionPage: React.FC = () => {
       form.resetFields(); // Reset form mỗi khi modal mở
     }
   }, [isCreateModalVisible, form]);
+
+  useEffect(() => {
+    if (!getUserId()) {
+      navigate('/sign-in');
+    }
+  }, [navigate]);
 
   const filteredCollections = collections
     .filter((collection) =>
@@ -80,8 +87,8 @@ const CollectionPage: React.FC = () => {
 
   const handleCreateCollection = async (collectionName: string) => {
     try {
+      setLoadingForm(true);
       const response = await createPlanbookCollection(collectionName, false, getUserId()!);
-
       if (response) {
         setIsCreateModalVisible(false);
         message.success('Thêm bộ sưu tập thành công');
@@ -91,11 +98,14 @@ const CollectionPage: React.FC = () => {
     } catch (error) {
       console.error("Error creating collection:", error);
       message.error('Thêm bộ sưu tập thất bại');
+    } finally {
+      setLoadingForm(false);
     }
   }
 
   const handleDeleteCollection = async (collectionId: string) => {
     try {
+      setLoadingForm(true);
       const response = await deletePlanbookCollection(collectionId, getUserId()!);
       if (response) {
         message.success('Xóa bộ sưu tập thành công');
@@ -106,12 +116,14 @@ const CollectionPage: React.FC = () => {
       console.error("Error deleting collection:", error);
       message.error('Có lỗi xảy ra, vui lòng thử lại sau');
     } finally {
+      setLoadingForm(false);
       setIsDeleteModalVisible(false);
     }
   }
 
   const handleUpdateCollection = async (collectionId: string, collectionName: string) => {
     try {
+      setLoadingForm(true);
       const response = await updatePlanbookCollection(collectionId, collectionName, getUserId()!);
       if (response) {
         setIsEditModalVisible(false);
@@ -122,6 +134,8 @@ const CollectionPage: React.FC = () => {
     } catch (error) {
       console.error("Error updating collection:", error);
       message.error('Có lỗi xảy ra, vui lòng thử lại sau');
+    } finally {
+      setLoadingForm(false);
     }
   }
 
@@ -280,10 +294,16 @@ const CollectionPage: React.FC = () => {
         title={isEditModalVisible ? "Sửa tên bộ sưu tập" : "Tạo bộ sưu tập mới"}
         className="text-center"
         visible={isEditModalVisible || isCreateModalVisible}
-        onCancel={() => { setIsCreateModalVisible(false); setIsEditModalVisible(false); }}
+        onCancel={() => {
+          if (!loadingForm) {
+            setIsCreateModalVisible(false);
+            setIsEditModalVisible(false);
+          }
+        }}
         onOk={form.submit} // Sử dụng form.submit để gửi dữ liệu
         okText={isEditModalVisible ? "Cập nhật" : "Thêm"}
         cancelText="Hủy"
+        confirmLoading={loadingForm}
       >
         <Form
           form={form}
@@ -321,10 +341,11 @@ const CollectionPage: React.FC = () => {
         title="Xác nhận xóa"
         visible={isDeleteModalVisible}
         onOk={() => selectedCollection && handleDeleteCollection(selectedCollection)} // Thực hiện xóa khi người dùng nhấn "Đồng ý"
-        onCancel={() => setIsDeleteModalVisible(false)} // Đóng Modal nếu người dùng hủy
+        onCancel={() => !loadingForm && setIsDeleteModalVisible(false)} // Đóng Modal nếu người dùng hủy
         okText="Xóa"
         cancelText="Hủy"
         okButtonProps={{ danger: true }} // Nút Xóa màu đỏ
+        confirmLoading={loadingForm}
       >
         <p>Bạn có chắc muốn xóa bộ sưu tập này không?</p>
       </Modal>

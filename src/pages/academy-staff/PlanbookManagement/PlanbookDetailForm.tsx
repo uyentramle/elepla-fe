@@ -50,7 +50,7 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
         };
 
         fetchData();
-    }, [planbookId, planbook?.averageRate, planbook?.commentCount]);
+    }, [planbookId, planbook?.averageRate, planbook?.commentCount, isVisible]);
 
     useEffect(() => {
         const fetchUserPackage = async () => {
@@ -108,6 +108,11 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
     }
 
     const handleExpand = () => {
+        if (!getUserId()) { // Kiểm tra nếu chưa đăng nhập
+            message.info('Vui lòng đăng nhập để thực hiện hành động này.');
+            return; // Dừng xử lý nếu người dùng chưa đăng nhập
+        }
+        
         window.open(`/teacher/planbook/${planbookId}`, "_blank");
     }
 
@@ -128,76 +133,76 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
                 footer={[
                     <div key="footer-buttons" className="flex w-full">
                         {
-                                    !isLibrary && (
-                        <div className="flex gap-2">
-                            <Button
-                                onClick={handleExportToWord}
-                                loading={loading}
-                                style={{
-                                    backgroundColor: '#d9d9d9',
-                                    borderColor: '#d9d9d9',
-                                    color: '#000',
-                                }}
-                                className="hover:bg-gray-500 hover:border-gray-500 hover:text-white"
-                            >
-                                Xuất ra Word
-                            </Button>
-                            <Button
-                                onClick={() => handleExportToPdf(planbookId)}
-                                loading={loading}
-                                style={{
-                                    backgroundColor: '#d9d9d9',
-                                    borderColor: '#d9d9d9',
-                                    color: '#000',
-                                }}
-                                className="hover:bg-gray-500 hover:border-gray-500 hover:text-white"
-                            >
-                                Xuất ra PDF
-                            </Button>
-                        </div>
-                        )
+                            !isLibrary && (
+                                <div className="flex gap-2">
+                                    <Button
+                                        onClick={handleExportToWord}
+                                        loading={loading}
+                                        style={{
+                                            backgroundColor: '#d9d9d9',
+                                            borderColor: '#d9d9d9',
+                                            color: '#000',
+                                        }}
+                                        className="hover:bg-gray-500 hover:border-gray-500 hover:text-white"
+                                    >
+                                        Xuất ra Word
+                                    </Button>
+                                    <Button
+                                        onClick={() => handleExportToPdf(planbookId)}
+                                        loading={loading}
+                                        style={{
+                                            backgroundColor: '#d9d9d9',
+                                            borderColor: '#d9d9d9',
+                                            color: '#000',
+                                        }}
+                                        className="hover:bg-gray-500 hover:border-gray-500 hover:text-white"
+                                    >
+                                        Xuất ra PDF
+                                    </Button>
+                                </div>
+                            )
                         }
                         <div className="ml-auto flex gap-2">
-            {
-                !isLibrary && (
-                    <Button
-                        onClick={showShareModal}
-                        loading={loading}
-                        style={{
-                            // backgroundColor: '#40a9ff',
-                            // borderColor: '#40a9ff',
-                            // color: '#fff',
-                            backgroundColor: '#d9d9d9',
-                                    borderColor: '#d9d9d9',
-                                    color: '#000',
-                        }}
-                        className="hover:bg-blue-600 hover:border-blue-600"
-                    >
-                        Chia sẻ
-                    </Button>
-                )
-            }
-            <Button key="close" onClick={onClose}>
-                Đóng
-            </Button>
-        </div>
+                            {
+                                !isLibrary && (
+                                    <Button
+                                        onClick={showShareModal}
+                                        loading={loading}
+                                        style={{
+                                            // backgroundColor: '#40a9ff',
+                                            // borderColor: '#40a9ff',
+                                            // color: '#fff',
+                                            backgroundColor: '#d9d9d9',
+                                            borderColor: '#d9d9d9',
+                                            color: '#000',
+                                        }}
+                                        className="hover:bg-blue-600 hover:border-blue-600"
+                                    >
+                                        Chia sẻ
+                                    </Button>
+                                )
+                            }
+                            <Button key="close" onClick={onClose}>
+                                Đóng
+                            </Button>
+                        </div>
 
                     </div>
                 ]}
                 width={modalWidth} // Điều chỉnh chiều rộng modal
-                style={{ top: '5vh' }}
-                // closeIcon={
-                //     <CloseOutlined
-                //         style={{
-                //             marginLeft: '25px',
-                //         }}
-                //     />
-                // }
+                style={{ top: '4vh' }}
+            // closeIcon={
+            //     <CloseOutlined
+            //         style={{
+            //             marginLeft: '25px',
+            //         }}
+            //     />
+            // }
             >
                 <div className="flex mt-7">
                     <div className="container mx-auto px-4"
                         style={{
-                            maxHeight: '585px',  // Giới hạn chiều cao của thẻ div
+                            maxHeight: 'calc(100vh - 166px)',  // Giới hạn chiều cao của thẻ div
                             overflowY: 'auto',   // Thêm thanh cuộn khi chiều cao vượt quá maxHeight
                             scrollbarWidth: 'thin',
                         }}
@@ -212,12 +217,12 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
                                 <div
                                     style={{
                                         position: 'fixed', // Đặt thẻ cố định trên màn hình
-                                        top: '300px',       // Vị trí từ trên xuống
-                                        left: isRightVisible ? '80px' : '280px', // Điều chỉnh giá trị left dựa trên trạng thái isRightVisible
-                                        zIndex: 999,        // Đảm bảo thẻ nằm trên tất cả các thành phần khác
-                                        display: 'flex',    // Sử dụng Flexbox để căn chỉnh các nút
+                                        top: 'calc(50vh - 150px)', // Tính toán vị trí top động (50% chiều cao màn hình trừ đi 150px)
+                                        left: isRightVisible ? '6vw' : '19vw', // Điều chỉnh left dựa trên trạng thái isRightVisible (dùng vw để linh hoạt)
+                                        zIndex: 999, // Đảm bảo thẻ nằm trên tất cả các thành phần khác
+                                        display: 'flex', // Sử dụng Flexbox để căn chỉnh các nút
                                         flexDirection: 'column', // Sắp xếp các thẻ theo chiều dọc
-                                        gap: '12px',         // Khoảng cách giữa các nút
+                                        gap: '12px', // Khoảng cách giữa các nút (dùng vh để tỷ lệ với chiều cao viewport)
                                     }}
                                 >
                                     <div

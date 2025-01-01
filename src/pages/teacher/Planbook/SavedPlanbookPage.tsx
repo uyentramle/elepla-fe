@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Select, Button, Card, Modal, message, Dropdown, Menu, Spin, Avatar, Radio, List, Pagination } from 'antd';
-import { FileOutlined, ShareAltOutlined, SearchOutlined, BlockOutlined, EllipsisOutlined, BookOutlined, EditOutlined, DeleteOutlined, BookFilled } from '@ant-design/icons';
+import { FileOutlined, SearchOutlined, BlockOutlined, EllipsisOutlined, BookOutlined, EditOutlined, DeleteOutlined, BookFilled, StarOutlined, CommentOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 import { getPlanbookByCollectionId, Planbook, unsavePlanbook, clonePlanbook } from '@/data/academy-staff/PlanbookData';
 import { getCreatedPlanbookCollectionsByTeacherId, Collection, createPlanbookCollection } from "@/data/teacher/CollectionData";
 import PlanbookDetailForm from '@/pages/academy-staff/PlanbookManagement/PlanbookDetailForm';
+import { getCollectionById } from '@/data/teacher/CollectionData';
 import { getUserId } from '@/data/apiClient';
 
 const { Option } = Select;
@@ -25,6 +26,7 @@ const SavedPlanbookPage: React.FC = () => {
   const [newCollectionName, setNewCollectionName] = useState("");
   const [loadingCollections, setLoadingCollections] = useState(false);
   const [collectionExists, setCollectionExists] = useState<boolean>(true);
+  const [isOwner, setIsOwner] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
   const pageSize = 8;
 
@@ -35,6 +37,13 @@ const SavedPlanbookPage: React.FC = () => {
           const response = await getPlanbookByCollectionId(collectionId);
           setPlanbooks(response.items);
           setCollectionExists(response.collectionExists);
+
+          const collection = await getCollectionById(collectionId);
+          if (collection.teacherId === getUserId()) {
+            setIsOwner(true);
+          } else {
+            setIsOwner(false);
+          }
         }
       } catch (error) {
         console.error('Error fetching planbooks:', error);
@@ -212,7 +221,7 @@ const SavedPlanbookPage: React.FC = () => {
   return (
     <div>
       {collectionExists ? (
-        <>
+        isOwner ? (
           <div className="p-6 bg-gray-100 min-h-screen">
             <h1 className="text-2xl font-semibold mb-4 text-center">Kế hoạch bài dạy đã lưu</h1>
             {/* Search and Sort - Unchanged */}
@@ -303,17 +312,26 @@ const SavedPlanbookPage: React.FC = () => {
 
                         {/* Thông tin chi tiết */}
                         <div className="flex flex-grow justify-between items-center w-full text-gray-500 text-sm mt-4">
-                          <div className="flex items-center justify-start w-1/2">
-                            <ShareAltOutlined className="mr-2" />
-                            <span>{planbook.isPublic ? "Công khai" : "Riêng tư"}</span>
+                          <div className="flex flex-col">
+                            <div className="flex items-center justify-start w-1/2">
+                              <StarOutlined className="mr-1" />
+                              <span>{planbook.averageRate.toFixed(1)}</span>
+                            </div>
+                            <div className="flex items-center justify-start w-1/2">
+                              <CommentOutlined className="mr-1" />
+                              <span>{planbook.commentCount}</span>
+                            </div>
                           </div>
                           <div className="flex items-center justify-end w-1/2">
-                            <BookOutlined className="mr-2" />
-                            <span>
-                              {planbook.lessonName.includes(':')
-                                ? planbook.lessonName.split(':')[0]
-                                : planbook.subject}
-                            </span>
+                            <div className="flex flex-col">
+                              <div>
+                                <BookOutlined className="mr-1" />
+                                <span>{planbook.subject} {planbook.grade.replace('Lớp ', '')}</span>
+                              </div>
+                              <div>
+                                <span>{planbook.curriculum.split(" ").slice(0, 2).join(" ")}</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -464,7 +482,19 @@ const SavedPlanbookPage: React.FC = () => {
               )}
             </Modal>
           </div>
-        </>
+        ) : (
+          <div className="flex flex-col justify-center items-center bg-gray-100 text-center mt-10">
+            <div className="bg-white shadow-md rounded-lg p-8">
+              <h1 className="text-3xl font-bold text-red-500 mb-2">403</h1>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+                Bạn không có quyền truy cập
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Bộ sưu tập này không thuộc về bạn. Vui lòng kiểm tra lại thông tin đăng nhập.
+              </p>
+            </div>
+          </div>
+        )
       ) : (
         <div className="flex flex-col justify-center items-center bg-gray-100 text-center mt-10">
           <div className="bg-white shadow-md rounded-lg p-8">
