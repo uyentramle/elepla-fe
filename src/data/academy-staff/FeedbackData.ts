@@ -40,6 +40,29 @@ export const fetchPlanBookFeedbackList = async (): Promise<IViewListFeedback[]> 
     }
 };
 
+export const getTotalRate = async (): Promise<number> => {
+    try {
+        const feedbackList = await fetchPlanBookFeedbackList();
+        const totalRate = feedbackList.reduce((sum, feedback) => sum + feedback.rate, 0);
+        return totalRate;
+    } catch (error) {
+        console.error('Error calculating total rate:', error);
+        return 0;
+    }
+};
+
+
+
+export const countPlanBookFeedback = async (): Promise<number> => {
+    try {
+        const feedbackList = await fetchPlanBookFeedbackList();
+        return feedbackList.length;
+    } catch (error) {
+        console.error('Error counting planbook feedback:', error);
+        return 0;
+    }
+};
+
 export const fetchSystemFeedbackList = async (): Promise<IViewListFeedback[]> => {
     try {
         const response = await apiClient.get('/Feedback/GetSystemFeedback?pageIndex=0&pageSize=10');
@@ -65,12 +88,18 @@ export const fetchSystemFeedbackList = async (): Promise<IViewListFeedback[]> =>
     }
 };
 
-export const countPlanBookFeedback = async (): Promise<number> => {
+export const countFeedbackByRate = async (rate: number): Promise<number> => {
     try {
+        // Fetch the list of planbook feedback
         const feedbackList = await fetchPlanBookFeedbackList();
-        return feedbackList.length;
+
+        // Filter the feedback items by the specified rate
+        const filteredFeedback = feedbackList.filter(feedback => feedback.rate === rate);
+
+        // Return the count of filtered feedback items
+        return filteredFeedback.length;
     } catch (error) {
-        console.error('Error counting planbook feedback:', error);
+        console.error(`Error counting feedback with rate ${rate}:`, error);
         return 0;
     }
 };

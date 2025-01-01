@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"; 
-import { Table, Button, Modal, message, Dropdown, Menu, Select, Input, Spin } from "antd";
+import { Table, Button, Modal, message, Dropdown, Menu, Select, Input, Spin,Empty  } from "antd";
 import { fetchQuestionsByUserId, deleteQuestion, IQuestion } from "@/data/academy-staff/QuestionBankData";
 import { getAllCurriculumFramework, IViewListCurriculum } from "@/data/admin/CurriculumFramworkData";
 import { getAllSubject, IViewListSubject } from "@/data/admin/SubjectData";
@@ -258,25 +258,33 @@ const MyQuestionPage: React.FC = () => {
         </Button>
       </div>
       {loading ? (
-          <div className="flex justify-center items-center h-40">
-            <Spin size="large" />
-          </div>
-        ) : error ? (
-          <p>{error}</p>
-        ) : (
-          <Table
-            columns={columns}
-            dataSource={filteredQuestions}
-            rowKey={(record) => record.questionId}
-            pagination={{
-              current: currentPage,
-              pageSize,
-              total: totalItems,
-              onChange: handlePageChange,
-            }}
-            className="mt-4"
-          />
-        )}
+            <div className="flex justify-center items-center h-40">
+              <Spin size="large" />
+            </div>
+          ) : error ? (
+            <p>{error}</p>
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={filteredQuestions}
+              rowKey={(record) => record.questionId}
+              pagination={{
+                current: currentPage,
+                pageSize,
+                total: totalItems,
+                onChange: handlePageChange,
+              }}
+              locale={{
+                emptyText: (
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE} // Hoặc Empty.PRESENTED_IMAGE_DEFAULT
+                    description={<span>Không có câu hỏi nào trong danh sách.</span>}
+                  />
+                ),
+              }}
+              className="mt-4"
+            />
+          )}
       <Modal
         title="Chi tiết câu hỏi"
         visible={isDetailModalVisible}

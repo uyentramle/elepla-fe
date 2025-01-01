@@ -92,6 +92,20 @@ export const fetchAllQuestions = async (
   }
 };
 
+// Hàm đếm tổng số lượng câu hỏi từ QuestionBank
+export const countQuestions = async (): Promise<number> => {
+  try {
+    // Gọi API với pageSize = 1 để lấy thông tin tổng số lượng câu hỏi
+    const response = await fetchAllQuestions(0, 1);
+
+    // Trích xuất tổng số lượng câu hỏi từ response
+    return response.data.totalItemsCount;
+  } catch (error) {
+    console.error("Error counting questions:", error);
+    throw error;
+  }
+};
+
   export const fetchQuestionsByUserId = async (
     userId: string,
     pageIndex: number = 0,

@@ -60,7 +60,7 @@ export default function MySider({
       ]),
       getItem('Bài kiểm tra', '4', <CheckSquareOutlined />,[
         getItem('Tạo bài kiểm tra', '4.1', <CaretRightOutlined />),
-        getItem('bài kiểm tra của tôi', '4.2', <CaretRightOutlined />),
+        getItem('Bài kiểm tra của tôi', '4.2', <CaretRightOutlined />),
     ]),
     ];
   };

@@ -35,6 +35,7 @@ const ListExamPage: React.FC = () => {
   };
 
   const handleShowDetail = (examId: string) => {
+    console.log("Detail for examId:", examId);
     setSelectedExamId(examId);
     setIsDetailModalOpen(true);
   };
@@ -111,6 +112,11 @@ const ListExamPage: React.FC = () => {
       {/* Content */}
       {loading ? (
         <Spin size="large" />
+      ) : exams.length === 0 ? (
+        <div className="flex flex-col items-center justify-center min-h-[200px]">
+          <FileProtectOutlined style={{ fontSize: "64px", color: "#ccc" }} />
+          <p className="text-gray-500 mt-4">Hiện chưa có bài kiểm tra nào.</p>
+        </div>
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {exams.map((exam) => (
@@ -163,7 +169,7 @@ const ListExamPage: React.FC = () => {
           open={isDetailModalOpen}
           onCancel={handleDetailModalClose}
           footer={null}
-          width="40%"
+          width="50%"
           bodyStyle={{ padding: 0, background: "transparent" }}
           style={{ background: "transparent", boxShadow: "none" }}
           className="custom-modal-no-padding"
@@ -176,7 +182,7 @@ const ListExamPage: React.FC = () => {
         visible={isEditModalOpen}
         onCancel={handleEditModalClose}
         footer={null}
-        width="40%"
+        width="50%"
         bodyStyle={{ padding: 0, background: "transparent" }}
         style={{ background: "transparent", boxShadow: "none" }}
         className="custom-modal-no-padding"

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import { Typography, Table, Button, Modal, message, Dropdown, Menu, Spin } from "antd";
 import { fetchAllQuestions, deleteQuestion, IQuestion } from "@/data/academy-staff/QuestionBankData";
 import { Link } from "react-router-dom";
 import { PlusOutlined, MoreOutlined } from "@ant-design/icons";
-import Filters from "@/pages/teacher/Exam/Filters"; // Import bộ lọc Filters
+import Filters from "@/pages/teacher/Exam/Filters";
 
 const { Title } = Typography;
 
@@ -11,10 +11,8 @@ const QuestionBankManagementPage: React.FC = () => {
   const [questions, setQuestions] = useState<IQuestion[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(null);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-  const pageSize = 10;
   const [filters, setFilters] = useState({
     searchTerm: "",
     grade: "",
@@ -23,11 +21,11 @@ const QuestionBankManagementPage: React.FC = () => {
     chapter: "",
     lesson: "",
   });
-  
-  const loadQuestions = async (pageIndex: number) => {
+
+  const loadQuestions = async () => {
     try {
       setLoading(true);
-      const response = await fetchAllQuestions(pageIndex - 1, pageSize);
+      const response = await fetchAllQuestions(0, 1000); // Tải tất cả câu hỏi với số lượng lớn
       if (response.success) {
         setQuestions(response.data.items);
       } else {
@@ -39,11 +37,10 @@ const QuestionBankManagementPage: React.FC = () => {
       setLoading(false);
     }
   };
-  
 
   useEffect(() => {
-    loadQuestions(currentPage);
-  }, [currentPage]);
+    loadQuestions();
+  }, []);
 
   const applyFilters = () => {
     const { searchTerm, grade, curriculum, subject, chapter, lesson } = filters;
@@ -73,7 +70,7 @@ const QuestionBankManagementPage: React.FC = () => {
           const response = await deleteQuestion(questionId);
           if (response.success) {
             message.success("Xóa câu hỏi thành công.");
-            loadQuestions(currentPage);
+            loadQuestions();
           } else {
             message.error(response.message || "Xóa câu hỏi thất bại.");
           }
@@ -159,16 +156,13 @@ const QuestionBankManagementPage: React.FC = () => {
 
   const filteredQuestions = applyFilters();
 
-
   return (
     <div>
       <Title level={2} className="my-4">
         Quản lý Ngân hàng Câu hỏi
       </Title>
       <div className="mb-4 flex justify-between items-center">
-        <div className="flex gap-4">
-         <Filters onFiltersChange={handleFiltersChange} />
-        </div>
+        <Filters onFiltersChange={handleFiltersChange} />
         <Button type="primary">
           <Link to="/academy-staff/question-banks/add-new" className="flex items-center">
             <PlusOutlined className="mr-2" />
@@ -177,40 +171,34 @@ const QuestionBankManagementPage: React.FC = () => {
         </Button>
       </div>
       {loading ? (
-          <div className="flex justify-center items-center h-40">
-            <Spin size="large" />
-          </div>
-        ) : error ? (
-          <p>{error}</p>
-        ) : (
-          <Table
-            columns={columns}
-            dataSource={filteredQuestions.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
-            rowKey={(record) => record.questionId}
-            pagination={{
-              current: currentPage,
-              pageSize,
-              total: filteredQuestions.length,
-              onChange: (page) => setCurrentPage(page),
-            }}
-            className="mt-4"
-          />
-        )}
+        <div className="flex justify-center items-center h-40">
+          <Spin size="large" />
+        </div>
+      ) : error ? (
+        <p>{error}</p>
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={filteredQuestions}
+          rowKey={(record) => record.questionId}
+          className="mt-4"
+        />
+      )}
       <Modal
         title="Chi tiết câu hỏi"
         visible={isDetailModalVisible}
         onCancel={handleCloseDetailModal}
         footer={null}
-        width={800} // Tăng chiều rộng modal
-        bodyStyle={{ padding: "20px" }} // Căn chỉnh khoảng cách bên trong modal
+        width={800}
+        bodyStyle={{ padding: "20px" }}
       >
         {selectedQuestion ? (
           <div>
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 4fr", // Chia layout 2 cột với khoảng cách gần hơn
-                gap: "4px", // Giảm khoảng cách giữa các cột
+                gridTemplateColumns: "1fr 4fr",
+                gap: "4px",
                 lineHeight: "1.6",
               }}
             >
@@ -250,7 +238,7 @@ const QuestionBankManagementPage: React.FC = () => {
               <strong>Câu trả lời đúng:</strong>{" "}
               {selectedQuestion.answers
                 .map((answer, index) => (answer.isCorrect ? String.fromCharCode(65 + index) : null))
-                .filter(Boolean) // Loại bỏ các giá trị null
+                .filter(Boolean)
                 .join(", ")}
             </p>
           </div>

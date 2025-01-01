@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Button, Modal, Form, notification, Input, Spin, Pagination } from "antd";
+import { Typography, Button, Modal, Form, notification, Input, Spin,Pagination  } from "antd";
 import { fetchAllQuestions, fetchQuestionsByUserId, IQuestion } from "@/data/academy-staff/QuestionBankData";
 import { getUserId } from "@/data/apiClient";
 import { createExam } from "@/data/client/ExamData";
@@ -11,7 +11,6 @@ const { Title } = Typography;
 const ExamPage: React.FC = () => {
   const [questions, setQuestions] = useState<IQuestion[]>([]);
   const [filteredQuestions, setFilteredQuestions] = useState<IQuestion[]>([]); // State cho câu hỏi đã lọc
-  const [currentPage, setCurrentPage] = useState(1); // State cho trang hiện tại
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
@@ -26,73 +25,86 @@ const ExamPage: React.FC = () => {
     lesson: "",  // Thêm bộ lọc bài
   }); // State cho bộ lọc
   const [useMyQuestions, setUseMyQuestions] = useState<boolean>(false); // State để chuyển đổi API
-
-  const itemsPerPage = 5; // Số câu hỏi mỗi trang
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const questionsPerPage = 5;
 
   useEffect(() => {
-    const loadQuestions = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Gọi API lấy câu hỏi
-        let response;
-        if (useMyQuestions) {
-          const userId = getUserId();
-          response = await fetchQuestionsByUserId(userId || "");
-        } else {
-          response = await fetchAllQuestions(0, 50);
-        }
-
-        if (response.success) {
-          setQuestions(response.data.items);
-        } else {
-          setError(response.message);
-        }
-      } catch (err) {
-        setError("Lỗi khi tải dữ liệu từ API.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadQuestions();
+    setCurrentPage(1); // Reset về trang đầu tiên khi thay đổi nguồn câu hỏi
   }, [useMyQuestions]);
 
-  useEffect(() => {
-    // Lọc câu hỏi khi bộ lọc thay đổi
-    const applyFilters = () => {
-      const { searchTerm, grade, curriculum, subject, chapter, lesson } = filters;
+  // const paginatedQuestions = filteredQuestions.slice(
+  //   (currentPage - 1) * questionsPerPage,
+  //   currentPage * questionsPerPage
+  // );
+  
 
-      console.log("Filters applied:", filters); // Debug filters
+// useEffect load questions
+useEffect(() => {
+  const loadQuestions = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-      const filtered = questions.filter((question) => {
-        const matchesSearchTerm =
-          searchTerm === "" ||
-          question.question.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesGrade = grade === "" || question.grade === grade;
-        const matchesCurriculum =
-          curriculum === "" || question.curriculum === curriculum;
-        const matchesSubject = subject === "" || question.subject === subject;
-        const matchesChapter = chapter === "" || question.chapterName === chapter;
-        const matchesLesson = lesson === "" || question.lessonName === lesson;
+      // Fetch all questions without relying on paginated API limits
+      const response = useMyQuestions
+        ? await fetchQuestionsByUserId(getUserId() || "")
+        : await fetchAllQuestions(-1, 10); // Giả sử API hỗ trợ tải tối đa 1000 câu
 
-        return (
-          matchesSearchTerm &&
-          matchesGrade &&
-          matchesCurriculum &&
-          matchesSubject &&
-          matchesChapter &&
-          matchesLesson
-        );
-      });
+      if (response.success) {
+        setQuestions(response.data.items || []);
+        setFilteredQuestions(response.data.items || []); // Đồng bộ filteredQuestions ban đầu
+      } else {
+        setError(response.message || "Tải dữ liệu thất bại.");
+      }
+    } catch (err) {
+      setError("Lỗi khi tải dữ liệu từ API.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      console.log("Filtered Questions:", filtered); // Debug filtered questions
-      setFilteredQuestions(filtered);
-    };
+  loadQuestions();
+}, [useMyQuestions]);
 
-    applyFilters();
-  }, [filters, questions]);
+
+useEffect(() => {
+  const applyFilters = () => {
+    const { searchTerm, grade, curriculum, subject, chapter, lesson } = filters;
+
+    // Lọc trên toàn bộ danh sách câu hỏi
+    const filtered = questions.filter((question) => {
+      const matchesSearchTerm =
+        searchTerm === "" ||
+        question.question.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesGrade = grade === "" || question.grade === grade;
+      const matchesCurriculum =
+        curriculum === "" || question.curriculum === curriculum;
+      const matchesSubject = subject === "" || question.subject === subject;
+      const matchesChapter = chapter === "" || question.chapterName === chapter;
+      const matchesLesson = lesson === "" || question.lessonName === lesson;
+
+      return (
+        matchesSearchTerm &&
+        matchesGrade &&
+        matchesCurriculum &&
+        matchesSubject &&
+        matchesChapter &&
+        matchesLesson
+      );
+    });
+
+    setFilteredQuestions(filtered); // Cập nhật bộ lọc chính xác
+    // Giữ nguyên trang, không cần reset về trang đầu
+  };
+
+  applyFilters();
+}, [filters, questions]);
+
+const paginatedQuestions = filteredQuestions.slice(
+  (currentPage - 1) * questionsPerPage,
+  currentPage * questionsPerPage
+);
+  
 
   const handleSelectQuestion = (questionId: string) => {
     setSelectedQuestions((prev) =>
@@ -148,11 +160,6 @@ const ExamPage: React.FC = () => {
     </ul>
   );
 
-  const currentPageQuestions = filteredQuestions.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
   return (
     <div>
       <h1 className="text-2xl font-semibold mb-4 text-center">Tạo bài kiểm tra</h1>
@@ -200,36 +207,39 @@ const ExamPage: React.FC = () => {
               {useMyQuestions ? "Ngân hàng câu hỏi" : "Câu hỏi của tôi"}
             </Button>
           </div>
-
           <div className="question-list">
-            {currentPageQuestions.map((question, index) => (
-              <div key={question.questionId} className="mb-6 p-4 border rounded-lg">
-                <Title level={5}>
-                  <input
-                    type="checkbox"
-                    onChange={() => handleSelectQuestion(question.questionId)}
-                    checked={selectedQuestions.includes(question.questionId)}
-                    className="mr-2"
-                  />
-                  Câu {(currentPage - 1) * itemsPerPage + index + 1}: {question.question}
-                </Title>
-                {renderAnswers(question.answers)}
-              </div>
-            ))}
-          </div>
+  {paginatedQuestions.map((question, index) => (
+    <div key={question.questionId} className="mb-6 p-4 border rounded-lg">
+      <Title level={5}>
+        <input
+          type="checkbox"
+          onChange={() => handleSelectQuestion(question.questionId)}
+          checked={selectedQuestions.includes(question.questionId)}
+          className="mr-2"
+        />
+        Câu {(currentPage - 1) * questionsPerPage + index + 1}: {question.question}
+      </Title>
+      {renderAnswers(question.answers)}
+    </div>
+  ))}
+</div>
 
-          {/* Pagination */}
-          <Pagination
-            current={currentPage}
-            pageSize={itemsPerPage}
-            total={filteredQuestions.length}
-            onChange={(page) => setCurrentPage(page)}
-            className="mt-4"
-          />
+              {/* Pagination Component */}
+              <div className="flex justify-center mt-4">
+                <Pagination
+                  current={currentPage}
+                  pageSize={questionsPerPage}
+                  total={filteredQuestions.length}
+                  onChange={(page) => setCurrentPage(page)}
+                  showSizeChanger={false}
+                />
+              </div>
+
         </div>
       ) : (
         <p>Ngân hàng chưa có câu hỏi.</p>
       )}
+
 
       <Modal
         title="Tạo Bài Kiểm Tra"
@@ -250,7 +260,7 @@ const ExamPage: React.FC = () => {
             <Input />
           </Form.Item>
           <Form.Item
-            label="Thời gian làm bài (phút)"
+            label="Thời gian làm bài ()"
             name="time"
             rules={[{ required: true, message: "Vui lòng nhập thời gian làm bài" }]}
           >
