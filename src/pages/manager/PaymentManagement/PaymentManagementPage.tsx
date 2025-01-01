@@ -31,7 +31,7 @@ const PaymentManagementPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([]);
     // const [filterStatus, setFilterStatus] = useState<'Active' | 'Inactive' | 'All'>('All');
-    const [filterPackage, setFilterPackage] = useState('');
+    const [filterPackage, setFilterPackage] = useState('All');
     const [timeFrame, setTimeFrame] = useState("month");
 
     const handleTimeFrameChange = (value: string) => {
@@ -78,6 +78,8 @@ const PaymentManagementPage: React.FC = () => {
         const counts = { Free: 0, Basic: 0, Premium: 0 };
         userServices.forEach(service => {
             const serviceDate = dayjs(service.startDate);
+            console.log(`Checking service: ${service.packageName}, startDate: ${service.startDate}`); // Kiểm tra giá trị của packageName và startDate
+
             if (
                 (timeFrame === "month" && serviceDate.isSame(dayjs(), "month")) ||
                 (timeFrame === "quarter" && serviceDate.isAfter(dayjs().subtract(3, "month"))) ||
@@ -89,12 +91,17 @@ const PaymentManagementPage: React.FC = () => {
             }
         });
         const total = counts.Free + counts.Basic + counts.Premium;
+        console.log('Counts:', counts);
+        console.log('Total:', total);
+
         return [
             { name: 'Gói miễn phí', value: (counts.Free / total) * 100 },
             { name: 'Gói cơ bản', value: (counts.Basic / total) * 100 },
             { name: 'Gói cao cấp', value: (counts.Premium / total) * 100 },
         ];
     }, [userServices, timeFrame]);
+
+    console.log('packageDistribution:', packageDistribution);
 
     const serviceStatus = useMemo(() => {
         const activeServices = userServices.filter(
@@ -106,7 +113,7 @@ const PaymentManagementPage: React.FC = () => {
         return [
             { name: "Đang sử dụng", value: activeServices.filter((service) => service.isActivated).length },
             { name: "Đã hết hạn", value: activeServices.filter((service) => !service.isActivated && dayjs(service.endDate).isBefore(dayjs())).length },
-            { name: "Đã hủy", value: 0 },
+            // { name: "Đã hủy", value: 0 },
         ];
     }, [userServices, timeFrame]);
 
@@ -154,12 +161,37 @@ const PaymentManagementPage: React.FC = () => {
             dataIndex: 'status',
             key: 'status',
             // render: (text: string, _record: any) => (
-            render: (text: string) => (
-                // <span style={{ color: text === 'Thành công' ? 'green' : 'red' }}>
-                <span>
-                    {text}
-                </span>
-            ),
+            // render: (text: string) => (
+            //     // <span style={{ color: text === 'Thành công' ? 'green' : 'red' }}>
+            //     <span>
+            //         {text}
+            //     </span>
+            // ),
+            render: (status: string) => {
+                let statusText = '';
+                let color = '';
+
+                // Xử lý các trạng thái
+                switch (status) {
+                    case 'Paid':
+                        statusText = 'Đã thanh toán';
+                        color = 'green';
+                        break;
+                    case 'Failed':
+                        statusText = 'Hủy thanh toán';
+                        color = 'red';
+                        break;
+                    case 'Pending':
+                        statusText = 'Đang chờ thanh toán';
+                        color = 'orange';
+                        break;
+                    default:
+                        statusText = 'Không xác định';
+                        color = 'gray';
+                }
+
+                return <span style={{ color }}>{statusText}</span>;
+            },
         },
     ];
 
@@ -190,8 +222,8 @@ const PaymentManagementPage: React.FC = () => {
                                     cy="50%"
                                     outerRadius={80}
                                     dataKey="value"
-                                    label
-                                >
+                                    label={({ value }) => `${value.toFixed(2)}%`} // Định dạng số thập phân 2 chữ số
+                                    >
                                     {packageDistribution.map((_, index) => (
                                         <Cell
                                             key={`cell-${index}`}
@@ -274,11 +306,14 @@ const PaymentManagementPage: React.FC = () => {
                             onChange={(value) => setFilterPackage(value)}
                         >
                             <Option value="All">Tất cả các gói</Option>
-                            {servicePackages.map(pkg => (
-                                <Option key={pkg.packageId} value={pkg.packageName}>
-                                    {pkg.packageName}
-                                </Option>
-                            ))}
+                            {servicePackages
+                                .filter(pkg => pkg.packageName !== 'Gói miễn phí')  // Loại bỏ gói miễn phí
+                                .map(pkg => (
+                                    <Option key={pkg.packageId} value={pkg.packageName}>
+                                        {pkg.packageName}
+                                    </Option>
+                                ))
+                            }
                         </Select>
                     </div>
                     {/* <div>

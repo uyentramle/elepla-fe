@@ -65,7 +65,7 @@ import CollectionPage from '@/pages/teacher/Planbook/CollectionPage';
 import PlanbookPage from '@/pages/teacher/Planbook/PlanbookPage';
 import SavedCollectionPage from '@/pages/teacher/Planbook/SavedCollectionPage';
 import SavedPlanbookPage from '@/pages/teacher/Planbook/SavedPlanbookPage';
-import PackageDetailPage from '@/pages/teacher/User/PackageDetailPage';
+// import PackageDetailPage from '@/pages/teacher/User/PackageDetailPage';
 import EventFormPage from '@/pages/teacher/Schedule/EventFormPage';
 import ExamPage from '@/pages/teacher/Exam/ExamPage';
 import ListExamPage from '@/pages/teacher/ListExam/ListExamPage';

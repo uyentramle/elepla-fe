@@ -14,9 +14,9 @@ export interface IViewListPayment {
 
 export const fetchListPayment = async (): Promise<IViewListPayment[]> => {
     try {
-        const response = await apiClient.get('Payment/GetAllUserPaymentHistory/GetAllPayments', {
+        const response = await apiClient.get('Payment/GetAllPayment', {
             params: {
-                pageIndex: 0,
+                pageIndex: -1,
                 pageSize: 100,
             },
         });
@@ -24,7 +24,7 @@ export const fetchListPayment = async (): Promise<IViewListPayment[]> => {
             paymentId: item.paymentId,
             totalAmount: item.totalAmount,
             status: item.status,
-            userId: item.teacherId,
+            userId: item.userId,
             fullName: item.fullName,
             packageId: item.packageId,
             packageName: item.packageName,
@@ -51,7 +51,7 @@ export interface IViewDetailPayment {
 
 export const fetchPaymentDetail = async (paymentId: string): Promise<IViewDetailPayment | null> => {
     try {
-        const response = await apiClient.get(`Payment/GetPaymentDetails/${paymentId}`);
+        const response = await apiClient.get(`Payment/GetPaymentById/${paymentId}`);
         const item = response.data.data;
         return {
             paymentId: item.paymentId,
@@ -97,7 +97,7 @@ export const fetchUserPaymentHistory = async (userId: string): Promise<IViewList
 
 export const fetchRevenueByMonth = async (year: number): Promise<any[]> => {
     try {
-        const response = await apiClient.get(`Payment/GetRevenueByMonth/RevenueByMonth/${year}`);
+        const response = await apiClient.get(`Payment/GetRevenueByMonth/${year}`);
         const revenue = response.data.data;
         return revenue;
     } catch (error) {
@@ -108,7 +108,7 @@ export const fetchRevenueByMonth = async (year: number): Promise<any[]> => {
 
 export const fetchRevenueByQuarter = async (year: number): Promise<any[]> => {
     try {
-        const response = await apiClient.get(`Payment/GetRevenueByQuarter/RevenueByQuarter/${year}`);
+        const response = await apiClient.get(`Payment/GetRevenueByQuarter/${year}`);
         const revenue = response.data.data;
         return revenue;
     } catch (error) {
@@ -119,7 +119,7 @@ export const fetchRevenueByQuarter = async (year: number): Promise<any[]> => {
 
 export const fetchRevenueByYear = async (): Promise<any[]> => {
     try {
-        const response = await apiClient.get('Payment/GetRevenueByYear/RevenueByYear');
+        const response = await apiClient.get('Payment/GetRevenueByYear');
         const revenue = response.data.data;
         return revenue;
     } catch (error) {

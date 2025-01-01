@@ -119,7 +119,7 @@ const DashBoardManagerPage: React.FC = () => {
         return [
             { name: "Đang sử dụng", value: activeServices.filter((service) => service.isActivated).length },
             { name: "Đã hết hạn", value: activeServices.filter((service) => !service.isActivated && dayjs(service.endDate).isBefore(dayjs())).length },
-            { name: "Đã hủy", value: 0 },
+            // { name: "Đã hủy", value: 0 },
         ];
     }, [userServices, timeFrame]);
 
@@ -213,7 +213,7 @@ const DashBoardManagerPage: React.FC = () => {
                                     cy="50%"
                                     outerRadius={80}
                                     dataKey="value"
-                                    label
+                                    label={({ value }) => `${value.toFixed(2)}%`} // Định dạng số thập phân 2 chữ số
                                 >
                                     {packageDistribution.map((_, index) => (
                                         <Cell
