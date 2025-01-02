@@ -53,6 +53,8 @@ import SubjectInCurriculumManagementPage from '@/pages/academy-staff/SubjectInCu
 import ChapterManagementPage from '@/pages/academy-staff/ChapterManagement/ChapterManagementPage';
 import LessonManagementPage from '@/pages/academy-staff/LessonManagement/LessonManagementPage';
 import PlanbookManagementPage from '@/pages/academy-staff/PlanbookManagement/PlanbookManagementPage';
+import UpdateQuestionPage from '@/pages/academy-staff/QuestionBankManagement/UpdateQuestionPage';
+
 
 // Teacher
 import UserProfilePage from '@/pages/teacher/User/UserProfilePage';
@@ -72,6 +74,10 @@ import ListExamPage from '@/pages/teacher/ListExam/ListExamPage';
 import PlanbookDetailPage from '@/pages/teacher/Planbook/PlanbookDetailPage';
 import PlanbookSharePage from '@/pages/teacher/Planbook/PlanbookSharePage';
 import PlanbooksLibraryPage from '@/pages/teacher/Planbook/PlanbookLibraryPage';
+import MyQuestionPage from '@/pages/teacher/Question/MyQuestionPage';
+import UpdateMyQuestion from '@/pages/teacher/Question/UpdateMyQuestion'
+import TeacherQuesttionForm from '@/pages/teacher/Question/TeacherQuesttionForm'
+
 
 interface RouteProps {
     path: string;
@@ -130,7 +136,7 @@ const academyStaffRoutes: RouteProps[] = [
     { path: '/academy-staff/', component: DashBoardStaffPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/question-banks', component: QuestionBankManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/question-banks/add-new', component: QuestionBankFormPage, layout: DefaultStaffLayout },
-    { path: '/academy-staff/question-banks/edit/:id', component: QuestionBankFormPage, layout: DefaultStaffLayout },
+    { path: '/academy-staff/question-banks/edit/:id', component: UpdateQuestionPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/feedbacks/planbook/', component: PlanbookFeedbackManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/feedbacks/system/', component: SystemFeedbackManagementPage, layout: DefaultStaffLayout },
     { path: '/academy-staff/subject-in-curriculum', component: SubjectInCurriculumManagementPage, layout: DefaultStaffLayout },
@@ -153,6 +159,9 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/schedule/create', component: EventFormPage, layout: DefaultTeacherLayout },
     { path: '/teacher/schedule/edit/:id', component: EventFormPage, layout: DefaultTeacherLayout },
     { path: '/teacher/question-bank/', component: QuestionBankPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/question-bank/my-question', component: MyQuestionPage, layout: DefaultTeacherLayout },
+    { path: '/teacher/question-bank/my-question/edit/:id', component: UpdateMyQuestion, layout: DefaultTeacherLayout },
+    { path: '/teacher/question-bank/create-question', component: TeacherQuesttionForm, layout: DefaultTeacherLayout },
     { path: '/teacher/exam', component: ExamPage, layout: DefaultTeacherLayout },
     { path: '/teacher/planbook-library', component:PlanbooksLibraryPage , layout: DefaultTeacherLayout },
     { path: '/teacher/list-exam', component:ListExamPage , layout: DefaultTeacherLayout },

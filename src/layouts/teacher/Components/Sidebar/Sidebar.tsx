@@ -60,7 +60,7 @@ export default function MySider({
       ]),
       getItem('Bài kiểm tra', '4', <CheckSquareOutlined />,[
         getItem('Tạo bài kiểm tra', '4.1', <CaretRightOutlined />),
-        getItem('bài kiểm tra của tôi', '4.2', <CaretRightOutlined />),
+        getItem('Bài kiểm tra của tôi', '4.2', <CaretRightOutlined />),
     ]),
     ];
   };
@@ -74,7 +74,7 @@ export default function MySider({
     .set('2', '/teacher/schedule/weekly')
     .set('3', '/teacher/question-bank/')
     .set('3.1', '/teacher/question-bank/')
-    .set('3.2', '#')
+    .set('3.2', '/teacher/question-bank/my-question')
     .set('4', '/teacher/exam/')
     .set('4.1', '/teacher/exam/')
     .set('4.2', '/teacher/list-exam')

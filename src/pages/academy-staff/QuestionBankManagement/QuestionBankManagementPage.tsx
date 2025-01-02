@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Input, Button, Modal, message, Dropdown, Menu } from "antd";
-import {
-  fetchAllQuestions,
-  fetchQuestionsByChapter,
-  fetchQuestionsByLesson,
-  deleteQuestion,
-  IQuestion,
-} from "@/data/academy-staff/QuestionBankData";
-import FilterSection from "@/layouts/teacher/Components/FilterSection/FilterSection";
+import { Typography, Table, Button, Modal, message, Dropdown, Menu, Spin } from "antd";
+import { fetchAllQuestions, deleteQuestion, IQuestion,PlumLevel,QuestionType  } from "@/data/academy-staff/QuestionBankData";
 import { Link } from "react-router-dom";
-import { PlusOutlined, SearchOutlined, MoreOutlined } from "@ant-design/icons";
+import { PlusOutlined, MoreOutlined } from "@ant-design/icons";
+import Filters from "@/pages/teacher/Exam/Filters";
 
 const { Title } = Typography;
 
@@ -17,22 +11,21 @@ const QuestionBankManagementPage: React.FC = () => {
   const [questions, setQuestions] = useState<IQuestion[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [showAnswers, setShowAnswers] = useState<boolean>(false);
-  const [filters, setFilters] = useState<{ chapterId?: string; lessonId?: string }>({});
+  const [selectedQuestion, setSelectedQuestion] = useState<IQuestion | null>(null);
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [filters, setFilters] = useState({
+    searchTerm: "",
+    grade: "",
+    curriculum: "",
+    subject: "",
+    chapter: "",
+    lesson: "",
+  });
 
   const loadQuestions = async () => {
     try {
       setLoading(true);
-      let response;
-
-      if (filters.lessonId) {
-        response = await fetchQuestionsByLesson(filters.lessonId, 0, 50);
-      } else if (filters.chapterId) {
-        response = await fetchQuestionsByChapter(filters.chapterId, 0, 50);
-      } else {
-        response = await fetchAllQuestions(0, 50);
-      }
-
+      const response = await fetchAllQuestions(0, 1000); // Tải tất cả câu hỏi với số lượng lớn
       if (response.success) {
         setQuestions(response.data.items);
       } else {
@@ -47,18 +40,21 @@ const QuestionBankManagementPage: React.FC = () => {
 
   useEffect(() => {
     loadQuestions();
-  }, [filters]);
+  }, []);
 
-  const handleFilterChange = (newFilters: {
-    gradeId?: string;
-    curriculumId?: string;
-    subjectId?: string;
-    chapterId?: string;
-    lessonId?: string;
-  }) => {
-    setFilters({
-      chapterId: newFilters.chapterId,
-      lessonId: newFilters.lessonId,
+  const applyFilters = () => {
+    const { searchTerm, grade, curriculum, subject, chapter, lesson } = filters;
+
+    return questions.filter((question) => {
+      const matchesSearchTerm =
+        searchTerm === "" || question.question.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesGrade = grade === "" || question.grade === grade;
+      const matchesCurriculum = curriculum === "" || question.curriculum === curriculum;
+      const matchesSubject = subject === "" || question.subject === subject;
+      const matchesChapter = chapter === "" || question.chapterName === chapter;
+      const matchesLesson = lesson === "" || question.lessonName === lesson;
+
+      return matchesSearchTerm && matchesGrade && matchesCurriculum && matchesSubject && matchesChapter && matchesLesson;
     });
   };
 
@@ -85,80 +81,210 @@ const QuestionBankManagementPage: React.FC = () => {
     });
   };
 
-  const menu = (questionId: string) => (
+  const menu = (record: IQuestion) => (
     <Menu>
-      <Menu.Item key="edit">
-        <Button type="text" onClick={() => message.info("Chức năng chỉnh sửa sẽ được phát triển sau.")}>
-          Chỉnh sửa
+      <Menu.Item key="1">
+        <Button type="text" onClick={() => handleShowDetails(record)}>
+          Chi tiết
         </Button>
       </Menu.Item>
-      <Menu.Item key="delete">
-        <Button type="text" danger onClick={() => handleDelete(questionId)}>
+      <Menu.Item key="2">
+        <Link to={`/academy-staff/question-banks/edit/${record.questionId}`}>
+          <Button type="text">Chỉnh sửa</Button>
+        </Link>
+      </Menu.Item>
+      <Menu.Item key="3">
+        <Button type="text" danger onClick={() => handleDelete(record.questionId)}>
           Xóa
         </Button>
       </Menu.Item>
     </Menu>
   );
 
+  const handleShowDetails = (record: IQuestion) => {
+    setSelectedQuestion(record);
+    setIsDetailModalVisible(true);
+  };
+
+  const handleFiltersChange = (newFilters: typeof filters) => {
+    setFilters(newFilters);
+  };
+
+  const columns = [
+    {
+      title: "Câu hỏi",
+      dataIndex: "question",
+      key: "question",
+      width: 600,
+    },
+    {
+      title: "Khối lớp",
+      dataIndex: "grade",
+      key: "grade",
+    },
+    {
+      title: "Môn học",
+      dataIndex: "subject",
+      key: "subject",
+    },
+    {
+      title: "Khung chương trình",
+      dataIndex: "curriculum",
+      key: "curriculum",
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => new Date(date).toLocaleDateString(),
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (_: any, record: IQuestion) => (
+        <Dropdown overlay={menu(record)} trigger={["click"]}>
+          <MoreOutlined className="cursor-pointer text-lg" />
+        </Dropdown>
+      ),
+    },
+  ];
+
+  const handleCloseDetailModal = () => {
+    setIsDetailModalVisible(false);
+    setSelectedQuestion(null);
+  };
+
+  const filteredQuestions = applyFilters();
+
+  const questionTypeMap: Record<QuestionType, string> = {
+    "multiple choice": "Câu hỏi trắc nghiệm",
+    "True/False": "Câu hỏi đúng sai",
+    "Short Answer": "Câu trả lời ngắn",
+  };
+  
+  const plumLevelMap: Record<PlumLevel, string> = {
+    easy: "Dễ",
+    medium: "Trung bình",
+    hard: "Khó",
+  };
+  
+
   return (
     <div>
-      <Title level={2} className="my-4">Quản lý Ngân hàng Câu hỏi</Title>
-      <div className="mb-4 flex justify-between">
-        <Input
-          type="text"
-          placeholder="Tìm kiếm..."
-          suffix={<SearchOutlined />}
-          className="mr-4"
-        />
-        <Button type="primary">
-          <Link to="/academy-staff/question-banks/add-new" className="flex items-center">
-            <PlusOutlined className="mr-2" />
-            Thêm mới
-          </Link>
-        </Button>
-      </div>
+      <Title level={2} className="my-4">
+        Quản lý Ngân hàng Câu hỏi
+      </Title>
+      <div
+          className="mb-4 flex justify-between items-center"
+          style={{
+            alignItems: "center",
+            marginBottom: "12px", // Giảm khoảng cách dưới để đẩy toàn bộ hàng lên
+          }}
+        >
+          <Filters
+            onFiltersChange={handleFiltersChange}
+            // style={{
+            //   flex: 1,
+            //   maxWidth: "70%", // Giữ kích thước Filters hợp lý
+            // }}
+          />
+          <Button
+            type="primary"
+            style={{
+              marginLeft: "16px",
+              height: "40px", // Chiều cao nút
+              fontSize: "14px",
+              padding: "0 20px", // Tăng padding ngang
+              marginTop: "-12px", // Đẩy nút lên trên một chút
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <Link to="/academy-staff/question-banks/add-new" className="flex items-center">
+              <PlusOutlined className="mr-2" style={{ fontSize: "16px" }} />
+              Thêm mới
+            </Link>
+          </Button>
+        </div>
 
-      <FilterSection onFilterChange={handleFilterChange} />
-
-      {loading ? (
-        <p>Đang tải...</p>
+  {loading ? (
+    <div className="flex justify-center items-center h-40">
+      <Spin size="large" />
+    </div>
       ) : error ? (
         <p>{error}</p>
-      ) : questions.length > 0 ? (
-        <div>
-          <Button type="primary" onClick={() => setShowAnswers(!showAnswers)} className="mb-4">
-            {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
-          </Button>
-          <div className="question-list">
-            {questions.map((question, index) => (
-              <div key={question.questionId} className="mb-6 p-4 border rounded-lg">
-                <div className="flex justify-between items-center">
-                  <Title level={5}>
-                    Câu {index + 1}: {question.question}
-                  </Title>
-                  <Dropdown overlay={menu(question.questionId)} trigger={['click']}>
-                    <MoreOutlined className="cursor-pointer text-lg" />
-                  </Dropdown>
-                </div>
-                <ul className="pl-6 list-disc">
-                  {question.answers.map((answer, i) => (
-                    <li key={answer.answerId} className="mb-2">
-                      <span>
-                        {String.fromCharCode(65 + i)}. {answer.answerText}
-                      </span>
-                      {showAnswers && answer.isCorrect && (
-                        <strong className="ml-2 text-green-600">(Đúng)</strong>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
       ) : (
-        <p>Không có câu hỏi nào trong ngân hàng.</p>
+        <Table
+          columns={columns}
+          dataSource={filteredQuestions}
+          rowKey={(record) => record.questionId}
+          className="mt-4"
+        />
       )}
+        <Modal
+          title="Chi tiết câu hỏi"
+          visible={isDetailModalVisible}
+          onCancel={handleCloseDetailModal}
+          footer={null}
+          width={800}
+          bodyStyle={{ padding: "20px" }}
+        >
+          {selectedQuestion ? (
+            <div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 4fr",
+                  gap: "4px",
+                  lineHeight: "1.6",
+                }}
+              >
+                <p><strong>Câu hỏi:</strong></p>
+                <p>{selectedQuestion.question}</p>
+
+                <p><strong>Loại câu hỏi:</strong></p>
+                <p>{questionTypeMap[selectedQuestion.type]}</p>
+
+                <p><strong>Độ khó (Plum):</strong></p>
+                <p>{plumLevelMap[selectedQuestion.plum]}</p>
+
+                <p><strong>Chương:</strong></p>
+                <p>{selectedQuestion.chapterName}</p>
+
+                <p><strong>Bài:</strong></p>
+                <p>{selectedQuestion.lessonName || "N/A"}</p>
+
+                <p><strong>Ngày chỉnh sửa:</strong></p>
+                <p>
+                  {selectedQuestion.updatedAt
+                    ? new Date(selectedQuestion.updatedAt).toLocaleDateString()
+                    : "Chưa được chỉnh sửa"}
+                </p>
+              </div>
+
+              <p style={{ marginTop: "20px" }}><strong>Câu trả lời:</strong></p>
+              <ol type="A" style={{ paddingLeft: "20px", marginBottom: "10px" }}>
+                {selectedQuestion.answers.map((answer, index) => (
+                  <li key={answer.answerId} style={{ marginBottom: "5px" }}>
+                    {String.fromCharCode(65 + index)}. {answer.answerText}
+                  </li>
+                ))}
+              </ol>
+
+              <p>
+                <strong>Câu trả lời đúng:</strong>{" "}
+                {selectedQuestion.answers
+                  .map((answer, index) => (answer.isCorrect ? String.fromCharCode(65 + index) : null))
+                  .filter(Boolean)
+                  .join(", ")}
+              </p>
+            </div>
+          ) : (
+            <div className="flex justify-center items-center h-32">
+              <Spin size="large" />
+            </div>
+          )}
+        </Modal>
     </div>
   );
 };

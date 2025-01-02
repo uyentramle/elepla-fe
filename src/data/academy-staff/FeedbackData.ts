@@ -42,7 +42,7 @@ export const fetchPlanBookFeedbackList = async (): Promise<IViewListFeedback[]> 
 
 export const fetchSystemFeedbackList = async (): Promise<IViewListFeedback[]> => {
     try {
-        const response = await apiClient.get('/Feedback/GetSystemFeedback?pageIndex=0&pageSize=10');
+                const response = await apiClient.get('/Feedback/GetSystemFeedback?pageIndex=0&pageSize=10');
         if (response.data.success) {
             return response.data.data.items.map((feedback: any) => ({
                 id: feedback.feedbackId,
@@ -64,6 +64,43 @@ export const fetchSystemFeedbackList = async (): Promise<IViewListFeedback[]> =>
         return [];
     }
 };
+export const classifyFeedbackByRate = (feedbackList: IViewListFeedback[]) => {
+    const result = {
+        greaterThanThree: 0,
+        equalToThree: 0,
+        lessThanThree: 0,
+    };
+
+    feedbackList.forEach((feedback) => {
+        if (feedback.rate > 3) {
+            result.greaterThanThree += 1;
+        } else if (feedback.rate === 3) {
+            result.equalToThree += 1;
+        } else {
+            result.lessThanThree += 1;
+        }
+    });
+
+    return result;
+};
+
+(async () => {
+    const feedbackList = await fetchSystemFeedbackList();
+    const classifiedFeedback = classifyFeedbackByRate(feedbackList);
+
+    console.log('Feedback classification:', classifiedFeedback);
+})();
+
+export const getTotalRate = async (): Promise<number> => {
+    try {
+        const feedbackList = await fetchPlanBookFeedbackList();
+        const totalRate = feedbackList.reduce((sum, feedback) => sum + feedback.rate, 0);
+        return totalRate;
+    } catch (error) {
+        console.error('Error calculating total rate:', error);
+        return 0;
+    }
+};
 
 export const countPlanBookFeedback = async (): Promise<number> => {
     try {
@@ -71,6 +108,22 @@ export const countPlanBookFeedback = async (): Promise<number> => {
         return feedbackList.length;
     } catch (error) {
         console.error('Error counting planbook feedback:', error);
+        return 0;
+    }
+};
+
+export const countFeedbackByRate = async (rate: number): Promise<number> => {
+    try {
+        // Fetch the list of planbook feedback
+        const feedbackList = await fetchPlanBookFeedbackList();
+
+        // Filter the feedback items by the specified rate
+        const filteredFeedback = feedbackList.filter(feedback => feedback.rate === rate);
+
+        // Return the count of filtered feedback items
+        return filteredFeedback.length;
+    } catch (error) {
+        console.error(`Error counting feedback with rate ${rate}:`, error);
         return 0;
     }
 };

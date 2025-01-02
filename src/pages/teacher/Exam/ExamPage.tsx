@@ -1,54 +1,54 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Input, Button, Modal, Form, notification } from "antd";
-import {
-  fetchAllQuestions,
-  fetchQuestionsByChapter,
-  fetchQuestionsByLesson,
-  IQuestion,
-} from "@/data/academy-staff/QuestionBankData";
-import { getUserId } from "@/data/apiClient"; // Import hàm getUserId
-import FilterSection from "@/layouts/teacher/Components/FilterSection/FilterSection";
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { Typography, Button, Modal, Form, notification, Input, Spin,Pagination  } from "antd";
+import { fetchAllQuestions, fetchQuestionsByUserId, IQuestion } from "@/data/academy-staff/QuestionBankData";
+import { getUserId } from "@/data/apiClient";
 import { createExam } from "@/data/client/ExamData";
+import { PlusOutlined } from "@ant-design/icons";
+import Filters from "./Filters"; // Import bộ lọc Filters
 
 const { Title } = Typography;
 
 const ExamPage: React.FC = () => {
   const [questions, setQuestions] = useState<IQuestion[]>([]);
+  const [filteredQuestions, setFilteredQuestions] = useState<IQuestion[]>([]); // State cho câu hỏi đã lọc
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [showAnswers, setShowAnswers] = useState<boolean>(false);
-  const [filters, setFilters] = useState<{ chapterId?: string; lessonId?: string }>({});
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [examTitle, setExamTitle] = useState("");
-  const [examTime, setExamTime] = useState("");
+  const [showAnswers, setShowAnswers] = useState<boolean>(false); // State để hiển thị đáp án
+  const [filters, setFilters] = useState({
+    searchTerm: "",
+    grade: "",
+    curriculum: "",
+    subject: "",
+    chapter: "", // Thêm bộ lọc chương
+    lesson: "",  // Thêm bộ lọc bài
+  }); // State cho bộ lọc
+  const [useMyQuestions, setUseMyQuestions] = useState<boolean>(false); // State để chuyển đổi API
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const questionsPerPage = 5;
 
-  const handleSelectQuestion = (questionId: string) => {
-    setSelectedQuestions((prev) =>
-      prev.includes(questionId)
-        ? prev.filter((id) => id !== questionId) // Bỏ chọn nếu đã chọn trước đó
-        : [...prev, questionId] // Thêm vào danh sách nếu chưa chọn
-    );
-  };
+  useEffect(() => {
+    setCurrentPage(1); // Reset về trang đầu tiên khi thay đổi nguồn câu hỏi
+  }, [useMyQuestions]);
 
+// useEffect load questions
+useEffect(() => {
   const loadQuestions = async () => {
     try {
       setLoading(true);
-      let response;
+      setError(null);
 
-      if (filters.lessonId) {
-        response = await fetchQuestionsByLesson(filters.lessonId, 0, 50);
-      } else if (filters.chapterId) {
-        response = await fetchQuestionsByChapter(filters.chapterId, 0, 50);
-      } else {
-        response = await fetchAllQuestions(0, 50);
-      }
+      // Fetch all questions without relying on paginated API limits
+      const response = useMyQuestions
+        ? await fetchQuestionsByUserId(getUserId() || "")
+        : await fetchAllQuestions(-1, 10); // Giả sử API hỗ trợ tải tối đa 1000 câu
 
       if (response.success) {
-        setQuestions(response.data.items);
+        setQuestions(response.data.items || []);
+        setFilteredQuestions(response.data.items || []); // Đồng bộ filteredQuestions ban đầu
       } else {
-        setError(response.message);
+        setError(response.message || "Tải dữ liệu thất bại.");
       }
     } catch (err) {
       setError("Lỗi khi tải dữ liệu từ API.");
@@ -57,21 +57,55 @@ const ExamPage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    loadQuestions();
-  }, [filters]);
+  loadQuestions();
+}, [useMyQuestions]);
 
-  const handleFilterChange = (newFilters: {
-    gradeId?: string;
-    curriculumId?: string;
-    subjectId?: string;
-    chapterId?: string;
-    lessonId?: string;
-  }) => {
-    setFilters({
-      chapterId: newFilters.chapterId,
-      lessonId: newFilters.lessonId,
+
+useEffect(() => {
+  const applyFilters = () => {
+    const { searchTerm, grade, curriculum, subject, chapter, lesson } = filters;
+
+    // Lọc trên toàn bộ danh sách câu hỏi
+    const filtered = questions.filter((question) => {
+      const matchesSearchTerm =
+        searchTerm === "" ||
+        question.question.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesGrade = grade === "" || question.grade === grade;
+      const matchesCurriculum =
+        curriculum === "" || question.curriculum === curriculum;
+      const matchesSubject = subject === "" || question.subject === subject;
+      const matchesChapter = chapter === "" || question.chapterName === chapter;
+      const matchesLesson = lesson === "" || question.lessonName === lesson;
+
+      return (
+        matchesSearchTerm &&
+        matchesGrade &&
+        matchesCurriculum &&
+        matchesSubject &&
+        matchesChapter &&
+        matchesLesson
+      );
     });
+
+    setFilteredQuestions(filtered); // Cập nhật bộ lọc chính xác
+    // Giữ nguyên trang, không cần reset về trang đầu
+  };
+
+  applyFilters();
+}, [filters, questions]);
+
+const paginatedQuestions = filteredQuestions.slice(
+  (currentPage - 1) * questionsPerPage,
+  currentPage * questionsPerPage
+);
+  
+
+  const handleSelectQuestion = (questionId: string) => {
+    setSelectedQuestions((prev) =>
+      prev.includes(questionId)
+        ? prev.filter((id) => id !== questionId)
+        : [...prev, questionId]
+    );
   };
 
   const showModal = () => {
@@ -90,7 +124,7 @@ const ExamPage: React.FC = () => {
     const examData = {
       title: values.title,
       time: values.time + " phút",
-      userId: getUserId() || "", // Thay thế bằng hàm getUserId
+      userId: getUserId() || "",
       questionIds: selectedQuestions,
     };
 
@@ -98,76 +132,108 @@ const ExamPage: React.FC = () => {
     if (response) {
       notification.success({ message: "Tạo bài kiểm tra thành công!" });
       setIsModalVisible(false);
-      setSelectedQuestions([]); // Reset danh sách câu hỏi
+      setSelectedQuestions([]);
     } else {
       notification.error({ message: "Tạo bài kiểm tra thất bại!" });
     }
   };
 
+  // Function to render the answers with correct answer indicator
+  const renderAnswers = (answers: IQuestion["answers"]) => (
+    <ul className="pl-6 list-disc">
+      {answers.map((answer, i) => (
+        <li key={answer.answerId} className="mb-2">
+          <span>
+            {String.fromCharCode(65 + i)}. {answer.answerText}
+          </span>
+          {showAnswers && answer.isCorrect && (
+            <span className="ml-2 text-green-600">(Đúng)</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+
   return (
     <div>
-      <Title level={2} className="my-4">Tạo Bài kiểm tra</Title>
-      <div className="mb-4 flex justify-between">
-        <Input
-          type="text"
-          placeholder="Tìm kiếm..."
-          suffix={<SearchOutlined />}
-          className="mr-4"
-        />
-        <Button type="primary" onClick={showModal}>
+      <h1 className="text-2xl font-semibold mb-4 text-center">Tạo bài kiểm tra</h1>
+      {/* Layout container for search, filters, and create button */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex space-x-4 w-1/2 items-center">
+          {/* Filters */}
+          <Filters onFiltersChange={(newFilters) => setFilters(newFilters)} />
+        </div>
+
+        {/* Create Exam Button */}
+        <Button
+          type="primary"
+          onClick={showModal}
+          className="h-9 px-4 flex items-center -mt-5" // Sử dụng negative margin-top
+        >
           <PlusOutlined className="mr-2" />
           Thêm bài kiểm tra
         </Button>
       </div>
 
-      <FilterSection onFilterChange={handleFilterChange} />
-
       {loading ? (
-        <p>Đang tải...</p>
+        <div className="flex justify-center items-center">
+          <Spin size="large" />
+        </div>
       ) : error ? (
         <p>{error}</p>
-      ) : questions.length > 0 ? (
+      ) : filteredQuestions.length > 0 ? (
         <div>
-          <Button
-            type="primary"
-            onClick={() => setShowAnswers(!showAnswers)}
-            style={{ marginTop: "12px", marginBottom: "12px" }}
-          >
-            {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
-          </Button>
-          <div className="question-list">
-            {questions.map((question, index) => (
-              <div key={question.questionId} className="mb-6 p-4 border rounded-lg">
-                <div className="flex justify-between items-center">
-                  <Title level={5}>
-                    <input
-                      type="checkbox"
-                      onChange={() => handleSelectQuestion(question.questionId)}
-                      checked={selectedQuestions.includes(question.questionId)}
-                      className="mr-2"
-                    />
-                    Câu {index + 1}: {question.question}
-                  </Title>
-                </div>
-                <ul className="pl-6 list-disc">
-                  {question.answers.map((answer, i) => (
-                    <li key={answer.answerId} className="mb-2">
-                      <span>
-                        {String.fromCharCode(65 + i)}. {answer.answerText}
-                      </span>
-                      {showAnswers && answer.isCorrect && (
-                        <strong className="ml-2 text-green-600">(Đúng)</strong>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+          {/* Toggle Source Button */}
+          <div className="flex justify-between items-center mb-4">
+            <Button
+              type="primary"
+              onClick={() => setShowAnswers(!showAnswers)}
+              className="h-10"
+            >
+              {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
+            </Button>
+
+            <Button
+              type="default"
+              onClick={() => setUseMyQuestions((prev) => !prev)}
+              className="h-10"
+            >
+              {useMyQuestions ? "Ngân hàng câu hỏi" : "Câu hỏi của tôi"}
+            </Button>
           </div>
+          <div className="question-list">
+  {paginatedQuestions.map((question, index) => (
+    <div key={question.questionId} className="mb-6 p-4 border rounded-lg">
+      <Title level={5}>
+        <input
+          type="checkbox"
+          onChange={() => handleSelectQuestion(question.questionId)}
+          checked={selectedQuestions.includes(question.questionId)}
+          className="mr-2"
+        />
+        Câu {(currentPage - 1) * questionsPerPage + index + 1}: {question.question}
+      </Title>
+      {renderAnswers(question.answers)}
+    </div>
+  ))}
+</div>
+
+              {/* Pagination Component */}
+              <div className="flex justify-center mt-4">
+                <Pagination
+                  current={currentPage}
+                  pageSize={questionsPerPage}
+                  total={filteredQuestions.length}
+                  onChange={(page) => setCurrentPage(page)}
+                  showSizeChanger={false}
+                />
+              </div>
+
         </div>
       ) : (
-        <p>Không có câu hỏi nào trong ngân hàng.</p>
+        <p>Ngân hàng chưa có câu hỏi.</p>
       )}
+
 
       <Modal
         title="Tạo Bài Kiểm Tra"
@@ -185,26 +251,22 @@ const ExamPage: React.FC = () => {
             name="title"
             rules={[{ required: true, message: "Vui lòng nhập tên bài kiểm tra" }]}
           >
-            <Input value={examTitle} onChange={(e) => setExamTitle(e.target.value)} />
+            <Input />
           </Form.Item>
           <Form.Item
-            label="Thời gian làm bài (phút)"
+            label="Thời gian làm bài "
             name="time"
             rules={[{ required: true, message: "Vui lòng nhập thời gian làm bài" }]}
           >
-            <Input
-              value={examTime}
-              onChange={(e) => setExamTime(e.target.value)}
-              placeholder="Ví dụ: 60"
-            />
+            <Input placeholder="Ví dụ: 60" />
           </Form.Item>
           <Form.Item>
             <div className="flex justify-end">
-              <Button type="default" onClick={handleCancel} className="mr-2">
+              <Button type="default" onClick={handleCancel} className="mr-4">
                 Hủy
               </Button>
               <Button type="primary" htmlType="submit">
-                Lưu
+                Lưu bài kiểm tra
               </Button>
             </div>
           </Form.Item>
