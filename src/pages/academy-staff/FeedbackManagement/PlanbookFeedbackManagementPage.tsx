@@ -25,14 +25,6 @@ const PlanbookFeedbackManagementPage: React.FC = () => {
         fetchFeedbacks();
     }, []);
 
-    // const handleFlagToggle = (id: string) => {
-    //     setFeedbacks((prevFeedbacks) =>
-    //         prevFeedbacks.map((feedback) =>
-    //             feedback.id === id ? { ...feedback, isFlagged: !feedback.isFlagged } : feedback
-    //         )
-    //     );
-    // };
-
     const handleDeleteFeedback = async () => {
         try {
             if (!feedbackToDelete) return;
