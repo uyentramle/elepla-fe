@@ -5,6 +5,7 @@ import { FileProtectOutlined, AppstoreOutlined, UnorderedListOutlined, MoreOutli
 import { RadioChangeEvent } from "antd/es/radio";
 import ExamDetailPage from "./ExamDetailPage";
 import UpdateExamPage from "./UpdateExamPage";
+import { getUserId } from "@/data/apiClient";
 
 const ListExamPage: React.FC = () => {
   const [exams, setExams] = useState<IExam[]>([]);
@@ -13,11 +14,13 @@ const ListExamPage: React.FC = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
+  const userId = getUserId();
 
   useEffect(() => {
     const fetchExams = async () => {
       setLoading(true);
       const data = await getExamsByUserId();
+      console.log("userId", userId);
       if (data) {
         setExams(data);
       }
@@ -32,6 +35,7 @@ const ListExamPage: React.FC = () => {
   };
 
   const handleShowDetail = (examId: string) => {
+    console.log("Detail for examId:", examId);
     setSelectedExamId(examId);
     setIsDetailModalOpen(true);
   };
@@ -89,8 +93,8 @@ const ListExamPage: React.FC = () => {
   return (
     <div className="p-6">
       {/* Header */}
+      <h1 className="text-2xl font-semibold mb-4 text-center">Bài kiểm tra của tôi</h1>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Danh sách bài kiểm tra</h1>
         <Radio.Group
           value={viewMode}
           onChange={handleViewModeChange}
@@ -108,6 +112,11 @@ const ListExamPage: React.FC = () => {
       {/* Content */}
       {loading ? (
         <Spin size="large" />
+      ) : exams.length === 0 ? (
+        <div className="flex flex-col items-center justify-center min-h-[200px]">
+          <FileProtectOutlined style={{ fontSize: "64px", color: "#ccc" }} />
+          <p className="text-gray-500 mt-4">Hiện chưa có bài kiểm tra nào.</p>
+        </div>
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {exams.map((exam) => (
@@ -157,22 +166,26 @@ const ListExamPage: React.FC = () => {
 
       {/* Detail Modal */}
       <Modal
-        title="Chi tiết bài kiểm tra"
-        visible={isDetailModalOpen}
-        onCancel={handleDetailModalClose}
-        footer={null}
-        width="50%"
-      >
-        {selectedExamId && <ExamDetailPage examId={selectedExamId} />}
-      </Modal>
+          open={isDetailModalOpen}
+          onCancel={handleDetailModalClose}
+          footer={null}
+          width="50%"
+          bodyStyle={{ padding: 0, background: "transparent" }}
+          style={{ background: "transparent", boxShadow: "none" }}
+          className="custom-modal-no-padding"
+        >
+          {selectedExamId && <ExamDetailPage examId={selectedExamId} />}
+        </Modal>
 
       {/* Edit Modal */}
       <Modal
-        title="Chỉnh sửa bài kiểm tra"
         visible={isEditModalOpen}
         onCancel={handleEditModalClose}
         footer={null}
         width="50%"
+        bodyStyle={{ padding: 0, background: "transparent" }}
+        style={{ background: "transparent", boxShadow: "none" }}
+        className="custom-modal-no-padding"
       >
         {selectedExamId && <UpdateExamPage examId={selectedExamId} />}
       </Modal>

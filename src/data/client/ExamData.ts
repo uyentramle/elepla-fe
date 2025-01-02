@@ -1,4 +1,3 @@
-//ExamData.ts
 import apiClient from "@/data/apiClient";
 import { getUserId } from "@/data/apiClient"; // Import hàm getUserId
 
@@ -8,6 +7,18 @@ export interface ICreateExamRequest {
     time: string; // Thời gian làm bài, ví dụ: "60 phút"
     userId: string; // ID của người dùng (lấy từ token)
     questionIds: string[]; // Danh sách ID các câu hỏi được chọn
+}
+
+export interface IQuestion {
+  questionId: string;
+  question: string;
+  type: string; // Example: "multiple_choice"
+  plum: string; // Example: "medium", "hard"
+  answers: {
+    answerId: string;
+    answerText: string;
+    isCorrect: boolean;
+  }[];
 }
 
 // Giao diện cho phản hồi từ API
@@ -24,24 +35,24 @@ export interface IExam {
     id: string; // ID của bài kiểm tra
     title: string;
     time?: string; // Nếu cần thêm các thuộc tính khác từ API
-  }
+}
 
-  export interface IExamAnswer {
+export interface IExamAnswer {
     answerId: string;
     answerText: string;
     isCorrect: boolean; // Chuyển từ "True"/"False" sang boolean
-  }
+}
 
-  export interface IExamQuestion {
+export interface IExamQuestion {
     questionId: string;
     question: string;
     type: string; // Loại câu hỏi (vd: multiple_choice)
     plum: string; // Độ khó
     index: number; // Số thứ tự câu hỏi
     answers: IExamAnswer[];
-  }
-  
-  export interface IExamDetails {
+}
+
+export interface IExamDetails {
     examId: string;
     title: string;
     time: string; // Thời gian làm bài kiểm tra
@@ -54,27 +65,69 @@ export interface IExam {
     deletedAt?: string | null;
     deletedBy?: string | null;
     isDeleted?: boolean;
-  }
+}
 
-  export const deleteExamById = async (examId: string): Promise<boolean> => {  
-    try {
-      // Gửi yêu cầu DELETE tới API với examId là query parameter
-      const response = await apiClient.delete(
-        `https://elepla-be-production.up.railway.app/api/Exam/DeleteExam`,
-        {
-          params: { examId }, // Truyền examId dưới dạng query parameter
-        }
-      );
-      // Kiểm tra phản hồi thành công
+export const updateExam = async (
+  examId: string,
+  title: string,
+  time: string,
+  questionIds: string[]
+): Promise<boolean> => {
+  try {
+      const payload = {
+          examId,
+          title,
+          time,
+          questionIds,
+      };
+
+      const response = await apiClient.put(`/Exam/UpdateExam`, payload);
+
       if (response.data && response.data.success) {
-        return true; // Xóa thành công
+          console.log("Exam updated successfully:", response.data.data);
+          return true;
       }
-      // Trường hợp phản hồi không thành công
+
+      console.error("Failed to update exam:", response.data.message);
       return false;
+  } catch (error) {
+      console.error("Error updating exam:", error);
+      return false;
+  }
+};
+
+export const getExamDetailsById = async (examId: string): Promise<IExamDetails | null> => {
+    try {
+        const response = await apiClient.get(`/Exam/GetExamById`, {
+            params: { examId },
+        });
+
+        if (response.data && response.data.success) {
+            const examDetails = response.data.data;
+
+            const transformedDetails: IExamDetails = {
+                ...examDetails,
+                questions: examDetails.questions.map((question: any) => ({
+                    ...question,
+                    answers: question.answers.map((answer: any) => ({
+                        ...answer,
+                        isCorrect: answer.isCorrect === "True",
+                    })),
+                })),
+            };
+
+            return transformedDetails;
+        }
+
+        console.error("API response indicates failure:", response.data.message);
+        return null;
     } catch (error) {
-      return false;
+        console.error("Error fetching exam details:", error);
+        return null;
     }
-  };
+};
+
+
 
   export const exportExamToWord = async (examId: string): Promise<Blob | null> => {
     try {
@@ -111,41 +164,70 @@ export interface IExam {
     }
   };
 
-  export const getExamDetailsById = async (examId: string): Promise<IExamDetails | null> => {
+  export const exportExamWithAnswersToWord = async (examId: string): Promise<Blob | null> => {
     try {
-      // Gửi yêu cầu tới API
-      const response = await apiClient.get(`/Exam/GetExamById`, {
-        params: { examId }, // Gửi examId dưới dạng query parameter
-      });
+      const response = await apiClient.get(
+        `https://elepla-be-production.up.railway.app/api/Exam/ExportExamToWord`,
+        {
+          params: { examId },
+          responseType: "blob", // Nhận file dưới dạng blob
+        }
+      );
   
       // Kiểm tra phản hồi thành công
-      if (response.data && response.data.success) {
-        const examDetails = response.data.data;
-  
-        // Chuyển đổi isCorrect từ string ("True"/"False") sang boolean
-        const transformedDetails: IExamDetails = {
-          ...examDetails,
-          questions: examDetails.questions.map((question: any) => ({
-            ...question,
-            answers: question.answers.map((answer: any) => ({
-              ...answer,
-              isCorrect: answer.isCorrect === "True", // Chuyển đổi thành boolean
-            })),
-          })),
-        };
-  
-        return transformedDetails;
+      if (response.status === 200) {
+        return response.data; // Trả về blob của file Word
       }
-  
-      // Trường hợp phản hồi không thành công
-      console.error("API response indicates failure:", response.data.message);
-      return null;
+      return null; // Trường hợp phản hồi không thành công
     } catch (error) {
-      // Xử lý lỗi khi gửi yêu cầu
-      console.error("Error fetching exam details:", error);
-      return null;
+      console.error("Error exporting exam with answers to Word:", error);
+      return null; // Xử lý lỗi khi gửi yêu cầu
     }
   };
+  
+  export const exportExamWithAnswersToPdf = async (examId: string): Promise<Blob | null> => {
+    try {
+      const response = await apiClient.get(
+        `https://elepla-be-production.up.railway.app/api/Exam/ExportExamToPdf`,
+        {
+          params: { examId },
+          responseType: "blob", // Định dạng phản hồi là file
+        }
+      );
+  
+      // Kiểm tra phản hồi thành công
+      if (response.status === 200) {
+        return response.data; // Trả về blob của file PDF
+      }
+      return null; // Trường hợp phản hồi không thành công
+    } catch (error) {
+      console.error("Error exporting exam with answers to PDF:", error);
+      return null; // Trả về null nếu có lỗi
+    }
+  };
+  
+
+  export const deleteExamById = async (examId: string): Promise<boolean> => {  
+    try {
+      // Gửi yêu cầu DELETE tới API với examId là query parameter
+      const response = await apiClient.delete(
+        `https://elepla-be-production.up.railway.app/api/Exam/DeleteExam`,
+        {
+          params: { examId }, // Truyền examId dưới dạng query parameter
+        }
+      );
+      // Kiểm tra phản hồi thành công
+      if (response.data && response.data.success) {
+        return true; // Xóa thành công
+      }
+      // Trường hợp phản hồi không thành công
+      return false;
+    } catch (error) {
+      return false;
+    }
+  };
+
+
 
 // Hàm lấy danh sách bài kiểm tra theo userId
 export const getExamsByUserId = async (): Promise<IExam[] | null> => {
@@ -196,31 +278,31 @@ export const createExam = async (
     }
 };
 
-export const updateExam = async (
-  examId: string,
-  updatedData: {
-    title: string;
-    time: string;
-    questionIds: string[];
-  }
-): Promise<boolean> => {
-  try {
-    const response = await apiClient.put(
-      "https://elepla-be-production.up.railway.app/api/Exam/UpdateExam",
-      {
-        examId, // ID bài kiểm tra cần cập nhật
-        ...updatedData, // Dữ liệu mới
-      }
-    );
+// export const updateExam = async (
+//   examId: string,
+//   updatedData: {
+//     title: string;
+//     time: string;
+//     questionIds: string[];
+//   }
+// ): Promise<boolean> => {
+//   try {
+//     const response = await apiClient.put(
+//       "https://elepla-be-production.up.railway.app/api/Exam/UpdateExam",
+//       {
+//         examId, // ID bài kiểm tra cần cập nhật
+//         ...updatedData, // Dữ liệu mới
+//       }
+//     );
 
-    // Kiểm tra phản hồi từ API
-    if (response.status === 200 && response.data.success) {
-      return true; // Cập nhật thành công
-    }
-    console.error("API update failed:", response.data.message);
-    return false; // Cập nhật không thành công
-  } catch (error) {
-    console.error("Error updating exam:", error);
-    return false; // Xử lý lỗi
-  }
-};
+//     // Kiểm tra phản hồi từ API
+//     if (response.status === 200 && response.data.success) {
+//       return true; // Cập nhật thành công
+//     }
+//     console.error("API update failed:", response.data.message);
+//     return false; // Cập nhật không thành công
+//   } catch (error) {
+//     console.error("Error updating exam:", error);
+//     return false; // Xử lý lỗi
+//   }
+// };

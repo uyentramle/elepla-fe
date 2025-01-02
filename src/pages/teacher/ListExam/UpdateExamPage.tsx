@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
   getExamDetailsById,
-  updateExam,
   IExamDetails,
   IExamQuestion,
 } from "@/data/client/ExamData";
-import {IQuestion,} from "@/data/academy-staff/QuestionBankData";
-import { Spin, Alert, Button, Input, message, Modal  } from "antd";
-import AddQuestionExam from "./AddQuestionExam"; // Import AddQuestionExam
+import { Spin, Alert, Button, Modal, message, Input, Form } from "antd";
+import AddNewQuestion from "./AddNewQuestion";
+import { updateExam, IQuestion } from "@/data/client/ExamData"; // Import the updateExam API function
 
 interface UpdateExamPageProps {
   examId: string;
@@ -18,10 +17,12 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [showAnswers, setShowAnswers] = useState<boolean>(false);
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [editedTitle, setEditedTitle] = useState<string>("");
-  const [editedTime, setEditedTime] = useState<number | null>(null);
-  const [isAddQuestionModalVisible, setIsAddQuestionModalVisible] = useState<boolean>(false);
+  const [showAddQuestionModal, setShowAddQuestionModal] = useState<boolean>(false);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
+
+  // Form values for editing title and time
+  const [editTitle, setEditTitle] = useState<string>("");
+  const [editTime, setEditTime] = useState<string>("");
 
   useEffect(() => {
     const fetchExamDetails = async () => {
@@ -31,8 +32,8 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId }) => {
         const data = await getExamDetailsById(examId);
         if (data) {
           setExamDetails(data);
-          setEditedTitle(data.title);
-          setEditedTime(Number(data.time));
+          setEditTitle(data.title);
+          setEditTime(data.time);
         } else {
           setError("Không tìm thấy thông tin bài kiểm tra.");
         }
@@ -44,62 +45,6 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId }) => {
     };
     fetchExamDetails();
   }, [examId]);
-
-  const handleRemoveQuestion = (questionId: string) => {
-    if (!examDetails) return;
-    const updatedQuestions = examDetails.questions.filter(
-      (q) => q.questionId !== questionId
-    );
-    setExamDetails({ ...examDetails, questions: updatedQuestions });
-  };
-
-  const handleCancel = () => {
-    if (!examDetails) return;
-    setEditedTitle(examDetails.title);
-    setEditedTime(Number(examDetails.time));
-    setIsEditing(false);
-  };
-
-  const handleAddQuestions = (newQuestions: IQuestion[]) => {
-    if (!examDetails) return;
-  
-    // Chuyển đổi IQuestion[] thành IExamQuestion[]
-    const convertedQuestions: IExamQuestion[] = newQuestions.map((question, index) => ({
-      ...question,
-      index: examDetails.questions.length + index + 1, // Tạo giá trị `index`
-    }));
-  
-    // Thêm câu hỏi mới vào danh sách hiện tại
-    const updatedQuestions = [
-      ...examDetails.questions,
-      ...convertedQuestions.filter(
-        (newQuestion) =>
-          !examDetails.questions.some((q) => q.questionId === newQuestion.questionId)
-      ), // Loại bỏ câu hỏi trùng lặp
-    ];
-  
-    setExamDetails({ ...examDetails, questions: updatedQuestions });
-    setIsAddQuestionModalVisible(false); // Đóng modal sau khi thêm
-    message.success("Thêm câu hỏi thành công."); // Thông báo thành công
-  };
-
-  const handleSave = async () => {
-    if (!examDetails || !editedTime) return;
-
-    const updatedData = {
-      title: editedTitle,
-      time: editedTime.toString(),
-      questionIds: examDetails.questions.map((q) => q.questionId),
-    };
-
-    const isUpdated = await updateExam(examId, updatedData);
-    if (isUpdated) {
-      message.success("Cập nhật bài kiểm tra thành công.");
-      setIsEditing(false);
-    } else {
-      message.error("Cập nhật bài kiểm tra thất bại.");
-    }
-  };
 
   const renderAnswers = (answers: IExamQuestion["answers"]) => (
     <ul className="list-disc pl-6">
@@ -118,6 +63,67 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId }) => {
     </ul>
   );
 
+  const handleAddQuestions = (selectedQuestions: IQuestion[]) => {
+    if (examDetails) {
+      const mappedQuestions: IExamQuestion[] = selectedQuestions.map((q, index) => ({
+        questionId: q.questionId,
+        question: q.question,
+        type: q.type,
+        plum: q.plum,
+        index: examDetails.questions.length + index + 1,
+        answers: q.answers.map((a) => ({
+          answerId: a.answerId,
+          answerText: a.answerText,
+          isCorrect: a.isCorrect,
+        })),
+      }));
+
+      const updatedQuestions = [...examDetails.questions, ...mappedQuestions];
+      setExamDetails({ ...examDetails, questions: updatedQuestions });
+      setShowAddQuestionModal(false);
+    }
+  };
+
+  const handleRemoveQuestion = (questionIndex: number) => {
+    if (examDetails) {
+      const updatedQuestions = [...examDetails.questions];
+      updatedQuestions.splice(questionIndex, 1);
+      setExamDetails({ ...examDetails, questions: updatedQuestions });
+    }
+  };
+
+  const handleUpdateExam = async () => {
+    if (!editTitle.trim() || !editTime.trim()) {
+      message.error("Vui lòng điền đầy đủ thông tin Tiêu đề bài kiểm tra và Thời gian làm bài.");
+      return;
+    }
+    if (examDetails) {
+      setIsUpdating(true);
+      try {
+        const questionIds = examDetails.questions.map(
+          (question) => question.questionId
+        );
+        const success = await updateExam(
+          examDetails.examId,
+          editTitle,
+          editTime,
+          questionIds
+        );
+
+        if (success) {
+          message.success("Cập nhật bài kiểm tra thành công!");
+          setExamDetails({ ...examDetails, title: editTitle, time: editTime });
+        } else {
+          message.error("Cập nhật bài kiểm tra thất bại!");
+        }
+      } catch (error) {
+        message.error("Đã xảy ra lỗi trong khi cập nhật bài kiểm tra.");
+      } finally {
+        setIsUpdating(false);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -134,96 +140,87 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId }) => {
     );
   }
 
+  if (!examDetails) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Alert message="Thông báo" description="Không có dữ liệu để hiển thị." type="info" showIcon />
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
-        {/* Header */}
-        <h1 className="text-3xl font-bold text-center mb-6">
-          {isEditing ? (
+    <div className="p-0 bg-transparent">
+      <div className="max-w-4xl mx-auto bg-white shadow-none rounded-lg p-6 flex flex-col justify-between h-full border-none">
+        <Form layout="vertical">
+          <Form.Item label="Tiêu đề bài kiểm tra">
             <Input
-              value={editedTitle}
-              onChange={(e) => setEditedTitle(e.target.value)}
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              placeholder="Tên bài kiểm tra"
             />
-          ) : (
-            examDetails?.title
-          )}
-        </h1>
-  
-        {/* Thời gian làm bài */}
-        <p className="text-lg mb-6">
-          <strong>Thời gian làm bài:</strong>{" "}
-          {isEditing ? (
+          </Form.Item>
+          <Form.Item label="Thời gian làm bài">
             <Input
-              type="number"
-              min={1}
-              placeholder="Nhập thời gian (phút)"
-              value={editedTime ? editedTime : ""}
-              onChange={(e) => setEditedTime(Number(e.target.value))}
-              style={{ width: "120px" }}
+              value={editTime}
+              onChange={(e) => setEditTime(e.target.value)}
+              placeholder="Nhập thời gian làm bài (vd: 60 phút)"
             />
-          ) : (
-            `${examDetails?.time}`
-          )}
-        </p>
-  
-        {/* Danh sách câu hỏi */}
+          </Form.Item>
+        </Form>
+
         <Button
-          type="default"
+          type="primary"
           onClick={() => setShowAnswers(!showAnswers)}
-          style={{ marginBottom: "12px" }}
+          className="mb-6 w-auto self-start"
         >
           {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
         </Button>
-  
-        <div>
-          {examDetails?.questions.map((question, index) => (
-            <div key={question.questionId} className="mb-6">
+
+        <div className="mb-8">
+          {examDetails.questions.map((question, index) => (
+            <div key={`${question.questionId}-${index}`} className="mb-6">
               <p className="font-bold text-lg mb-2">
                 Câu {index + 1}: {question.question}
-                {isEditing && (
-                  <Button
-                    type="link"
-                    danger
-                    onClick={() => handleRemoveQuestion(question.questionId)}
-                  >
-                    Xóa
-                  </Button>
-                )}
+                <Button
+                  danger
+                  className="ml-4"
+                  onClick={() => handleRemoveQuestion(index)}
+                >
+                  Xóa
+                </Button>
               </p>
               {renderAnswers(question.answers)}
             </div>
           ))}
         </div>
-  
-        {/* Button Action */}
-        <div className="flex justify-end gap-4 mt-6">
-          {isEditing ? (
-            <>
-              <Button type="default" onClick={() => setIsAddQuestionModalVisible(true)}>
-                Thêm câu hỏi
-              </Button>
-              <Button onClick={handleCancel}>Hủy</Button>
-              <Button type="primary" onClick={handleSave}>
-                Lưu
-              </Button>
-            </>
-          ) : (
-            <Button type="primary" onClick={() => setIsEditing(true)}>
-              Chỉnh sửa
-            </Button>
-          )}
+
+        <Button
+          type="dashed"
+          onClick={() => setShowAddQuestionModal(true)}
+          className="mb-6 w-full"
+        >
+          Thêm câu hỏi
+        </Button>
+
+        <div className="flex justify-center gap-2 mt-auto">
+        <Button
+            type="primary"
+            onClick={handleUpdateExam}
+            loading={isUpdating}
+          >
+            Cập nhật bài kiểm tra
+          </Button>
         </div>
       </div>
-  
-      {/* Modal thêm câu hỏi */}
+
       <Modal
-        title="Thêm câu hỏi vào bài kiểm tra"
-        visible={isAddQuestionModalVisible}
-        onCancel={() => setIsAddQuestionModalVisible(false)}
+        visible={showAddQuestionModal}
+        title="Thêm câu hỏi mới"
+        onCancel={() => setShowAddQuestionModal(false)}
         footer={null}
-        width={800}
+        width={1150}
       >
-        <AddQuestionExam onAddQuestions={handleAddQuestions} />
+        <AddNewQuestion onAddQuestions={handleAddQuestions} />
       </Modal>
     </div>
   );

@@ -297,7 +297,7 @@ export const getAllPlanbooks = async (): Promise<Planbook[]> => {
     }
 }
 
-export const getPlanbookByCollectionId = async (collectionId: string): Promise<{ collectionExists: boolean; items: Planbook[] }> => {
+export const getPlanbookByCollectionId = async (collectionId: string): Promise<Planbook[]> => {
     try {
         const response = await apiClient.get(`Planbook/GetPlanbookByCollectionId`, {
             params: {
@@ -305,24 +305,14 @@ export const getPlanbookByCollectionId = async (collectionId: string): Promise<{
                 pageIndex: -1,
             }
         });
-                
         if (response.data.success) {
-            return {
-                collectionExists: true,
-                items: response.data.data.items
-            };
+            return response.data.data.items;
         } else {
-            return {
-                collectionExists: false,
-                items: [],
-            };
+            throw new Error(response.data.message);
         }
     } catch (error) {
         console.error('Error calling GetPlanbookByCollectionId API:', error);
-        return {
-            collectionExists: false,
-            items: [],
-        };
+        return [];
     }
 }
 

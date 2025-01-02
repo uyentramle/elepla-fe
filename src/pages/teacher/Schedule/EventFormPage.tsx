@@ -84,7 +84,7 @@ const CreateEventPage: React.FC = () => {
         setSelectedCollection(value);
         try {
             const planbookData = await getPlanbookByCollectionId(value);
-            setPlanbooks(planbookData.items);
+            setPlanbooks(planbookData);
         } catch (error) {
             console.error("Error fetching planbooks:", error);
         }
@@ -193,26 +193,42 @@ const handlePlanbookSelect = (value: string) => {
                         <Form.Item
                             label="Giờ kết thúc"
                             name="endTime"
-                            rules={[{ required: true, message: 'Vui lòng nhập thời gian kết thúc!' }]}>
+                            rules={[
+                                { required: true, message: 'Vui lòng nhập thời gian kết thúc!' },
+                                ({ getFieldValue }) => ({
+                                    validator(_, value) {
+                                        if (!value || value.isAfter(getFieldValue('startTime'))) {
+                                            return Promise.resolve();
+                                        }
+                                        return Promise.reject(new Error('Giờ kết thúc phải lớn hơn giờ bắt đầu!'));
+                                    },
+                                }),
+                            ]}
+                        >
                             <TimePicker format="HH:mm" style={{ width: '100%' }} />
                         </Form.Item>
                     </div>
 
                     <Form.Item
-                        label="Tên lớp"
-                        name="className">
-                        <Input placeholder="Tên lớp" />
-                    </Form.Item>
+                                label="Tên lớp"
+                                name="className"
+                                rules={[{ required: true, message: 'Vui lòng nhập tên lớp!' }]}
+                            >
+                                <Input placeholder="Tên lớp" />
+                            </Form.Item>
 
-                    <Form.Item label="Liên kết kế hoạch giảng dạy" name="planbookId">
-                        <Button onClick={() => setIsModalOpen(true)}>Chọn kế hoạch giảng dạy</Button>
-                        {/* Hiển thị kế hoạch đã chọn */}
-                        {formData.planbookId && (
-                            <div style={{ marginTop: '10px' }}>
-                                <span><strong>Kế hoạch đã chọn: </strong>{formData.planbookTitle}</span>
-                            </div>
-                        )}
-                    </Form.Item>
+                            <Form.Item
+                                label="Liên kết kế hoạch giảng dạy"
+                                name="planbookId"
+                            >
+                                <Button onClick={() => setIsModalOpen(true)}>Chọn kế hoạch giảng dạy</Button>
+                                {/* Hiển thị kế hoạch đã chọn */}
+                                {formData.planbookId && (
+                                    <div style={{ marginTop: '10px' }}>
+                                        <span><strong>Kế hoạch đã chọn: </strong>{formData.planbookTitle}</span>
+                                    </div>
+                                )}
+                            </Form.Item>
 
                     <Form.Item
                         label="Mô tả"
@@ -275,23 +291,33 @@ const handlePlanbookSelect = (value: string) => {
                         </Select>
                     </div>
                 )}
-
                 <div className="mt-4">
-                    <Button 
-                        type="primary" 
+                    <Button
+                        type="primary"
                         onClick={() => {
-                            if (formData.planbookId) {
-                                setFormData((prevState) => ({
-                                    ...prevState,
-                                    planbookId: formData.planbookId,
-                                }));
-                                setIsModalOpen(false);
+                            if (!selectedCollection) {
+                                message.error("Vui lòng chọn bộ sưu tập!");
+                                return;
                             }
+
+                            if (!formData.planbookId) {
+                                message.error("Vui lòng chọn kế hoạch giảng dạy!");
+                                return;
+                            }
+
+                            // Lưu kế hoạch giảng dạy đã chọn
+                            setFormData((prevState) => ({
+                                ...prevState,
+                                planbookId: formData.planbookId,
+                            }));
+
+                            setIsModalOpen(false);
                         }}
                     >
                         OK
                     </Button>
                 </div>
+
             </Modal>
         </>
     );
