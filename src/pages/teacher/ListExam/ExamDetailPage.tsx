@@ -5,6 +5,8 @@ import {
   IExamQuestion,
   exportExamToWord,
   exportExamToPdf,
+  exportExamWithAnswersToWord, // API cho Word kèm đáp án
+  exportExamWithAnswersToPdf, // API cho PDF kèm đáp án
 } from "@/data/client/ExamData";
 import { Spin, Alert, Button } from "antd";
 
@@ -35,43 +37,31 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
     fetchExamDetails();
   }, [examId]);
 
-  const handleExportWord = async () => {
+  const handleExportFile = async (
+    exportFunction: (examId: string) => Promise<Blob | null>,
+    fileType: string,
+    includeAnswers: boolean
+  ) => {
     if (!examDetails) return;
     try {
-      const blob = await exportExamToWord(examId);
+      const blob = await exportFunction(examId);
       if (blob) {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
+        const suffix = includeAnswers ? "_with_answers" : "";
         link.href = url;
-        link.setAttribute("download", `${examDetails.title || "Exam"}.docx`);
+        link.setAttribute(
+          "download",
+          `${examDetails.title || "Exam"}${suffix}.${fileType}`
+        );
         document.body.appendChild(link);
         link.click();
         link.parentNode?.removeChild(link);
       } else {
-        alert("Xuất file Word không thành công!");
+        alert(`Xuất file ${fileType.toUpperCase()} không thành công!`);
       }
     } catch (error) {
-      alert("Đã xảy ra lỗi khi xuất file Word!");
-    }
-  };
-
-  const handleExportPdf = async () => {
-    if (!examDetails) return;
-    try {
-      const blob = await exportExamToPdf(examId);
-      if (blob) {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `${examDetails.title || "Exam"}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode?.removeChild(link);
-      } else {
-        alert("Xuất file PDF không thành công!");
-      }
-    } catch (error) {
-      alert("Đã xảy ra lỗi khi xuất file PDF!");
+      alert(`Đã xảy ra lỗi khi xuất file ${fileType.toUpperCase()}!`);
     }
   };
 
@@ -117,32 +107,32 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
   }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
+    <div className="p-0 bg-transparent">
+        <div className="max-w-4xl mx-auto bg-white shadow-none rounded-lg p-6 flex flex-col justify-between h-full border-none">
         {/* Header */}
         <h1 className="text-3xl font-bold text-center mb-6">{examDetails.title}</h1>
-
-        {/* Buttons */}
-        <div className="flex flex-wrap justify-center gap-4 mb-8">
-          <Button onClick={handleExportWord}>Xuất file Word</Button>
-          <Button onClick={handleExportPdf}>Xuất file PDF</Button>
-        </div>
-
-        <div className="flex flex-wrap justify-center gap-4 mb-6">
-          <Button disabled>Xuất Word (kèm đáp án)</Button>
-          <Button disabled>Xuất PDF (kèm đáp án)</Button>
-        </div>
-
+  
         {/* Thời gian làm bài */}
         <p className="text-lg mb-6">
           <strong>Thời gian làm bài:</strong> {examDetails.time}
         </p>
-        <Button type="primary" onClick={() => setShowAnswers(!showAnswers)} style={{marginBottom: "12px" }}>
-            {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
-          </Button>
-
+  
+        {/* Hiển thị đáp án button */}
+        <Button
+          type="primary"
+          onClick={() => setShowAnswers(!showAnswers)}
+          className="mb-6 w-auto self-start"
+          style={{
+            fontSize: "0.875rem", // Smaller button text
+            border: "none", // Loại bỏ viền button
+            boxShadow: "none", // Loại bỏ shadow nếu có
+          }}
+        >
+          {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
+        </Button>
+  
         {/* Danh sách câu hỏi */}
-        <div>
+        <div className="mb-8">
           {examDetails.questions.map((question, index) => (
             <div key={question.questionId} className="mb-6">
               <p className="font-bold text-lg mb-2">
@@ -152,9 +142,39 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
             </div>
           ))}
         </div>
+  
+        {/* Buttons */}
+        <div className="flex justify-center gap-2 mt-auto">
+            <Button
+              onClick={() => handleExportFile(exportExamToWord, "docx", false)}
+              className="custom-button"
+            >
+              Xuất file Word
+            </Button>
+            <Button
+              onClick={() => handleExportFile(exportExamToPdf, "pdf", false)}
+              className="custom-button"
+            >
+              Xuất file PDF
+            </Button>
+            <Button
+              onClick={() => handleExportFile(exportExamWithAnswersToWord, "docx", true)}
+              className="custom-button"
+            >
+              Xuất Word (kèm đáp án)
+            </Button>
+            <Button
+              onClick={() => handleExportFile(exportExamWithAnswersToPdf, "pdf", true)}
+              className="custom-button"
+            >
+              Xuất PDF (kèm đáp án)
+            </Button>
+          </div>
       </div>
     </div>
   );
+  
+  
 };
 
 export default ExamDetailPage;
