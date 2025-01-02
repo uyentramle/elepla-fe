@@ -84,7 +84,7 @@ const CreateEventPage: React.FC = () => {
         setSelectedCollection(value);
         try {
             const planbookData = await getPlanbookByCollectionId(value);
-            setPlanbooks(planbookData);
+            setPlanbooks(planbookData.items);
         } catch (error) {
             console.error("Error fetching planbooks:", error);
         }

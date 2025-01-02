@@ -84,7 +84,7 @@ const UpdatePlanbookForm: React.FC<UpdatePlanbookProps> = ({ planbookId, isVisib
         };
 
         fetchData();
-    }, [planbookId, form]);
+    }, [planbookId, form, isVisible]);
 
     const handleUpdate = async (values: UpdatePlanbookTemplate) => {
         setLoading(true);
@@ -94,7 +94,7 @@ const UpdatePlanbookForm: React.FC<UpdatePlanbookProps> = ({ planbookId, isVisib
                 message.success("Cập nhật thành công!");
                 // onClose(); // Đóng modal sau khi cập nhật thành công
             } else {
-                message.error("Cập nhật thất bại!");
+                message.error("Bạn không có quyền cập nhật kế hoạch bài dạy này.");
             }
         } catch (error) {
             message.error("Đã xảy ra lỗi khi cập nhật.");
@@ -124,7 +124,7 @@ const UpdatePlanbookForm: React.FC<UpdatePlanbookProps> = ({ planbookId, isVisib
             width={850} // Điều chỉnh chiều rộng modal
             style={{ top: '5vh' }}
         >
-            <div className="container mx-auto px-4 py-8">
+            <div className="container mx-auto px-4 mt-7">
                 {loading ? (
                     <div className="flex justify-center items-center h-full">
                         <Spin size="large" />

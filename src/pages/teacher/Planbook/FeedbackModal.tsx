@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Feedback, getFeedbackByPlanbookId, CreateFeedback, submitFeedback, hardDeleteFeedback, UpdateFeedback, updateFeedback } from '@/data/academy-staff/FeedbackData';
-import { Spin, Input, Button, Rate, message, Dropdown, Menu, Modal } from 'antd';
+import { Feedback, getFeedbackByPlanbookId, CreateFeedback, submitFeedback, hardDeleteFeedback, UpdateFeedback, updateFeedback, flagComment } from '@/data/academy-staff/FeedbackData';
+import { Spin, Input, Button, Rate, message, Dropdown, Menu, Modal, Radio } from 'antd';
 import { StarFilled, EditOutlined, DeleteOutlined, EllipsisOutlined, FlagOutlined } from '@ant-design/icons';
 import { getUserId } from '@/data/apiClient';
 
@@ -19,6 +19,7 @@ const FeedbackModal: React.FC<{
     const [editingFeedbackId, setEditingFeedbackId] = useState<string | null>(null);  // Trạng thái lưu ID của feedback đang chỉnh sửa
     const [editedContent, setEditedContent] = useState<string>('');
     const [editedRating, setEditedRating] = useState<number>(0);
+    const [isReportModalVisible, setIsReportModalVisible] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -98,6 +99,11 @@ const FeedbackModal: React.FC<{
     };
 
     const handleMenuClick = async (key: string, feedbackId: string) => {
+        if (!getUserId()) { // Kiểm tra nếu chưa đăng nhập
+            message.info('Vui lòng đăng nhập để thực hiện hành động này.');
+            return; // Dừng xử lý nếu người dùng chưa đăng nhập
+        }
+        
         const selectedFeedback = feedbacks.find(feedback => feedback.feedbackId === feedbackId);
         switch (key) {
             case "edit":
@@ -112,7 +118,8 @@ const FeedbackModal: React.FC<{
                 setIsDeleteModalVisible(true); // Hiển thị Modal xác nhận
                 break;
             case "report":
-                message.info("Chức năng báo cáo vi phạm đang được phát triển.");
+                setSelectedFeedback(feedbackId); // Lưu ID Feedback được chọn
+                setIsReportModalVisible(true); // Hiển thị Modal báo cáo
                 break;
             default:
                 break;
@@ -142,11 +149,11 @@ const FeedbackModal: React.FC<{
     const handleUpdate = async (feedbackId: string) => {
         const updatedFeedback: UpdateFeedback = {
             feedbackId: feedbackId,
-            content: editedContent, 
-            rate: editedRating, 
-            teacherId: getUserId()!, 
-            planbookId: planbookId, 
-            type: "planbook", 
+            content: editedContent,
+            rate: editedRating,
+            teacherId: getUserId()!,
+            planbookId: planbookId,
+            type: "planbook",
         };
 
         const success = await updateFeedback(updatedFeedback); // Gửi dữ liệu lên API
@@ -158,6 +165,18 @@ const FeedbackModal: React.FC<{
             message.error("Lưu thay đổi thất bại");
         }
     };
+
+    const handleReportSubmit = async () => {
+        const success = await flagComment(selectedFeedback!);
+
+        if (success) {
+            message.success("Đã báo cáo");
+        } else {
+            message.error("Báo cáo thất bại");
+        }
+
+        setIsReportModalVisible(false); // Đóng Modal
+    }
 
     return (
         <div
@@ -191,7 +210,7 @@ const FeedbackModal: React.FC<{
                                 <div key={feedback.feedbackId} className="mt-4">
                                     <div className="flex items-start">
                                         <img
-                                            src={feedback.avatar} 
+                                            src={feedback.avatar}
                                             className={`w-9 h-9 rounded-full mr-4 border ${!feedback.avatar ? 'bg-gray-300' : ''}`}
                                         />
                                         <div className="flex-1">
@@ -295,22 +314,33 @@ const FeedbackModal: React.FC<{
                     )}
 
                     {/* Ô nhập bình luận */}
+                    {getUserId() && (
                     <div className="mt-4 p-4 border-t border-gray-300 ml-5">
                         <TextArea
                             placeholder="Nhập bình luận của bạn..."
                             autoSize={{ minRows: 1, maxRows: 3 }}
                             value={comment}
-                            onChange={(e) => setComment(e.target.value)} // Lưu giá trị nhập vào state
+                            onChange={(e) => {
+                                const input = e.target.value;
+                                if (input.length <= 500) {
+                                    setComment(input); // Chỉ cập nhật nếu dưới 200 ký tự
+                                }
+                            }} // Lưu giá trị nhập vào state
                             onFocus={handleFocus} // Kích hoạt khi người dùng click vào ô nhập liệu
                         />
                         {isActiveComment && (
                             <div className="mt-2 flex flex-col gap-3">
-                                <Rate
-                                    value={rating}
-                                    onChange={(value) => setRating(value)} // Lưu giá trị sao
-                                    style={{ fontSize: '16px' }}
-                                // className="flex justify-end"
-                                />
+                                <div className="flex justify-between items-center">
+                                    <Rate
+                                        value={rating}
+                                        onChange={(value) => setRating(value)} // Lưu giá trị sao
+                                        style={{ fontSize: '16px' }}
+                                    // className="flex justify-end"
+                                    />
+                                    <span className="text-sm text-gray-500">
+                                        {comment.length}/500
+                                    </span>
+                                </div>
                                 <div className="flex justify-end gap-2">
                                     <Button onClick={handleCancel}>Hủy</Button>
                                     <Button
@@ -324,6 +354,7 @@ const FeedbackModal: React.FC<{
                             </div>
                         )}
                     </div>
+                    )}
                 </>
             )}
 
@@ -337,6 +368,34 @@ const FeedbackModal: React.FC<{
                 okButtonProps={{ danger: true }} // Nút Xóa màu đỏ
             >
                 <p>Bạn có chắc muốn xóa bình luận này không?</p>
+            </Modal>
+
+            <Modal
+                title={<div className="text-center w-full">Báo cáo</div>} // Căn giữa tiêu đề
+                visible={isReportModalVisible}
+                onCancel={() => setIsReportModalVisible(false)} // Đóng Modal
+                footer={[
+                    <Button key="cancel" onClick={() => setIsReportModalVisible(false)}>
+                        Hủy
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={() => handleReportSubmit()}>
+                        Báo cáo vi phạm
+                    </Button>,
+                ]}
+            >
+                <p className="font-semibold mb-2">Nội dung có vấn đề gì?</p>
+                <p className="mb-2">
+                    Chúng tôi sẽ kiểm tra theo tất cả Nguyên tắc cộng đồng, nên bạn đừng lo lắng về việc phải lựa chọn sao cho chính xác nhất.
+                </p>
+                <Radio.Group className="flex flex-col gap-2">
+                    <Radio value="nudity">Nội dung khiêu dâm</Radio>
+                    <Radio value="violence">Nội dung bạo lực hoặc phản cảm</Radio>
+                    <Radio value="hateSpeech">Nội dung lăng mạ hoặc kích động thù hận</Radio>
+                    <Radio value="harassment">Nội dung quấy rối hoặc bắt nạt</Radio>
+                    <Radio value="danger">Hành động gây hại hoặc nguy hiểm</Radio>
+                    <Radio value="misinformation">Thông tin sai lệch</Radio>
+                    <Radio value="children">Nội dung liên quan đến việc ngược đãi trẻ</Radio>
+                </Radio.Group>
             </Modal>
         </div>
     );

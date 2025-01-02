@@ -25,7 +25,7 @@ export const fetchUserPackageList = async (): Promise<IViewListUserPackage[]> =>
     try {
         const response = await apiClient.get(`UserPackage/GetAllUserPackages`, {
             params: {
-                pageNumber: 0,
+                pageIndex: -1,
                 pageSize: 1000,
             },
         });

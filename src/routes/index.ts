@@ -18,6 +18,7 @@ import ForgotPasswordPage from '@/pages/authen/ForgotPassword/ForgotPasswordPage
 import ListArticlePage from '@/pages/client/Article/ListArticlePage';
 import ArticleDetailPage from '@/pages/client/Article/ArticleDetailPage';
 import QuestionBankPage from '@/pages/client/QuestionBank/QuestionBankPage';
+import PackagePage from '@/pages/client/Package/PackagePage';
 
 // Admin
 import DashBoardPage from '../pages/admin/DashBoard/DashBoardPage';
@@ -64,12 +65,13 @@ import CollectionPage from '@/pages/teacher/Planbook/CollectionPage';
 import PlanbookPage from '@/pages/teacher/Planbook/PlanbookPage';
 import SavedCollectionPage from '@/pages/teacher/Planbook/SavedCollectionPage';
 import SavedPlanbookPage from '@/pages/teacher/Planbook/SavedPlanbookPage';
-import PackageDetailPage from '@/pages/teacher/User/PackageDetailPage';
+// import PackageDetailPage from '@/pages/teacher/User/PackageDetailPage';
 import EventFormPage from '@/pages/teacher/Schedule/EventFormPage';
 import ExamPage from '@/pages/teacher/Exam/ExamPage';
 import ListExamPage from '@/pages/teacher/ListExam/ListExamPage';
 import PlanbookDetailPage from '@/pages/teacher/Planbook/PlanbookDetailPage';
 import PlanbookSharePage from '@/pages/teacher/Planbook/PlanbookSharePage';
+import PlanbooksLibraryPage from '@/pages/teacher/Planbook/PlanbookLibraryPage';
 
 interface RouteProps {
     path: string;
@@ -86,7 +88,7 @@ const publicRoutes: RouteProps[] = [
     { path: '/coming-soon', component: ComingSoonPage, layout: DefaultClientLayout },
     { path: '/articles', component: ListArticlePage, layout: DefaultClientLayout },
     { path: '/planbook-library', component: PlanbookLibraryPage, layout: DefaultClientLayout },
-    { path: '/package-detail', component: PackageDetailPage, layout: DefaultClientLayout },
+    { path: '/package-detail', component: PackagePage, layout: DefaultClientLayout },
     { path: '/articles/:id', component: ArticleDetailPage, layout: DefaultClientLayout },
     { path: '/question-bank', component: QuestionBankPage, layout: DefaultClientLayout },
 ];
@@ -152,7 +154,7 @@ const teacherRoutes: RouteProps[] = [
     { path: '/teacher/schedule/edit/:id', component: EventFormPage, layout: DefaultTeacherLayout },
     { path: '/teacher/question-bank/', component: QuestionBankPage, layout: DefaultTeacherLayout },
     { path: '/teacher/exam', component: ExamPage, layout: DefaultTeacherLayout },
-    { path: '/teacher/planbook-library', component:PlanbookLibraryPage , layout: DefaultTeacherLayout },
+    { path: '/teacher/planbook-library', component:PlanbooksLibraryPage , layout: DefaultTeacherLayout },
     { path: '/teacher/list-exam', component:ListExamPage , layout: DefaultTeacherLayout },
     { path: '/teacher/planbook/:id', component: PlanbookDetailPage, layout: DefaultTeacherLayout },
     { path: '/teacher/planbook-shared', component: PlanbookSharePage, layout: DefaultTeacherLayout },
