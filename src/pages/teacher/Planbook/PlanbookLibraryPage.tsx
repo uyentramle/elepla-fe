@@ -11,7 +11,7 @@ import { getAllGrade, IViewListGrade } from "@/data/admin/GradeData";
 
 const { Option, OptGroup } = Select;
 
-const PlanbookLibraryPage: React.FC = () => {
+const PlanbooksLibraryPage: React.FC = () => {
   const [planbooks, setPlanbooks] = useState<Planbook[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedPlanbook, setSelectedPlanbook] = useState<string | null>(null);
@@ -31,7 +31,7 @@ const PlanbookLibraryPage: React.FC = () => {
   const [filterCurriculum, setFilterCurriculum] = useState<string[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]); // Lưu trữ các giá trị đã chọn
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const pageSize = 15; // Số lượng planbook mỗi trang
+  const pageSize = 12; // Số lượng planbook mỗi trang
 
   useEffect(() => {
     const fetchPlanbooks = async () => {
@@ -340,7 +340,7 @@ const PlanbookLibraryPage: React.FC = () => {
           </OptGroup>
         </Select>
       </div>
-      <div className="grid grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {currentPlanbooks.map((planbook) => (
           <Card
             key={planbook.planbookId}
@@ -354,11 +354,9 @@ const PlanbookLibraryPage: React.FC = () => {
                   <Menu.Item key="detail" icon={<BlockOutlined />}>
                     Chi tiết
                   </Menu.Item>
-                  {getUserId() && (
                   <Menu.Item key="save" icon={<SaveOutlined />}>
                     Lưu
                   </Menu.Item>
-                  )}
                 </Menu>
               }
               trigger={['click']}
@@ -534,4 +532,4 @@ const PlanbookLibraryPage: React.FC = () => {
   );
 };
 
-export default PlanbookLibraryPage;
+export default PlanbooksLibraryPage;

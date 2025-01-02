@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Form, Input, Button, Checkbox, /*Steps,*/ message, GetProp } from 'antd';
-import { LineOutlined, CheckCircleFilled, CheckOutlined, LoadingOutlined } from '@ant-design/icons';
+import { LineOutlined, CheckCircleFilled, CheckOutlined, LoadingOutlined, HomeFilled } from '@ant-design/icons';
 import type { OTPProps } from 'antd/es/input/OTP';
 import { Link } from "react-router-dom";
 import {
@@ -195,7 +195,10 @@ const SignUpPage: React.FC = () => {
                     <div className="grid xl:grid-cols-5 lg:grid-cols-3 md:grid-cols-2 gap-6">
                         <div className="xl:col-span-2 lg:col-span-1 min-h-[500px]">
                             <div className="bg-sky-600 text-white gap-10 h-full w-full p-7 space-y-6 lg:space-y-0">
-                                <span className="font-semibold tracking-widest uppercase">Elepla</span>
+                                <Link to="/" className="flex items-center gap-2">
+                                    <HomeFilled />
+                                    <span className="font-semibold tracking-widest uppercase">Elepla</span>
+                                </Link>                                
                                 <div className="flex flex-col justify-center text-center h-full">
                                     <h1 className="text-3xl mb-4">Chào mừng trở lại!</h1>
                                     <p className="text-gray-200 font-normal leading-relaxed">Hãy đăng nhập để tiếp tục công việc xây dựng kế hoạch bài dạy của bạn.</p>

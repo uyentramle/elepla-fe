@@ -268,6 +268,8 @@ export interface Planbook {
     lessonId: string;
     lessonName: string;
     chapterName: string;
+    commentCount: number;
+    averageRate: number;
     createdAt: string;
     createdBy: string;
     updatedAt: string;
@@ -295,7 +297,7 @@ export const getAllPlanbooks = async (): Promise<Planbook[]> => {
     }
 }
 
-export const getPlanbookByCollectionId = async (collectionId: string): Promise<Planbook[]> => {
+export const getPlanbookByCollectionId = async (collectionId: string): Promise<{ collectionExists: boolean; items: Planbook[] }> => {
     try {
         const response = await apiClient.get(`Planbook/GetPlanbookByCollectionId`, {
             params: {
@@ -303,14 +305,24 @@ export const getPlanbookByCollectionId = async (collectionId: string): Promise<P
                 pageIndex: -1,
             }
         });
+                
         if (response.data.success) {
-            return response.data.data.items;
+            return {
+                collectionExists: true,
+                items: response.data.data.items
+            };
         } else {
-            throw new Error(response.data.message);
+            return {
+                collectionExists: false,
+                items: [],
+            };
         }
     } catch (error) {
         console.error('Error calling GetPlanbookByCollectionId API:', error);
-        return [];
+        return {
+            collectionExists: false,
+            items: [],
+        };
     }
 }
 

@@ -48,7 +48,7 @@ const PlanbookShareDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, is
         };
 
         fetchData();
-    }, [planbookId, planbook?.averageRate, planbook?.commentCount]);
+    }, [planbookId, planbook?.averageRate, planbook?.commentCount, isVisible]);
 
     useEffect(() => {
         const fetchUserPackage = async () => {
@@ -156,7 +156,7 @@ const PlanbookShareDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, is
                     </div>
                 ]}
                 width={modalWidth} // Điều chỉnh chiều rộng modal
-                style={{ top: '5vh' }}
+                style={{ top: '4vh' }}
             // closeIcon={
             //     <CloseOutlined
             //         style={{
@@ -168,7 +168,7 @@ const PlanbookShareDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, is
                 <div className="flex mt-7">
                     <div className="container mx-auto px-4"
                         style={{
-                            maxHeight: '585px',  // Giới hạn chiều cao của thẻ div
+                            maxHeight: 'calc(100vh - 166px)',  // Giới hạn chiều cao của thẻ div
                             overflowY: 'auto',   // Thêm thanh cuộn khi chiều cao vượt quá maxHeight
                             scrollbarWidth: 'thin',
                         }}
@@ -183,12 +183,12 @@ const PlanbookShareDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, is
                                 <div
                                     style={{
                                         position: 'fixed', // Đặt thẻ cố định trên màn hình
-                                        top: '300px',       // Vị trí từ trên xuống
-                                        left: isRightVisible ? '80px' : '280px', // Điều chỉnh giá trị left dựa trên trạng thái isRightVisible
-                                        zIndex: 999,        // Đảm bảo thẻ nằm trên tất cả các thành phần khác
-                                        display: 'flex',    // Sử dụng Flexbox để căn chỉnh các nút
+                                        top: 'calc(50vh - 150px)', // Tính toán vị trí top động (50% chiều cao màn hình trừ đi 150px)
+                                        left: isRightVisible ? '6vw' : '19vw', // Điều chỉnh left dựa trên trạng thái isRightVisible (dùng vw để linh hoạt)
+                                        zIndex: 999, // Đảm bảo thẻ nằm trên tất cả các thành phần khác
+                                        display: 'flex', // Sử dụng Flexbox để căn chỉnh các nút
                                         flexDirection: 'column', // Sắp xếp các thẻ theo chiều dọc
-                                        gap: '12px',         // Khoảng cách giữa các nút
+                                        gap: '12px', // Khoảng cách giữa các nút (dùng vh để tỷ lệ với chiều cao viewport)
                                     }}
                                 >
                                     <div

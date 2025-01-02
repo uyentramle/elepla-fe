@@ -181,6 +181,20 @@ export const updateFeedback = async (data: UpdateFeedback): Promise<boolean> => 
     }
 }
 
+export const flagComment = async (feedbackId: string): Promise<boolean> => {
+    try {
+        const response = await apiClient.post(`/Feedback/FlagComment?feedbackId=${feedbackId}`);
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error flagging feedback:', error);
+        return false;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export interface IFeedbackData {
     id: string;

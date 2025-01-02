@@ -71,11 +71,11 @@ const UpdateSubjectInCurriculumForm: React.FC<UpdateSubjectFormProps> = ({ subje
             setLoading(true);
             const success = await updateSubjectInCurriculumFunction({ ...values, subjectInCurriculumId });
             if (success) {
-                message.success("Cập nhật môn học trong khung chương trình thành công");
+                message.success("Cập nhật môn học thành công");
                 form.resetFields();
                 onClose();
             } else {
-                message.error("Môn học trong khung chương trình đã tồn tại");
+                message.error("Môn học này đã tồn tại trong khung chương trình");
             }
         } catch (error) {
             console.error("Failed to validate form", error);

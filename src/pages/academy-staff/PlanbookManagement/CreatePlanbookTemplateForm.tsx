@@ -210,9 +210,9 @@ const CreatePlanbookTemplateForm: React.FC<CreatePlanbookTemplateFormProps> = ({
                                 onChange={handleCurriculumOrGradeChange} // Trigger fetch when grade changes
                             />
                         </Form.Item>
-                        <Form.Item label="Chọn Môn học trong Chương trình" name="subjectInCurriculumId" rules={[{ required: true }]}>
+                        <Form.Item label="Chọn Môn học" name="subjectInCurriculumId" rules={[{ required: true }]}>
                             <Select
-                                options={subjectsInCurriculum.map((item) => ({ value: item.subjectInCurriculumId, label: item.name }))}
+                                options={subjectsInCurriculum.map((item) => ({ value: item.subjectInCurriculumId, label: item.subject }))}
                                 onChange={handleSubjectInCurriculumSelect}
                             />
                         </Form.Item>
