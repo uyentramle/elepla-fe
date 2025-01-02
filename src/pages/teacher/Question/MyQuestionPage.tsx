@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"; 
 import { Table, Button, Modal, message, Dropdown, Menu, Select, Input, Spin,Empty  } from "antd";
-import { fetchQuestionsByUserId, deleteQuestion, IQuestion } from "@/data/academy-staff/QuestionBankData";
+import { fetchQuestionsByUserId, deleteQuestion, IQuestion, PlumLevel,QuestionType } from "@/data/academy-staff/QuestionBankData";
 import { getAllCurriculumFramework, IViewListCurriculum } from "@/data/admin/CurriculumFramworkData";
 import { getAllSubject, IViewListSubject } from "@/data/admin/SubjectData";
 import { getAllGrade, IViewListGrade } from "@/data/admin/GradeData";
@@ -194,6 +194,19 @@ const MyQuestionPage: React.FC = () => {
     setSelectedQuestion(null);
   };
 
+    const questionTypeMap: Record<QuestionType, string> = {
+      "multiple choice": "Câu hỏi trắc nghiệm",
+      "True/False": "Câu hỏi đúng sai",
+      "Short Answer": "Câu trả lời ngắn",
+    };
+    
+    const plumLevelMap: Record<PlumLevel, string> = {
+      easy: "Dễ",
+      medium: "Trung bình",
+      hard: "Khó",
+    };
+    
+
   return (
     <div>
       <h1 className="text-2xl font-semibold mb-4 text-center">Câu hỏi của tôi</h1>
@@ -285,70 +298,70 @@ const MyQuestionPage: React.FC = () => {
               className="mt-4"
             />
           )}
-      <Modal
-        title="Chi tiết câu hỏi"
-        visible={isDetailModalVisible}
-        onCancel={handleCloseDetailModal}
-        footer={null}
-        width={800} // Tăng chiều rộng modal
-        bodyStyle={{ padding: "20px" }} // Căn chỉnh khoảng cách bên trong modal
-      >
-        {selectedQuestion ? (
-          <div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 4fr", // Chia layout 2 cột với khoảng cách gần hơn
-                gap: "4px", // Giảm khoảng cách giữa các cột
-                lineHeight: "1.6",
-              }}
-            >
-              <p><strong>Câu hỏi:</strong></p>
-              <p>{selectedQuestion.question}</p>
+        <Modal
+          title="Chi tiết câu hỏi"
+          visible={isDetailModalVisible}
+          onCancel={handleCloseDetailModal}
+          footer={null}
+          width={800}
+          bodyStyle={{ padding: "20px" }}
+        >
+          {selectedQuestion ? (
+            <div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 4fr",
+                  gap: "4px",
+                  lineHeight: "1.6",
+                }}
+              >
+                <p><strong>Câu hỏi:</strong></p>
+                <p>{selectedQuestion.question}</p>
 
-              <p><strong>Loại câu hỏi:</strong></p>
-              <p>{selectedQuestion.type}</p>
+                <p><strong>Loại câu hỏi:</strong></p>
+                <p>{questionTypeMap[selectedQuestion.type]}</p>
 
-              <p><strong>Độ khó (Plum):</strong></p>
-              <p>{selectedQuestion.plum}</p>
+                <p><strong>Độ khó (Plum):</strong></p>
+                <p>{plumLevelMap[selectedQuestion.plum]}</p>
 
-              <p><strong>Chương:</strong></p>
-              <p>{selectedQuestion.chapterName}</p>
+                <p><strong>Chương:</strong></p>
+                <p>{selectedQuestion.chapterName}</p>
 
-              <p><strong>Bài:</strong></p>
-              <p>{selectedQuestion.lessonName || "N/A"}</p>
+                <p><strong>Bài:</strong></p>
+                <p>{selectedQuestion.lessonName || "N/A"}</p>
 
-              <p><strong>Ngày chỉnh sửa:</strong></p>
+                <p><strong>Ngày chỉnh sửa:</strong></p>
+                <p>
+                  {selectedQuestion.updatedAt
+                    ? new Date(selectedQuestion.updatedAt).toLocaleDateString()
+                    : "Chưa được chỉnh sửa"}
+                </p>
+              </div>
+
+              <p style={{ marginTop: "20px" }}><strong>Câu trả lời:</strong></p>
+              <ol type="A" style={{ paddingLeft: "20px", marginBottom: "10px" }}>
+                {selectedQuestion.answers.map((answer, index) => (
+                  <li key={answer.answerId} style={{ marginBottom: "5px" }}>
+                    {String.fromCharCode(65 + index)}. {answer.answerText}
+                  </li>
+                ))}
+              </ol>
+
               <p>
-                {selectedQuestion.updatedAt
-                  ? new Date(selectedQuestion.updatedAt).toLocaleDateString()
-                  : "Chưa được chỉnh sửa"}
+                <strong>Câu trả lời đúng:</strong>{" "}
+                {selectedQuestion.answers
+                  .map((answer, index) => (answer.isCorrect ? String.fromCharCode(65 + index) : null))
+                  .filter(Boolean)
+                  .join(", ")}
               </p>
             </div>
-
-            <p style={{ marginTop: "20px" }}><strong>Câu trả lời:</strong></p>
-            <ol type="A" style={{ paddingLeft: "20px", marginBottom: "10px" }}> {/* Danh sách đáp án */}
-              {selectedQuestion.answers.map((answer, index) => (
-                <li key={answer.answerId} style={{ marginBottom: "5px" }}>
-                  {String.fromCharCode(65 + index)}. {answer.answerText}
-                </li>
-              ))}
-            </ol>
-
-            <p>
-              <strong>Câu trả lời đúng:</strong>{" "}
-              {selectedQuestion.answers
-                .map((answer, index) => (answer.isCorrect ? String.fromCharCode(65 + index) : null))
-                .filter(Boolean) // Loại bỏ các giá trị null
-                .join(", ")}
-            </p>
-          </div>
-        ) : (
-          <div className="flex justify-center items-center h-32">
-            <Spin size="large" />
-          </div>
-        )}
-      </Modal>
+          ) : (
+            <div className="flex justify-center items-center h-32">
+              <Spin size="large" />
+            </div>
+          )}
+        </Modal>
 
 
 

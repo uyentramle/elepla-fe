@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Typography, Table, Button, Modal, message, Dropdown, Menu, Spin } from "antd";
-import { fetchAllQuestions, deleteQuestion, IQuestion } from "@/data/academy-staff/QuestionBankData";
+import { fetchAllQuestions, deleteQuestion, IQuestion,PlumLevel,QuestionType  } from "@/data/academy-staff/QuestionBankData";
 import { Link } from "react-router-dom";
 import { PlusOutlined, MoreOutlined } from "@ant-design/icons";
 import Filters from "@/pages/teacher/Exam/Filters";
@@ -156,24 +156,61 @@ const QuestionBankManagementPage: React.FC = () => {
 
   const filteredQuestions = applyFilters();
 
+  const questionTypeMap: Record<QuestionType, string> = {
+    "multiple choice": "Câu hỏi trắc nghiệm",
+    "True/False": "Câu hỏi đúng sai",
+    "Short Answer": "Câu trả lời ngắn",
+  };
+  
+  const plumLevelMap: Record<PlumLevel, string> = {
+    easy: "Dễ",
+    medium: "Trung bình",
+    hard: "Khó",
+  };
+  
+
   return (
     <div>
       <Title level={2} className="my-4">
         Quản lý Ngân hàng Câu hỏi
       </Title>
-      <div className="mb-4 flex justify-between items-center">
-        <Filters onFiltersChange={handleFiltersChange} />
-        <Button type="primary">
-          <Link to="/academy-staff/question-banks/add-new" className="flex items-center">
-            <PlusOutlined className="mr-2" />
-            Thêm mới
-          </Link>
-        </Button>
-      </div>
-      {loading ? (
-        <div className="flex justify-center items-center h-40">
-          <Spin size="large" />
+      <div
+          className="mb-4 flex justify-between items-center"
+          style={{
+            alignItems: "center",
+            marginBottom: "12px", // Giảm khoảng cách dưới để đẩy toàn bộ hàng lên
+          }}
+        >
+          <Filters
+            onFiltersChange={handleFiltersChange}
+            // style={{
+            //   flex: 1,
+            //   maxWidth: "70%", // Giữ kích thước Filters hợp lý
+            // }}
+          />
+          <Button
+            type="primary"
+            style={{
+              marginLeft: "16px",
+              height: "40px", // Chiều cao nút
+              fontSize: "14px",
+              padding: "0 20px", // Tăng padding ngang
+              marginTop: "-12px", // Đẩy nút lên trên một chút
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <Link to="/academy-staff/question-banks/add-new" className="flex items-center">
+              <PlusOutlined className="mr-2" style={{ fontSize: "16px" }} />
+              Thêm mới
+            </Link>
+          </Button>
         </div>
+
+  {loading ? (
+    <div className="flex justify-center items-center h-40">
+      <Spin size="large" />
+    </div>
       ) : error ? (
         <p>{error}</p>
       ) : (
@@ -184,70 +221,70 @@ const QuestionBankManagementPage: React.FC = () => {
           className="mt-4"
         />
       )}
-      <Modal
-        title="Chi tiết câu hỏi"
-        visible={isDetailModalVisible}
-        onCancel={handleCloseDetailModal}
-        footer={null}
-        width={800}
-        bodyStyle={{ padding: "20px" }}
-      >
-        {selectedQuestion ? (
-          <div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 4fr",
-                gap: "4px",
-                lineHeight: "1.6",
-              }}
-            >
-              <p><strong>Câu hỏi:</strong></p>
-              <p>{selectedQuestion.question}</p>
+        <Modal
+          title="Chi tiết câu hỏi"
+          visible={isDetailModalVisible}
+          onCancel={handleCloseDetailModal}
+          footer={null}
+          width={800}
+          bodyStyle={{ padding: "20px" }}
+        >
+          {selectedQuestion ? (
+            <div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 4fr",
+                  gap: "4px",
+                  lineHeight: "1.6",
+                }}
+              >
+                <p><strong>Câu hỏi:</strong></p>
+                <p>{selectedQuestion.question}</p>
 
-              <p><strong>Loại câu hỏi:</strong></p>
-              <p>{selectedQuestion.type}</p>
+                <p><strong>Loại câu hỏi:</strong></p>
+                <p>{questionTypeMap[selectedQuestion.type]}</p>
 
-              <p><strong>Độ khó (Plum):</strong></p>
-              <p>{selectedQuestion.plum}</p>
+                <p><strong>Độ khó (Plum):</strong></p>
+                <p>{plumLevelMap[selectedQuestion.plum]}</p>
 
-              <p><strong>Chương:</strong></p>
-              <p>{selectedQuestion.chapterName}</p>
+                <p><strong>Chương:</strong></p>
+                <p>{selectedQuestion.chapterName}</p>
 
-              <p><strong>Bài:</strong></p>
-              <p>{selectedQuestion.lessonName || "N/A"}</p>
+                <p><strong>Bài:</strong></p>
+                <p>{selectedQuestion.lessonName || "N/A"}</p>
 
-              <p><strong>Ngày chỉnh sửa:</strong></p>
+                <p><strong>Ngày chỉnh sửa:</strong></p>
+                <p>
+                  {selectedQuestion.updatedAt
+                    ? new Date(selectedQuestion.updatedAt).toLocaleDateString()
+                    : "Chưa được chỉnh sửa"}
+                </p>
+              </div>
+
+              <p style={{ marginTop: "20px" }}><strong>Câu trả lời:</strong></p>
+              <ol type="A" style={{ paddingLeft: "20px", marginBottom: "10px" }}>
+                {selectedQuestion.answers.map((answer, index) => (
+                  <li key={answer.answerId} style={{ marginBottom: "5px" }}>
+                    {String.fromCharCode(65 + index)}. {answer.answerText}
+                  </li>
+                ))}
+              </ol>
+
               <p>
-                {selectedQuestion.updatedAt
-                  ? new Date(selectedQuestion.updatedAt).toLocaleDateString()
-                  : "Chưa được chỉnh sửa"}
+                <strong>Câu trả lời đúng:</strong>{" "}
+                {selectedQuestion.answers
+                  .map((answer, index) => (answer.isCorrect ? String.fromCharCode(65 + index) : null))
+                  .filter(Boolean)
+                  .join(", ")}
               </p>
             </div>
-
-            <p style={{ marginTop: "20px" }}><strong>Câu trả lời:</strong></p>
-            <ol type="A" style={{ paddingLeft: "20px", marginBottom: "10px" }}>
-              {selectedQuestion.answers.map((answer, index) => (
-                <li key={answer.answerId} style={{ marginBottom: "5px" }}>
-                  {String.fromCharCode(65 + index)}. {answer.answerText}
-                </li>
-              ))}
-            </ol>
-
-            <p>
-              <strong>Câu trả lời đúng:</strong>{" "}
-              {selectedQuestion.answers
-                .map((answer, index) => (answer.isCorrect ? String.fromCharCode(65 + index) : null))
-                .filter(Boolean)
-                .join(", ")}
-            </p>
-          </div>
-        ) : (
-          <div className="flex justify-center items-center h-32">
-            <Spin size="large" />
-          </div>
-        )}
-      </Modal>
+          ) : (
+            <div className="flex justify-center items-center h-32">
+              <Spin size="large" />
+            </div>
+          )}
+        </Modal>
     </div>
   );
 };

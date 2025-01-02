@@ -15,6 +15,62 @@ export interface IViewListFeedback {
     createdAt: string;
 }
 
+
+
+export const fetchSystemFeedbackList = async (): Promise<IViewListFeedback[]> => {
+    try {
+        const response = await apiClient.get('/Feedback/GetSystemFeedback?pageIndex=0&pageSize=10');
+        if (response.data.success) {
+            return response.data.data.items.map((feedback: any) => ({
+                id: feedback.feedbackId,
+                content: feedback.content,
+                rate: feedback.rate,
+                type: feedback.type,
+                isFlagged: feedback.isFlagged,
+                flagCount: feedback.flagCount,
+                teacherId: feedback.teacherId,
+                username: feedback.teacherName,
+                avatar: feedback.avatar,
+                planbookName: feedback.planbookTitle,
+                createdAt: feedback.createdAt,
+            }));
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching feedback list:', error);
+        return [];
+    }
+};
+
+export const classifyFeedbackByRate = (feedbackList: IViewListFeedback[]) => {
+    const result = {
+        greaterThanThree: 0,
+        equalToThree: 0,
+        lessThanThree: 0,
+    };
+
+    feedbackList.forEach((feedback) => {
+        if (feedback.rate > 3) {
+            result.greaterThanThree += 1;
+        } else if (feedback.rate === 3) {
+            result.equalToThree += 1;
+        } else {
+            result.lessThanThree += 1;
+        }
+    });
+
+    return result;
+};
+
+// Sử dụng hàm này:
+(async () => {
+    const feedbackList = await fetchSystemFeedbackList();
+    const classifiedFeedback = classifyFeedbackByRate(feedbackList);
+
+    console.log('Feedback classification:', classifiedFeedback);
+})();
+
+
 export const fetchPlanBookFeedbackList = async (): Promise<IViewListFeedback[]> => {
     try {
         const response = await apiClient.get('/Feedback/GetPlanbookFeedback?pageIndex=0&pageSize=100');
@@ -63,30 +119,6 @@ export const countPlanBookFeedback = async (): Promise<number> => {
     }
 };
 
-export const fetchSystemFeedbackList = async (): Promise<IViewListFeedback[]> => {
-    try {
-        const response = await apiClient.get('/Feedback/GetSystemFeedback?pageIndex=0&pageSize=10');
-        if (response.data.success) {
-            return response.data.data.items.map((feedback: any) => ({
-                id: feedback.feedbackId,
-                content: feedback.content,
-                rate: feedback.rate,
-                type: feedback.type,
-                isFlagged: feedback.isFlagged,
-                flagCount: feedback.flagCount,
-                teacherId: feedback.teacherId,
-                username: feedback.teacherName,
-                avatar: feedback.avatar,
-                planbookName: feedback.planbookTitle,
-                createdAt: feedback.createdAt,
-            }));
-        }
-        return [];
-    } catch (error) {
-        console.error('Error fetching feedback list:', error);
-        return [];
-    }
-};
 
 export const countFeedbackByRate = async (rate: number): Promise<number> => {
     try {

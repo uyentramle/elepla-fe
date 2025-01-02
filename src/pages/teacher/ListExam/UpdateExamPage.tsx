@@ -93,6 +93,10 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId }) => {
   };
 
   const handleUpdateExam = async () => {
+    if (!editTitle.trim() || !editTime.trim()) {
+      message.error("Vui lòng điền đầy đủ thông tin Tiêu đề bài kiểm tra và Thời gian làm bài.");
+      return;
+    }
     if (examDetails) {
       setIsUpdating(true);
       try {
@@ -199,7 +203,7 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId }) => {
         </Button>
 
         <div className="flex justify-center gap-2 mt-auto">
-          <Button
+        <Button
             type="primary"
             onClick={handleUpdateExam}
             loading={isUpdating}

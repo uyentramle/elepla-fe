@@ -1,8 +1,8 @@
 import apiClient from "@/data/apiClient";
 
 // Định nghĩa các kiểu dữ liệu
-type QuestionType = "multiple choice" | "True/False" | "Short Answer";
-type PlumLevel = "easy" | "medium" | "hard";
+export type QuestionType = "multiple choice" | "True/False" | "Short Answer";
+export type PlumLevel = "easy" | "medium" | "hard";
 
 export interface IAnswer {
   answerId: string;

@@ -32,12 +32,6 @@ const ExamPage: React.FC = () => {
     setCurrentPage(1); // Reset về trang đầu tiên khi thay đổi nguồn câu hỏi
   }, [useMyQuestions]);
 
-  // const paginatedQuestions = filteredQuestions.slice(
-  //   (currentPage - 1) * questionsPerPage,
-  //   currentPage * questionsPerPage
-  // );
-  
-
 // useEffect load questions
 useEffect(() => {
   const loadQuestions = async () => {
@@ -260,7 +254,7 @@ const paginatedQuestions = filteredQuestions.slice(
             <Input />
           </Form.Item>
           <Form.Item
-            label="Thời gian làm bài ()"
+            label="Thời gian làm bài "
             name="time"
             rules={[{ required: true, message: "Vui lòng nhập thời gian làm bài" }]}
           >

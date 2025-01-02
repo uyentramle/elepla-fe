@@ -38,7 +38,8 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions }) => {
       try {
         setLoading(true);
         setError(null);
-
+        setSelectedQuestions([]); // Reset danh sách đã chọn
+  
         let response;
         if (useMyQuestions) {
           const userId = getUserId();
@@ -46,7 +47,7 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions }) => {
         } else {
           response = await fetchAllQuestions(0, 50);
         }
-
+  
         if (response.success) {
           setQuestions(response.data.items);
           setCurrentPage(1); // Reset to first page only when fetching new data
@@ -59,9 +60,10 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions }) => {
         setLoading(false);
       }
     };
-
+  
     loadQuestions();
   }, [useMyQuestions]);
+  
   
   useEffect(() => {
     const applyFilters = () => {
@@ -169,13 +171,17 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions }) => {
               </Button>
             </div>
             <Button
-              type="primary"
-              disabled={selectedQuestions.length === 0}
-              onClick={() => onAddQuestions(selectedQuestions)}
-              className="h-10 px-4"
-            >
-              Thêm câu hỏi ({selectedQuestions.length})
-            </Button>
+                  type="primary"
+                  disabled={selectedQuestions.length === 0}
+                  onClick={() => {
+                    onAddQuestions(selectedQuestions); // Gửi danh sách các câu hỏi đã chọn
+                    setSelectedQuestions([]); // Reset danh sách các câu hỏi đã chọn
+                  }}
+                  className="h-10 px-4"
+                >
+                  Thêm câu hỏi ({selectedQuestions.length})
+                </Button>
+
           </div>
   
           <div className="question-list space-y-4">

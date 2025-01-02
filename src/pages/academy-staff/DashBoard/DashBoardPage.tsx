@@ -16,6 +16,8 @@ import {
 } from 'recharts';
 import { countPlanbooks } from '@/data/academy-staff/PlanbookData';
 import { countPlanBookFeedback, fetchPlanBookFeedbackList, IViewListFeedback } from '@/data/academy-staff/FeedbackData';
+import { fetchSystemFeedbackList, classifyFeedbackByRate } from '@/data/academy-staff/FeedbackData';
+
 import { countQuestions } from '@/data/academy-staff/QuestionBankData';
 import { fetchChapterList, IViewListChapter } from '@/data/academy-staff/ChapterData';
 import { fetchAllQuestions } from '@/data/academy-staff/QuestionBankData';
@@ -31,6 +33,8 @@ const DashBoardStaffPage: React.FC = () => {
   const [chapterStats, setChapterStats] = useState<{ name: string; value: number }[]>([]);
   const [recentFeedback, setRecentFeedback] = useState<IViewListFeedback[]>([]);
   const [questionBankStats, setQuestionBankStats] = useState<{ name: string; value: number }[]>([]);
+  const [feedbackStats, setFeedbackStats] = useState<{ name: string; value: number }[]>([]);
+
   const [topRatedPlanbooks, setTopRatedPlanbooks] = useState<{
     title: string;
     stars: number;
@@ -39,11 +43,11 @@ const DashBoardStaffPage: React.FC = () => {
     avatar: string;
   }[]>([]);
 
-  const feedbackStats = [
-    { name: 'Hài lòng', value: 120 },
-    { name: 'Bình thường', value: 30 },
-    { name: 'Không hài lòng', value: 10 },
-  ];
+  // const feedbackStats = [
+  //   { name: 'Hài lòng', value: 120 },
+  //   { name: 'Bình thường', value: 30 },
+  //   { name: 'Không hài lòng', value: 10 },
+  // ];
 
   useEffect(() => {
     // Fetch tổng hợp dữ liệu
@@ -115,6 +119,25 @@ const DashBoardStaffPage: React.FC = () => {
 
     fetchDashboardData();
   }, []);
+
+  useEffect(() => {
+    const fetchFeedbackData = async () => {
+      try {
+        const feedbackList = await fetchSystemFeedbackList(); // Lấy danh sách phản hồi
+        const classifiedFeedback = classifyFeedbackByRate(feedbackList); // Phân loại phản hồi
+        setFeedbackStats([
+          { name: 'Hài lòng', value: classifiedFeedback.greaterThanThree },
+          { name: 'Bình thường', value: classifiedFeedback.equalToThree },
+          { name: 'Không hài lòng', value: classifiedFeedback.lessThanThree },
+        ]);
+      } catch (error) {
+        console.error('Error fetching feedback data:', error);
+      }
+    };
+
+    fetchFeedbackData();
+  }, []);
+
 
   return (
     <>
@@ -197,28 +220,27 @@ const DashBoardStaffPage: React.FC = () => {
             />
           </Card>
         </Col>
-
-         <Col span={12}>
-          <Card title="Phân tích phản hồi">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={feedbackStats}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, value }) => `${name}: ${value}`}
-                >
-                  {feedbackStats.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col> 
+        <Col span={12}>
+      <Card title="Phân tích phản hồi">
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={feedbackStats}
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              fill="#8884d8"
+              dataKey="value"
+              label={({ name, value }) => `${name}: ${value}`}
+            >
+              {feedbackStats.map((_, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+      </Card>
+    </Col>
 
         <Col span={12}>
             <Card title="Kế hoạch được yêu thích">
