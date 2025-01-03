@@ -147,9 +147,13 @@ const handlePlanbookSelect = (value: string) => {
                 message.success("Sự kiện đã được tạo thành công!");
             }
             navigate(-1);
-        } catch (error) {
+        } catch (error: any) {
+            if (error.message === "Khung giờ đã bị trùng với một sự kiện khác.") {
+                message.error("Khung giờ đã bị trùng với một sự kiện khác.");
+            } else {
+                message.error("Vui lòng chọn kế hoạch giảng dạy");
+            }
             console.error("Error submitting form:", error);
-            message.error("Vui lòng nhập đủ thông tin và kế hoạch giảng dạy");
         }
     };
     
