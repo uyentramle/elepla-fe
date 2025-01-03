@@ -108,51 +108,41 @@ const handlePlanbookSelect = (value: string) => {
         }));
     };
 
-    const handleSubmit = async (values: any) => {
-        try {
-            if (!values.date) {
-                message.error("Vui lòng chọn ngày!");
-                return;
-            }
-    
-            if (!values.startTime || !values.endTime) {
-                message.error("Vui lòng nhập giờ bắt đầu và giờ kết thúc!");
-                return;
-            }
-    
-            if (values.startTime.isAfter(values.endTime)) {
-                message.error("Giờ bắt đầu phải nhỏ hơn giờ kết thúc!");
-                return;
-            }
-    
-            const localDate = values.date.tz(dayjs.tz.guess()).format("YYYY-MM-DD");
-    
-            const scheduleData = {
-                scheduleId: id || "",
-                title: values.title,
-                description: formData.description,
-                date: localDate,
-                startTime: values.startTime.format("HH:mm"),
-                endTime: values.endTime.format("HH:mm"),
-                className: values.className,
-                teacherId: userId || "",
-                planbookId: formData.planbookId || "",
-            };
-    
-            if (id) {
-                await updateTeachingSchedule(scheduleData);
-                message.success("Sự kiện đã được cập nhật thành công!");
-            } else {
-                await createTeachingSchedule(scheduleData);
-                message.success("Sự kiện đã được tạo thành công!");
-            }
-            navigate(-1);
-        } catch (error) {
-            console.error("Error submitting form:", error);
-            message.error("Vui lòng nhập đủ thông tin và kế hoạch giảng dạy");
+  const handleSubmit = async (values: any) => {
+    try {
+        if (!values.date) {
+            message.error("Vui lòng chọn ngày!");
+            return;
         }
-    };
-    
+
+        // Sử dụng múi giờ hiện tại (múi giờ của người dùng)
+        const localDate = values.date.tz(dayjs.tz.guess()).format("YYYY-MM-DD");
+
+        const scheduleData = {
+            scheduleId: id || "",
+            title: values.title,
+            description: formData.description,
+            date: localDate, // Sử dụng ngày với múi giờ của người dùng
+            startTime: values.startTime.format("HH:mm"),
+            endTime: values.endTime.format("HH:mm"),
+            className: values.className,
+            teacherId: userId || "",
+            planbookId: formData.planbookId || "",
+        };
+
+        if (id) {
+            await updateTeachingSchedule(scheduleData);
+            message.success("Sự kiện đã được cập nhật thành công!");
+        } else {
+            await createTeachingSchedule(scheduleData);
+            message.success("Sự kiện đã được tạo thành công!");
+        }
+        navigate(-1);
+    } catch (error) {
+        console.error("Error submitting form:", error);
+        message.error("Không thể lưu thông tin sự kiện. Vui lòng thử lại.");
+    }
+};
 
 
     useEffect(() => {
@@ -194,40 +184,16 @@ const handlePlanbookSelect = (value: string) => {
                         </Form.Item>
 
                         <Form.Item
-    label="Giờ bắt đầu"
-    name="startTime"
-    rules={[
-        { required: true, message: 'Vui lòng nhập thời gian bắt đầu!' },
-        ({ getFieldValue }) => ({
-            validator(_, value) {
-                const endTime = getFieldValue('endTime');
-                if (!value || !endTime || value.isBefore(endTime)) {
-                    return Promise.resolve();
-                }
-                return Promise.reject('Giờ bắt đầu phải nhỏ hơn giờ kết thúc!');
-            },
-        }),
-    ]}
->
+                            label="Giờ bắt đầu"
+                            name="startTime"
+                            rules={[{ required: true, message: 'Vui lòng nhập thời gian bắt đầu!' }]}>
                             <TimePicker format="HH:mm" style={{ width: '100%' }} />
                         </Form.Item>
 
                         <Form.Item
                             label="Giờ kết thúc"
                             name="endTime"
-                            rules={[
-                                { required: true, message: 'Vui lòng nhập thời gian kết thúc!' },
-                                ({ getFieldValue }) => ({
-                                    validator(_, value) {
-                                        const startTime = getFieldValue('startTime');
-                                        if (!value || !startTime || startTime.isBefore(value)) {
-                                            return Promise.resolve();
-                                        }
-                                        return Promise.reject('Giờ bắt đầu phải nhỏ hơn giờ kết thúc!');
-                                    },
-                                }),
-                            ]}
-                        >
+                            rules={[{ required: true, message: 'Vui lòng nhập thời gian kết thúc!' }]}>
                             <TimePicker format="HH:mm" style={{ width: '100%' }} />
                         </Form.Item>
                     </div>

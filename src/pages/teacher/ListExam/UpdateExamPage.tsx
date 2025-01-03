@@ -224,7 +224,6 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId, onExamUpdated }
         onCancel={() => setShowAddQuestionModal(false)}
         footer={null}
         width={1150}
-        style={{ top: 45 }} // Adjust the 'top' value to move the modal higher
       >
         <AddNewQuestion onAddQuestions={handleAddQuestions} />
       </Modal>

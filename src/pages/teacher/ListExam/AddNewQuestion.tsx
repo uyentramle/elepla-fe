@@ -163,17 +163,22 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions }) => {
         {useMyQuestions ? "Ngân hàng câu hỏi" : "Câu hỏi của tôi"}
       </Button>
     </div>
-        <Button
-          type="primary"
-          disabled={selectedQuestions.length === 0}
-          onClick={() => {
-            onAddQuestions(selectedQuestions); // Gửi danh sách các câu hỏi đã chọn
-            setSelectedQuestions([]); // Reset danh sách các câu hỏi đã chọn
-          }}
-          className="h-10 px-4"
-        >
-          Thêm câu hỏi ({selectedQuestions.length})
-        </Button>
+    <Button
+      type="primary"
+      disabled={selectedQuestions.length === 0}
+      onClick={() => {
+        onAddQuestions(selectedQuestions); // Gửi danh sách các câu hỏi đã chọn
+        setSelectedQuestions([]); // Reset danh sách các câu hỏi đã chọn
+        // Cập nhật danh sách câu hỏi
+        const updatedQuestions = questions.filter(
+          (q) => !selectedQuestions.some((sel) => sel.questionId === q.questionId)
+        );
+        setQuestions(updatedQuestions); // Cập nhật danh sách câu hỏi
+      }}
+      className="h-10 px-4"
+    >
+      Thêm câu hỏi ({selectedQuestions.length})
+    </Button>
   </div>
 
   {/* Nội dung hiển thị */}

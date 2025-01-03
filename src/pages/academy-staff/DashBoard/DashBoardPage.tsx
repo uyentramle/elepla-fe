@@ -161,47 +161,25 @@ const DashBoardStaffPage: React.FC = () => {
       </Row>
 
       <Row gutter={[16, 16]} className="mb-6">
-      <Col span={12}>
+        <Col span={12}>
           <Card title="Phân bổ chương theo môn học">
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              {/* Biểu đồ tròn */}
-              <ResponsiveContainer width="60%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={chapterStats}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                    labelLine={false} // Loại bỏ đường dẫn nhãn
-                  >
-                    {chapterStats.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              {/* Ghi chú */}
-              <div style={{ marginLeft: '16px' }}>
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {chapterStats.map((item, index) => (
-                    <li key={item.name} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                      <span
-                        style={{
-                          display: 'inline-block',
-                          width: '12px',
-                          height: '12px',
-                          backgroundColor: COLORS[index % COLORS.length],
-                          marginRight: '8px',
-                        }}
-                      ></span>
-                      <Text>{`${item.name}: ${item.value} chương`}</Text>
-                    </li>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={chapterStats}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, value }) => `${name}: ${value}`}
+                >
+                  {chapterStats.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
-                </ul>
-              </div>
-            </div>
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
           </Card>
         </Col>
 
