@@ -159,7 +159,7 @@ const QuestionBankManagementPage: React.FC = () => {
   const questionTypeMap: Record<QuestionType, string> = {
     "multiple choice": "Câu hỏi trắc nghiệm",
     "True/False": "Câu hỏi đúng sai",
-    "Short Answer": "Câu trả lời ngắn",
+    "Short Answer": "Câu tự luận ngắn",
   };
   
   const plumLevelMap: Record<PlumLevel, string> = {
@@ -183,10 +183,6 @@ const QuestionBankManagementPage: React.FC = () => {
         >
           <Filters
             onFiltersChange={handleFiltersChange}
-            // style={{
-            //   flex: 1,
-            //   maxWidth: "70%", // Giữ kích thước Filters hợp lý
-            // }}
           />
           <Button
             type="primary"
