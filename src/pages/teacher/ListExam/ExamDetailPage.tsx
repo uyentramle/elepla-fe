@@ -5,10 +5,9 @@ import {
   IExamQuestion,
   exportExamToWord,
   exportExamToPdf,
-  exportExamWithAnswersToWord,
-  exportExamWithAnswersToPdf,
+  exportExamWithAnswersToWord, // API cho Word kèm đáp án
+  exportExamWithAnswersToPdf, // API cho PDF kèm đáp án
 } from "@/data/client/ExamData";
-import { getUserId } from "@/data/apiClient"; // Import hàm getUserId
 import { Spin, Alert, Button } from "antd";
 
 interface ExamDetailPageProps {
@@ -20,12 +19,8 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [showAnswers, setShowAnswers] = useState<boolean>(false);
-  const [userId, setUserId] = useState<string>("");
 
   useEffect(() => {
-    // Lấy userId
-    setUserId(getUserId() || "");
-
     const fetchExamDetails = async () => {
       setLoading(true);
       setError(null);
@@ -43,14 +38,30 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
   }, [examId]);
 
   const handleExportFile = async (
-    exportFunction: (examId: string, userId: string) => Promise<void>,
+    exportFunction: (examId: string) => Promise<Blob | null>,
+    fileType: string,
     includeAnswers: boolean
   ) => {
+    if (!examDetails) return;
     try {
-      await exportFunction(examId, userId);
-      console.log(includeAnswers)
+      const blob = await exportFunction(examId);
+      if (blob) {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const suffix = includeAnswers ? "_with_answers" : "";
+        link.href = url;
+        link.setAttribute(
+          "download",
+          `${examDetails.title || "Exam"}${suffix}.${fileType}`
+        );
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode?.removeChild(link);
+      } else {
+        alert(`Xuất file ${fileType.toUpperCase()} không thành công!`);
+      }
     } catch (error) {
-      alert(`Đã xảy ra lỗi khi xuất file.`);
+      alert(`Đã xảy ra lỗi khi xuất file ${fileType.toUpperCase()}!`);
     }
   };
 
@@ -134,30 +145,30 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
   
         {/* Buttons */}
         <div className="flex justify-center gap-2 mt-auto">
-              <Button
-                onClick={() => handleExportFile(exportExamToWord, false)}
-                className="custom-button"
-              >
-                Xuất file Word
-              </Button>
-              <Button
-                onClick={() => handleExportFile(exportExamToPdf, false)}
-                className="custom-button"
-              >
-                Xuất file PDF
-              </Button>
-              <Button
-                onClick={() => handleExportFile(exportExamWithAnswersToWord, true)}
-                className="custom-button"
-              >
-                Xuất Word (kèm đáp án)
-              </Button>
-              <Button
-                onClick={() => handleExportFile(exportExamWithAnswersToPdf, true)}
-                className="custom-button"
-              >
-                Xuất PDF (kèm đáp án)
-              </Button>
+            <Button
+              onClick={() => handleExportFile(exportExamToWord, "docx", false)}
+              className="custom-button"
+            >
+              Xuất file Word
+            </Button>
+            <Button
+              onClick={() => handleExportFile(exportExamToPdf, "pdf", false)}
+              className="custom-button"
+            >
+              Xuất file PDF
+            </Button>
+            <Button
+              onClick={() => handleExportFile(exportExamWithAnswersToWord, "docx", true)}
+              className="custom-button"
+            >
+              Xuất Word (kèm đáp án)
+            </Button>
+            <Button
+              onClick={() => handleExportFile(exportExamWithAnswersToPdf, "pdf", true)}
+              className="custom-button"
+            >
+              Xuất PDF (kèm đáp án)
+            </Button>
           </div>
       </div>
     </div>

@@ -197,7 +197,7 @@ const MyQuestionPage: React.FC = () => {
     const questionTypeMap: Record<QuestionType, string> = {
       "multiple choice": "Câu hỏi trắc nghiệm",
       "True/False": "Câu hỏi đúng sai",
-      "Short Answer": "Câu tự luận ngắn",
+      "Short Answer": "Câu trả lời ngắn",
     };
     
     const plumLevelMap: Record<PlumLevel, string> = {
@@ -340,28 +340,21 @@ const MyQuestionPage: React.FC = () => {
               </div>
 
               <p style={{ marginTop: "20px" }}><strong>Câu trả lời:</strong></p>
-                <ol
-                  type={selectedQuestion.type === "Short Answer" ? "1" : "A"}
-                  style={{ paddingLeft: "20px", marginBottom: "10px" }}
-                >
-                  {selectedQuestion.answers.map((answer, index) => (
-                    <li key={answer.answerId} style={{ marginBottom: "5px" }}>
-                      {selectedQuestion.type === "Short Answer"
-                        ? answer.answerText
-                        : `${String.fromCharCode(65 + index)}. ${answer.answerText}`}
-                    </li>
-                  ))}
-                </ol>
+              <ol type="A" style={{ paddingLeft: "20px", marginBottom: "10px" }}>
+                {selectedQuestion.answers.map((answer, index) => (
+                  <li key={answer.answerId} style={{ marginBottom: "5px" }}>
+                    {String.fromCharCode(65 + index)}. {answer.answerText}
+                  </li>
+                ))}
+              </ol>
 
-                {selectedQuestion.type !== "Short Answer" && (
-                    <p>
-                      <strong>Câu trả lời đúng:</strong>{" "}
-                      {selectedQuestion.answers
-                        .map((answer, index) => (answer.isCorrect ? String.fromCharCode(65 + index) : null))
-                        .filter(Boolean)
-                        .join(", ")}
-                    </p>
-                  )}
+              <p>
+                <strong>Câu trả lời đúng:</strong>{" "}
+                {selectedQuestion.answers
+                  .map((answer, index) => (answer.isCorrect ? String.fromCharCode(65 + index) : null))
+                  .filter(Boolean)
+                  .join(", ")}
+              </p>
             </div>
           ) : (
             <div className="flex justify-center items-center h-32">

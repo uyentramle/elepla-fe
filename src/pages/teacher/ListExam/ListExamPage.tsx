@@ -205,7 +205,7 @@ const ListExamPage: React.FC = () => {
             footer={null}
             width="50%"
             bodyStyle={{ padding: 0, background: "transparent" }}
-            style={{ background: "transparent", boxShadow: "none", top: 30 }}
+            style={{ background: "transparent", boxShadow: "none" }}
             className="custom-modal-no-padding"
           >
             {selectedExamId && (
@@ -222,7 +222,7 @@ const ListExamPage: React.FC = () => {
             footer={null}
             width="50%"
             bodyStyle={{ padding: 0, background: "transparent" }}
-            style={{ background: "transparent", boxShadow: "none", top: 30}}
+            style={{ background: "transparent", boxShadow: "none" }}
             className="custom-modal-no-padding"
           >
             {selectedExamId && (

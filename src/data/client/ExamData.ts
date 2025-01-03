@@ -1,7 +1,5 @@
 import apiClient from "@/data/apiClient";
 import { getUserId } from "@/data/apiClient"; // Import hàm getUserId
-import { message } from 'antd'; // Import Ant Design message
-import { getActiveUserPackageByUserId } from '@/data/manager/UserPackageDatas';
 
 // Giao diện cho yêu cầu tạo bài kiểm tra
 export interface ICreateExamRequest {
@@ -69,191 +67,6 @@ export interface IExamDetails {
     isDeleted?: boolean;
 }
 
-const handleDownload = (blob: Blob, filename: string) => {
-  const url = window.URL.createObjectURL(new Blob([blob]));
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
-// Hàm xuất file Word (không màu)
-export const exportExamToWord = async (examId: string, userId: string): Promise<void> => {
-  try {
-    const userPackage = await getActiveUserPackageByUserId(userId);
-
-    if (!userPackage.exportWord) {
-      message.warning('Nâng cấp tài khoản để sử dụng chức năng này');
-      return;
-    }
-
-    const response = await apiClient.get(
-      'https://elepla-be-production.up.railway.app/api/Exam/ExportExamToWordNoColor',
-      {
-        params: { examId },
-        responseType: 'blob',
-      }
-    );
-
-    if (response.status === 200) {
-      handleDownload(response.data, `exam_${examId}.docx`);
-      message.success('Xuất file Word thành công!');
-    } else {
-      message.error('Xuất file thất bại.');
-    }
-  } catch (error) {
-    console.error('Error exporting exam to Word:', error);
-    message.error('Có lỗi xảy ra khi xuất file Word.');
-  }
-};
-
-// Hàm xuất file PDF (không màu)
-export const exportExamToPdf = async (examId: string, userId: string): Promise<void> => {
-  try {
-    const userPackage = await getActiveUserPackageByUserId(userId);
-
-    if (!userPackage.exportPdf) {
-      message.warning('Nâng cấp tài khoản để sử dụng chức năng này');
-      return;
-    }
-
-    const response = await apiClient.get(
-      'https://elepla-be-production.up.railway.app/api/Exam/ExportExamToPdfNoColor',
-      {
-        params: { examId },
-        responseType: 'blob',
-      }
-    );
-
-    if (response.status === 200) {
-      handleDownload(response.data, `exam_${examId}.pdf`);
-      message.success('Xuất file PDF thành công!');
-    } else {
-      message.error('Xuất file thất bại.');
-    }
-  } catch (error) {
-    console.error('Error exporting exam to PDF:', error);
-    message.error('Có lỗi xảy ra khi xuất file PDF.');
-  }
-};
-
-// Hàm xuất file Word kèm câu trả lời
-export const exportExamWithAnswersToWord = async (examId: string, userId: string): Promise<void> => {
-  try {
-    const userPackage = await getActiveUserPackageByUserId(userId);
-
-    if (!userPackage.exportWord) {
-      message.warning('Nâng cấp tài khoản để sử dụng chức năng này');
-      return;
-    }
-
-    const response = await apiClient.get(
-      'https://elepla-be-production.up.railway.app/api/Exam/ExportExamToWord',
-      {
-        params: { examId },
-        responseType: 'blob',
-      }
-    );
-
-    if (response.status === 200) {
-      handleDownload(response.data, `exam_with_answers_${examId}.docx`);
-      message.success('Xuất file Word kèm đáp án thành công!');
-    } else {
-      message.error('Xuất file thất bại.');
-    }
-  } catch (error) {
-    console.error('Error exporting exam with answers to Word:', error);
-    message.error('Có lỗi xảy ra khi xuất file Word kèm đáp án.');
-  }
-};
-
-// Hàm xuất file PDF kèm câu trả lời
-export const exportExamWithAnswersToPdf = async (examId: string, userId: string): Promise<void> => {
-  try {
-    const userPackage = await getActiveUserPackageByUserId(userId);
-
-    if (!userPackage.exportPdf) {
-      message.warning('Nâng cấp tài khoản để sử dụng chức năng này');
-      return;
-    }
-
-    const response = await apiClient.get(
-      'https://elepla-be-production.up.railway.app/api/Exam/ExportExamToPdf',
-      {
-        params: { examId },
-        responseType: 'blob',
-      }
-    );
-
-    if (response.status === 200) {
-      handleDownload(response.data, `exam_with_answers_${examId}.pdf`);
-      message.success('Xuất file PDF kèm đáp án thành công!');
-    } else {
-      message.error('Xuất file thất bại.');
-    }
-  } catch (error) {
-    console.error('Error exporting exam with answers to PDF:', error);
-    message.error('Có lỗi xảy ra khi xuất file PDF kèm đáp án.');
-  }
-};
-  
-
-  export const deleteExamById = async (examId: string): Promise<boolean> => {  
-    try {
-      // Gửi yêu cầu DELETE tới API với examId là query parameter
-      const response = await apiClient.delete(
-        `https://elepla-be-production.up.railway.app/api/Exam/DeleteExam`,
-        {
-          params: { examId }, // Truyền examId dưới dạng query parameter
-        }
-      );
-      // Kiểm tra phản hồi thành công
-      if (response.data && response.data.success) {
-        return true; // Xóa thành công
-      }
-      // Trường hợp phản hồi không thành công
-      return false;
-    } catch (error) {
-      return false;
-    }
-  };
-
-
-
-// Hàm lấy danh sách bài kiểm tra theo userId
-export const getExamsByUserId = async (): Promise<IExam[] | null> => {
-    try {
-      // Lấy userId từ token
-      const userId = getUserId();
-      if (!userId) {
-        console.error("User ID not found in token.");
-        return null;
-      }
-  
-      // Gọi API
-      const response = await apiClient.get<{
-        success: boolean;
-        message: string;
-        data: any[];
-      }>(`Exam/GetExamsByUserId?userId=${userId}`);
-  
-      // Chuyển đổi `examId` thành `id`
-      const exams: IExam[] = response.data.data.map((exam) => ({
-        id: exam.examId,
-        title: exam.title,
-        time: exam.time, // Nếu cần
-      }));
-  
-      return exams;
-    } catch (error) {
-      console.error("Error fetching exams:", error);
-      return null;
-    }
-  };
-
-  
 export const updateExam = async (
   examId: string,
   title: string,
@@ -314,6 +127,140 @@ export const getExamDetailsById = async (examId: string): Promise<IExamDetails |
     }
 };
 
+
+
+  export const exportExamToWord = async (examId: string): Promise<Blob | null> => {
+    try {
+      // Gửi yêu cầu GET tới API với examId là query parameter
+      const response = await apiClient.get(
+        `https://elepla-be-production.up.railway.app/api/Exam/ExportExamToWordNoColor`,
+        {
+          params: { examId }, // Truyền examId dưới dạng query parameter
+          responseType: "blob", // Để nhận được file dưới dạng blob
+        }
+      );
+  
+      // Kiểm tra phản hồi thành công
+      if (response.status === 200) {
+        return response.data; // Trả về blob của file Word
+      }
+      return null; // Trường hợp phản hồi không thành công
+    } catch (error) {
+      console.error("Error exporting exam to Word:", error);
+      return null; // Xử lý lỗi khi gửi yêu cầu
+    }
+  };
+
+  export const exportExamToPdf = async (examId: string): Promise<Blob | null> => {
+    try {
+      const response = await apiClient.get(`https://elepla-be-production.up.railway.app/api/Exam/ExportExamToPdfNoColor`, {
+        params: { examId },
+        responseType: "blob", // Định dạng phản hồi là file
+      });
+      return response.data; // Trả về file blob
+    } catch (error) {
+      console.error("Error exporting exam to PDF:", error);
+      return null; // Trả về null nếu có lỗi
+    }
+  };
+
+  export const exportExamWithAnswersToWord = async (examId: string): Promise<Blob | null> => {
+    try {
+      const response = await apiClient.get(
+        `https://elepla-be-production.up.railway.app/api/Exam/ExportExamToWord`,
+        {
+          params: { examId },
+          responseType: "blob", // Nhận file dưới dạng blob
+        }
+      );
+  
+      // Kiểm tra phản hồi thành công
+      if (response.status === 200) {
+        return response.data; // Trả về blob của file Word
+      }
+      return null; // Trường hợp phản hồi không thành công
+    } catch (error) {
+      console.error("Error exporting exam with answers to Word:", error);
+      return null; // Xử lý lỗi khi gửi yêu cầu
+    }
+  };
+  
+  export const exportExamWithAnswersToPdf = async (examId: string): Promise<Blob | null> => {
+    try {
+      const response = await apiClient.get(
+        `https://elepla-be-production.up.railway.app/api/Exam/ExportExamToPdf`,
+        {
+          params: { examId },
+          responseType: "blob", // Định dạng phản hồi là file
+        }
+      );
+  
+      // Kiểm tra phản hồi thành công
+      if (response.status === 200) {
+        return response.data; // Trả về blob của file PDF
+      }
+      return null; // Trường hợp phản hồi không thành công
+    } catch (error) {
+      console.error("Error exporting exam with answers to PDF:", error);
+      return null; // Trả về null nếu có lỗi
+    }
+  };
+  
+
+  export const deleteExamById = async (examId: string): Promise<boolean> => {  
+    try {
+      // Gửi yêu cầu DELETE tới API với examId là query parameter
+      const response = await apiClient.delete(
+        `https://elepla-be-production.up.railway.app/api/Exam/DeleteExam`,
+        {
+          params: { examId }, // Truyền examId dưới dạng query parameter
+        }
+      );
+      // Kiểm tra phản hồi thành công
+      if (response.data && response.data.success) {
+        return true; // Xóa thành công
+      }
+      // Trường hợp phản hồi không thành công
+      return false;
+    } catch (error) {
+      return false;
+    }
+  };
+
+
+
+// Hàm lấy danh sách bài kiểm tra theo userId
+export const getExamsByUserId = async (): Promise<IExam[] | null> => {
+    try {
+      // Lấy userId từ token
+      const userId = getUserId();
+      if (!userId) {
+        console.error("User ID not found in token.");
+        return null;
+      }
+  
+      // Gọi API
+      const response = await apiClient.get<{
+        success: boolean;
+        message: string;
+        data: any[];
+      }>(`Exam/GetExamsByUserId?userId=${userId}`);
+  
+      // Chuyển đổi `examId` thành `id`
+      const exams: IExam[] = response.data.data.map((exam) => ({
+        id: exam.examId,
+        title: exam.title,
+        time: exam.time, // Nếu cần
+      }));
+  
+      return exams;
+    } catch (error) {
+      console.error("Error fetching exams:", error);
+      return null;
+    }
+  };
+
+  
 
 // Hàm gọi API để tạo bài kiểm tra
 export const createExam = async (
