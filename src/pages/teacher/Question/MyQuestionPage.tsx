@@ -362,9 +362,6 @@ const MyQuestionPage: React.FC = () => {
             </div>
           )}
         </Modal>
-
-
-
     </div>
   );
 }

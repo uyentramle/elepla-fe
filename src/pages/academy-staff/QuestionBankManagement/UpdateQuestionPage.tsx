@@ -8,7 +8,7 @@ const { Option } = Select;
 
 const UpdateQuestionPage: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>(); // Assume `id` is passed via route params
+  const { id } = useParams<{ id: string }>(); // Assume id is passed via route params
   const [loading, setLoading] = useState<boolean>(false);
 
   const [fetchedQuestion, setFetchedQuestion] = useState<IQuestion | null>(null);
@@ -39,67 +39,80 @@ const UpdateQuestionPage: React.FC = () => {
   }, [id]);
 
   const addAnswer = () => {
-    setAnswers([
-      ...answers,
-      { answerId: `${answers.length + 1}`, answerText: "", isCorrect: false },
-    ]);
+    if (type === "Short Answer" || (type === "True/False" && answers.length >= 2)) {
+      return;
+    }
+    setAnswers([...answers, { answerId: `${answers.length + 1}`, answerText: "", isCorrect: false }]);
   };
 
   const updateAnswer = (index: number, field: keyof IAnswer, value: any) => {
     const updatedAnswers = answers.map((answer, i) =>
       i === index ? { ...answer, [field]: value } : answer
     );
+
+    if (field === "isCorrect" && type === "True/False") {
+      // Đảm bảo chỉ một đáp án đúng cho câu hỏi Đúng/Sai
+      updatedAnswers.forEach((answer, i) => {
+        if (i !== index) answer.isCorrect = false;
+      });
+    }
+
     setAnswers(updatedAnswers);
   };
 
   const removeAnswer = (index: number) => {
+    if (type === "Short Answer" || type === "True/False") return; // Không cho phép xóa câu trả lời trong các loại này
     setAnswers(answers.filter((_, i) => i !== index));
   };
 
   const handleSave = async () => {
     if (!id || !fetchedQuestion) return;
-  
-    // Kiểm tra không để trống câu hỏi
+
     if (!question.trim()) {
       message.error("Trường câu hỏi không được để trống!");
       return;
     }
-  
-    // Kiểm tra loại câu hỏi
+
     if (!type) {
       message.error("Vui lòng chọn loại câu hỏi!");
       return;
     }
-  
-    // Kiểm tra mức độ câu hỏi
+
     if (!plum) {
       message.error("Vui lòng chọn mức độ câu hỏi!");
       return;
     }
-  
-    // Kiểm tra danh sách câu trả lời
+
     if (answers.length === 0) {
       message.error("Phải có ít nhất một câu trả lời!");
       return;
     }
-  
-    // Kiểm tra các câu trả lời không được để trống
+
     const hasEmptyAnswer = answers.some((answer) => !answer.answerText.trim());
     if (hasEmptyAnswer) {
       message.error("Không được để trống bất kỳ câu trả lời nào!");
       return;
     }
-  
-    // Kiểm tra ít nhất một câu trả lời đúng
+
     const hasCorrectAnswer = answers.some((answer) => answer.isCorrect);
     if (!hasCorrectAnswer) {
       message.error("Phải có ít nhất một câu trả lời được đánh dấu là đúng!");
       return;
     }
-  
+
+    if (type === "Short Answer" && answers.length > 1) {
+      message.error("Câu hỏi tự luận ngắn chỉ được có một câu trả lời!");
+      return;
+    }
+
+    if (type === "True/False" && answers.length !== 2) {
+      message.error("Câu hỏi đúng/sai bắt buộc phải có 2 câu trả lời!");
+      return;
+    }
+
     try {
       setLoading(true);
-  
+
       const updatedQuestion: IQuestion = {
         ...fetchedQuestion,
         questionId: id,
@@ -110,21 +123,16 @@ const UpdateQuestionPage: React.FC = () => {
         updatedAt: new Date().toISOString(),
         updatedBy: "current-user-id", // Thay bằng ID người dùng hiện tại
       };
-  
+
       await updateQuestion(updatedQuestion);
       message.success("Cập nhật câu hỏi thành công!");
-      navigate("/academy-staff/question-banks");
+      navigate("/teacher/question-bank/my-question");
     // } catch (error) {
     //   message.error("Đã xảy ra lỗi khi cập nhật câu hỏi. Vui lòng thử lại!");
     } finally {
       setLoading(false);
-      message.success("Cập nhật câu hỏi thành công!");
-      navigate("/academy-staff/question-banks");
     }
   };
-  
-  
-  
 
   return (
     <div className="container mx-auto p-4">
@@ -142,7 +150,17 @@ const UpdateQuestionPage: React.FC = () => {
           <Form.Item label="Loại câu hỏi" style={{ flex: 1 }}>
             <Select
               value={type}
-              onChange={(value) => setType(value)}
+              onChange={(value) => {
+                setType(value);
+                if (value === "Short Answer") {
+                  setAnswers([{ answerId: "1", answerText: "", isCorrect: false }]);
+                } else if (value === "True/False") {
+                  setAnswers([
+                    { answerId: "1", answerText: "", isCorrect: false },
+                    { answerId: "2", answerText: "", isCorrect: false },
+                  ]);
+                }
+              }}
               placeholder="Chọn loại câu hỏi"
             >
               <Option value="multiple choice">Câu hỏi trắc nghiệm</Option>
@@ -166,7 +184,7 @@ const UpdateQuestionPage: React.FC = () => {
 
         <Divider>Danh sách câu trả lời</Divider>
         {answers.map((answer, index) => (
-          <div key={answer.answerId} className="mb-2 flex gap-2 items-center">
+          <div key={index} className="mb-2 flex gap-2 items-center">
             <Input
               placeholder="Nhập câu trả lời"
               value={answer.answerText}
@@ -178,21 +196,25 @@ const UpdateQuestionPage: React.FC = () => {
             >
               Đúng
             </Checkbox>
-            <Button onClick={() => removeAnswer(index)} danger>
-              Xóa
-            </Button>
+            {(type === "multiple choice") && (
+              <Button onClick={() => removeAnswer(index)} danger>
+                Xóa
+              </Button>
+            )}
           </div>
         ))}
-        <Button type="dashed" onClick={addAnswer} style={{ width: "100%", marginTop: "10px" }}>
-          Thêm câu trả lời
-        </Button>
+        {type === "multiple choice" && (
+          <Button type="dashed" onClick={addAnswer} style={{ width: "100%", marginTop: "10px" }}>
+            Thêm câu trả lời
+          </Button>
+        )}
 
         <Form.Item className="mt-4">
           <div className="flex space-x-4">
             <Button type="primary" onClick={handleSave} loading={loading}>
               Lưu
             </Button>
-            <Button type="default" onClick={() => navigate("/academy-staff/question-banks")}>
+            <Button type="default" onClick={() => navigate("/teacher/question-bank/my-question")}>
               Quay lại
             </Button>
           </div>
