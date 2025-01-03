@@ -10,9 +10,10 @@ import { updateExam, IQuestion } from "@/data/client/ExamData"; // Import the up
 
 interface UpdateExamPageProps {
   examId: string;
+  onExamUpdated: () => void; // Hàm callback khi cập nhật thành công
 }
 
-const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId }) => {
+const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId, onExamUpdated }) => {
   const [examDetails, setExamDetails] = useState<IExamDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +24,40 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId }) => {
   // Form values for editing title and time
   const [editTitle, setEditTitle] = useState<string>("");
   const [editTime, setEditTime] = useState<string>("");
+
+
+  const handleUpdateExam = async () => {
+    if (!editTitle.trim() || !editTime.trim()) {
+      message.error("Vui lòng điền đầy đủ thông tin Tiêu đề bài kiểm tra và Thời gian làm bài.");
+      return;
+    }
+    if (examDetails) {
+      setIsUpdating(true);
+      try {
+        const questionIds = examDetails.questions.map(
+          (question) => question.questionId
+        );
+        const success = await updateExam(
+          examDetails.examId,
+          editTitle,
+          editTime,
+          questionIds
+        );
+  
+        if (success) {
+          message.success("Cập nhật bài kiểm tra thành công!");
+          setExamDetails({ ...examDetails, title: editTitle, time: editTime });
+          onExamUpdated(); // Gọi callback để reload danh sách và đóng popup
+        } else {
+          message.error("Cập nhật bài kiểm tra thất bại!");
+        }
+      } catch (error) {
+        message.error("Đã xảy ra lỗi trong khi cập nhật bài kiểm tra.");
+      } finally {
+        setIsUpdating(false);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchExamDetails = async () => {
@@ -92,37 +127,7 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId }) => {
     }
   };
 
-  const handleUpdateExam = async () => {
-    if (!editTitle.trim() || !editTime.trim()) {
-      message.error("Vui lòng điền đầy đủ thông tin Tiêu đề bài kiểm tra và Thời gian làm bài.");
-      return;
-    }
-    if (examDetails) {
-      setIsUpdating(true);
-      try {
-        const questionIds = examDetails.questions.map(
-          (question) => question.questionId
-        );
-        const success = await updateExam(
-          examDetails.examId,
-          editTitle,
-          editTime,
-          questionIds
-        );
 
-        if (success) {
-          message.success("Cập nhật bài kiểm tra thành công!");
-          setExamDetails({ ...examDetails, title: editTitle, time: editTime });
-        } else {
-          message.error("Cập nhật bài kiểm tra thất bại!");
-        }
-      } catch (error) {
-        message.error("Đã xảy ra lỗi trong khi cập nhật bài kiểm tra.");
-      } finally {
-        setIsUpdating(false);
-      }
-    }
-  };
 
   if (loading) {
     return (

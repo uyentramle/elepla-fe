@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { getExamsByUserId, IExam, deleteExamById } from "@/data/client/ExamData";
-import { Spin, Radio, List, Modal, Dropdown, Menu, message, Popconfirm } from "antd";
-import { FileProtectOutlined, AppstoreOutlined, UnorderedListOutlined, MoreOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Spin, Radio, List, Modal, Dropdown, Menu, message, Popconfirm, Input, Pagination } from "antd";
+import { FileProtectOutlined, AppstoreOutlined, UnorderedListOutlined, MoreOutlined, EyeOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import { RadioChangeEvent } from "antd/es/radio";
 import ExamDetailPage from "./ExamDetailPage";
 import UpdateExamPage from "./UpdateExamPage";
-import { getUserId } from "@/data/apiClient";
 
 const ListExamPage: React.FC = () => {
   const [exams, setExams] = useState<IExam[]>([]);
@@ -14,28 +13,41 @@ const ListExamPage: React.FC = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
-  const userId = getUserId();
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [filteredExams, setFilteredExams] = useState<IExam[]>([]);
+  const [isExamDetailReload, setIsExamDetailReload] = useState<boolean>(false);
+
+
+  const examsPerPage = 12;
+
+  const fetchExams = async () => {
+    setLoading(true);
+    const data = await getExamsByUserId();
+    if (data) {
+      setExams(data);
+      setFilteredExams(data);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const fetchExams = async () => {
-      setLoading(true);
-      const data = await getExamsByUserId();
-      console.log("userId", userId);
-      if (data) {
-        setExams(data);
-      }
-      setLoading(false);
-    };
-
     fetchExams();
   }, []);
+
+  useEffect(() => {
+    const filtered = exams.filter((exam) =>
+      exam.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredExams(filtered);
+    setCurrentPage(1);
+  }, [searchTerm, exams]);
 
   const handleViewModeChange = (e: RadioChangeEvent) => {
     setViewMode(e.target.value);
   };
 
   const handleShowDetail = (examId: string) => {
-    console.log("Detail for examId:", examId);
     setSelectedExamId(examId);
     setIsDetailModalOpen(true);
   };
@@ -90,9 +102,13 @@ const ListExamPage: React.FC = () => {
     </Menu>
   );
 
+  const currentExams = filteredExams.slice(
+    (currentPage - 1) * examsPerPage,
+    currentPage * examsPerPage
+  );
+
   return (
     <div className="p-6">
-      {/* Header */}
       <h1 className="text-2xl font-semibold mb-4 text-center">Bài kiểm tra của tôi</h1>
       <div className="flex justify-between items-center mb-6">
         <Radio.Group
@@ -107,19 +123,26 @@ const ListExamPage: React.FC = () => {
             <UnorderedListOutlined /> Dạng danh sách
           </Radio.Button>
         </Radio.Group>
+
+        <Input
+          placeholder="Tìm kiếm bài kiểm tra..."
+          prefix={<SearchOutlined />}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-72"
+        />
       </div>
 
-      {/* Content */}
       {loading ? (
         <Spin size="large" />
-      ) : exams.length === 0 ? (
+      ) : filteredExams.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[200px]">
           <FileProtectOutlined style={{ fontSize: "64px", color: "#ccc" }} />
           <p className="text-gray-500 mt-4">Hiện chưa có bài kiểm tra nào.</p>
         </div>
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {exams.map((exam) => (
+          {currentExams.map((exam) => (
             <div
               key={exam.id}
               className="relative flex flex-col items-center p-4 bg-white shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-300"
@@ -140,7 +163,7 @@ const ListExamPage: React.FC = () => {
       ) : (
         <List
           itemLayout="horizontal"
-          dataSource={exams}
+          dataSource={currentExams}
           renderItem={(exam) => (
             <List.Item key={exam.id} style={{ borderBottom: "1px solid #f0f0f0", padding: "12px 0" }}>
               <List.Item.Meta
@@ -164,31 +187,55 @@ const ListExamPage: React.FC = () => {
         />
       )}
 
-      {/* Detail Modal */}
-      <Modal
-          open={isDetailModalOpen}
-          onCancel={handleDetailModalClose}
-          footer={null}
-          width="50%"
-          bodyStyle={{ padding: 0, background: "transparent" }}
-          style={{ background: "transparent", boxShadow: "none" }}
-          className="custom-modal-no-padding"
-        >
-          {selectedExamId && <ExamDetailPage examId={selectedExamId} />}
-        </Modal>
+      <Pagination
+        current={currentPage}
+        pageSize={examsPerPage}
+        total={filteredExams.length}
+        onChange={(page) => setCurrentPage(page)}
+        className="mt-6 text-center"
+      />
 
-      {/* Edit Modal */}
+          <Modal
+            open={isDetailModalOpen}
+            onCancel={() => {
+              handleDetailModalClose();
+              setIsExamDetailReload(false); // Reset trạng thái sau khi đóng popup
+              console.log(isExamDetailReload)
+            }}
+            footer={null}
+            width="50%"
+            bodyStyle={{ padding: 0, background: "transparent" }}
+            style={{ background: "transparent", boxShadow: "none" }}
+            className="custom-modal-no-padding"
+          >
+            {selectedExamId && (
+              <ExamDetailPage
+              examId={selectedExamId}
+              key={`${selectedExamId}-${Date.now()}`} // Tạo key mới mỗi khi modal mở lại
+            />
+            )}
+          </Modal>
+
       <Modal
-        visible={isEditModalOpen}
-        onCancel={handleEditModalClose}
-        footer={null}
-        width="50%"
-        bodyStyle={{ padding: 0, background: "transparent" }}
-        style={{ background: "transparent", boxShadow: "none" }}
-        className="custom-modal-no-padding"
-      >
-        {selectedExamId && <UpdateExamPage examId={selectedExamId} />}
-      </Modal>
+            visible={isEditModalOpen}
+            onCancel={handleEditModalClose}
+            footer={null}
+            width="50%"
+            bodyStyle={{ padding: 0, background: "transparent" }}
+            style={{ background: "transparent", boxShadow: "none" }}
+            className="custom-modal-no-padding"
+          >
+            {selectedExamId && (
+              <UpdateExamPage
+                examId={selectedExamId}
+                onExamUpdated={() => {
+                  handleEditModalClose();
+                  setIsExamDetailReload(true); // Đặt trạng thái để reload ExamDetailPage
+                  fetchExams();
+                }}
+              />
+            )}
+          </Modal>
     </div>
   );
 };
