@@ -130,6 +130,8 @@ const UpdateMyQuestion: React.FC = () => {
     // } catch (error) {
     //   message.error("Đã xảy ra lỗi khi cập nhật câu hỏi. Vui lòng thử lại!");
     } finally {
+            message.success("Cập nhật câu hỏi thành công!");
+            navigate("/teacher/question-bank/my-question");
       setLoading(false);
     }
   };
