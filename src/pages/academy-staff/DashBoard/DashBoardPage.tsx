@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Statistic, List, Typography, Avatar } from 'antd';
+import { Row, Col, Card, Statistic, List, Typography, Avatar,Spin } from 'antd';
 import { FileTextOutlined, DatabaseOutlined, BookOutlined, MessageOutlined } from '@ant-design/icons';
+
 import {
   PieChart,
   Pie,
@@ -34,6 +35,8 @@ const DashBoardStaffPage: React.FC = () => {
   const [recentFeedback, setRecentFeedback] = useState<IViewListFeedback[]>([]);
   const [questionBankStats, setQuestionBankStats] = useState<{ name: string; value: number }[]>([]);
   const [feedbackStats, setFeedbackStats] = useState<{ name: string; value: number }[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
 
   const [topRatedPlanbooks, setTopRatedPlanbooks] = useState<{
     title: string;
@@ -43,17 +46,14 @@ const DashBoardStaffPage: React.FC = () => {
     avatar: string;
   }[]>([]);
 
-  // const feedbackStats = [
-  //   { name: 'Hài lòng', value: 120 },
-  //   { name: 'Bình thường', value: 30 },
-  //   { name: 'Không hài lòng', value: 10 },
-  // ];
 
   useEffect(() => {
     // Fetch tổng hợp dữ liệu
     const fetchDashboardData = async () => {
       try {
         // Fetch số liệu
+        setLoading(true); // Bắt đầu tải
+
         const [planbookTotal, feedbackTotal, questionTotal, chapterList, feedbackList, questionData] = await Promise.all([
           countPlanbooks(),
           countPlanBookFeedback(),
@@ -114,7 +114,10 @@ const DashBoardStaffPage: React.FC = () => {
         setQuestionBankStats(formattedQuestionStats);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false); // Kết thúc tải
       }
+
     };
 
     fetchDashboardData();
@@ -140,6 +143,7 @@ const DashBoardStaffPage: React.FC = () => {
 
 
   return (
+    <Spin spinning={loading} tip="Đang tải dữ liệu...">
     <>
       <h2 className="my-4 text-2xl font-bold">Bảng điều khiển</h2>
       <Row gutter={[16, 16]} className="mb-6">
@@ -302,6 +306,7 @@ const DashBoardStaffPage: React.FC = () => {
           </Col>
       </Row>
     </>
+    </Spin>
   );
 };
 
