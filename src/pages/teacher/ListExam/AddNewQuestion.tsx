@@ -116,8 +116,8 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions }) => {
         prev.filter((q) => q.questionId !== question.questionId)
       );
     }
-  };
-
+  };  
+  
   const renderAnswers = (answers: IQuestion["answers"]) => (
     <ul className="pl-6 list-disc">
       {answers.map((answer, i) => (
@@ -134,89 +134,96 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions }) => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto p-4">
-      <h1 className="text-2xl font-semibold mb-6 text-center">Ngân hàng câu hỏi</h1>
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex space-x-2 items-center w-2/3">
-          {/* Truyền callback để nhận filters */}
-          <Filters onFiltersChange={(newFilters) => setFilters(newFilters)} />
-        </div>
-      </div>
-  
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <Spin size="large" />
-        </div>
-      ) : error ? (
-        <p className="text-red-500 text-center">{error}</p>
-      ) : filteredQuestions.length > 0 ? (
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex space-x-2">
-              <Button
-                type="primary"
-                onClick={() => setShowAnswers(!showAnswers)}
-                className="h-10 px-4"
-              >
-                {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
-              </Button>
-              <Button
-                type="default"
-                onClick={() => {
-                  setUseMyQuestions((prev) => !prev);
-                }}
-                className="h-10 px-4"
-              >
-                {useMyQuestions ? "Ngân hàng câu hỏi" : "Câu hỏi của tôi"}
-              </Button>
-            </div>
-            <Button
-                  type="primary"
-                  disabled={selectedQuestions.length === 0}
-                  onClick={() => {
-                    onAddQuestions(selectedQuestions); // Gửi danh sách các câu hỏi đã chọn
-                    setSelectedQuestions([]); // Reset danh sách các câu hỏi đã chọn
-                  }}
-                  className="h-10 px-4"
-                >
-                  Thêm câu hỏi ({selectedQuestions.length})
-                </Button>
-
-          </div>
-  
-          <div className="question-list space-y-4">
-            {paginatedQuestions.map((question, index) => (
-              <div
-                key={question.questionId}
-                className="p-4 border border-gray-300 rounded-lg flex items-start space-x-4"
-              >
-                <Checkbox
-                  onChange={(e) =>
-                    handleCheckboxChange(question, e.target.checked)
-                  }
-                />
-                <div>
-                  <h5 className="font-semibold mb-2">
-                    Câu {startIndex + index + 1}: {question.question}
-                  </h5>
-                  {renderAnswers(question.answers)}
-                </div>
-              </div>
-            ))}
-          </div>
-  
-          <Pagination
-            current={currentPage}
-            pageSize={itemsPerPage}
-            total={filteredQuestions.length}
-            onChange={(page) => setCurrentPage(page)}
-            className="mt-4 text-center"
-          />
-        </div>
-      ) : (
-        <p className="text-gray-500 text-center">Ngân hàng chưa có câu hỏi.</p>
-      )}
+<div className="max-w-7xl mx-auto p-4">
+  <h1 className="text-2xl font-semibold mb-6 text-center">Ngân hàng câu hỏi</h1>
+  <div className="flex justify-between items-center mb-6">
+    <div className="flex space-x-2 items-center w-2/3">
+      {/* Truyền callback để nhận filters */}
+      <Filters onFiltersChange={(newFilters) => setFilters(newFilters)} />
     </div>
+  </div>
+
+  {/* Nút cố định */}
+  <div className="flex justify-between items-center mb-4">
+    <div className="flex space-x-2">
+      <Button
+        type="primary"
+        onClick={() => setShowAnswers(!showAnswers)}
+        className="h-10 px-4"
+      >
+        {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
+      </Button>
+      <Button
+        type="default"
+        onClick={() => {
+          setUseMyQuestions((prev) => !prev);
+        }}
+        className="h-10 px-4"
+      >
+        {useMyQuestions ? "Ngân hàng câu hỏi" : "Câu hỏi của tôi"}
+      </Button>
+    </div>
+    <Button
+      type="primary"
+      disabled={selectedQuestions.length === 0}
+      onClick={() => {
+        onAddQuestions(selectedQuestions); // Gửi danh sách các câu hỏi đã chọn
+        setSelectedQuestions([]); // Reset danh sách các câu hỏi đã chọn
+        // Cập nhật danh sách câu hỏi
+        const updatedQuestions = questions.filter(
+          (q) => !selectedQuestions.some((sel) => sel.questionId === q.questionId)
+        );
+        setQuestions(updatedQuestions); // Cập nhật danh sách câu hỏi
+      }}
+      className="h-10 px-4"
+    >
+      Thêm câu hỏi ({selectedQuestions.length})
+    </Button>
+  </div>
+
+  {/* Nội dung hiển thị */}
+  {loading ? (
+    <div className="flex justify-center items-center h-64">
+      <Spin size="large" />
+    </div>
+  ) : error ? (
+    <p className="text-red-500 text-center">{error}</p>
+  ) : filteredQuestions.length > 0 ? (
+    <div>
+      <div className="question-list space-y-4">
+        {paginatedQuestions.map((question, index) => (
+          <div
+            key={question.questionId}
+            className="p-4 border border-gray-300 rounded-lg flex items-start space-x-4"
+          >
+            <Checkbox
+              checked={selectedQuestions.some(
+                (q) => q.questionId === question.questionId
+              )}
+              onChange={(e) => handleCheckboxChange(question, e.target.checked)}
+            />
+            <div>
+              <h5 className="font-semibold mb-2">
+                Câu {startIndex + index + 1}: {question.question}
+              </h5>
+              {renderAnswers(question.answers)}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <Pagination
+        current={currentPage}
+        pageSize={itemsPerPage}
+        total={filteredQuestions.length}
+        onChange={(page) => setCurrentPage(page)}
+        className="mt-4 text-center"
+      />
+    </div>
+  ) : (
+    <p className="text-gray-500 text-center">Ngân hàng chưa có câu hỏi.</p>
+  )}
+</div>
   );
   
 };
