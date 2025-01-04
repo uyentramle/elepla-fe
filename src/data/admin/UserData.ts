@@ -63,10 +63,10 @@ export const getAllUsers = async (
 };
 
 export const getUsersSortedByCreationDate = async (
-    pageIndex: number,
-    pageSize: number
+    // pageIndex: number,
+    // pageSize: number
 ): Promise<IAccount[] | null> => {
-    const response = await getAllUsers(pageIndex, pageSize);
+    const response = await getAllUsers(0, 999);
     if (response && response.success) {
         return response.data.items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
@@ -96,10 +96,10 @@ export const categorizeUsersByRole = async (): Promise<{ [role: string]: IAccoun
 };
 
 export const getUsersLastLogin = async (
-    pageIndex: number,
-    pageSize: number
+    // pageIndex: number,
+    // pageSize: number
 ): Promise<IAccount[] | null> => {
-    const response = await getAllUsers(pageIndex, pageSize);
+    const response = await getAllUsers(0, 999);
     if (response && response.success) {
         return response.data.items.sort((a, b) => new Date(b.lastLogin).getTime() - new Date(a.lastLogin).getTime());
     }

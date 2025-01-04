@@ -1,3 +1,4 @@
+// ArticleFormPage.tsx
 import React, { useEffect, ChangeEvent, useState } from "react";
 import { Button, Form, Input, Select, Typography, Upload, message, Spin } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
@@ -157,16 +158,21 @@ const ArticleFormPage: React.FC = () => {
 
                 if (success) {
                     console.log("Article updated successfully");
+                    message.success("Bài viết đã được cập nhật thành công!");
                 } else {
                     console.error("Failed to update the article");
+                    message.error("Đã xảy ra lỗi khi cập nhật bài viết!");
                 }
             } else {
                 const success = await createArticle(updatedArticle as ICreateArticle);
 
                 if (success) {
                     console.log("Article created successfully");
+                    message.success("Bài viết đã được tạo thành công!");
+                    navigate(-1);
                 } else {
                     console.error("Failed to create the article");
+                    message.error("Đã xảy ra lỗi khi tạo bài viết!");
                 }
             }
             // navigate(-1);
@@ -187,52 +193,45 @@ const ArticleFormPage: React.FC = () => {
             >
                 <div className="w-full px-4 flex">
                     <div className="w-2/3 mr-10">
-                    <Form.Item
-                        label="Tiêu đề"
-                        name="title"
-                        rules={[{ required: true, message: "Vui lòng nhập tiêu đề!" }]}
-                    >
-                        <Input
-                            id="title"
+                        <Form.Item
+                            label="Tiêu đề"
                             name="title"
-                            value={formData.title}
-                            onChange={handleChange}
-                            className="w-full"
-                        />
-                    </Form.Item>
+                            rules={[{ required: true, message: "Vui lòng nhập tiêu đề!" }]}
+                        >
+                            <Input
+                                id="title"
+                                name="title"
+                                value={formData.title}
+                                onChange={handleChange}
+                                className="w-full"
+                            />
+                        </Form.Item>
                     </div>
-                    <div className="w-1/3">
-                    <Form.Item
-                        label="Slug"
-                        name="url"
-                    >
-                        {/* <Input
-                            id="slug"
-                            name="slug"
-                            value={formData.slug || ""}
-                            onChange={handleChange}
-                            className="w-full"
-                        /> */}
-                        <Input
-                            id="slug"
-                            name="slug"
-                            value={formData.slug || ""}
-                            onChange={(e) => {
-                                const value = e.target.value;
-                                const formattedValue = value
-                                    .toLowerCase()
-                                    .replace(/ /g, '-')
-                                    .normalize('NFD')
-                                    .replace(/[\u0300-\u036f]/g, '');
-                                setFormData((prevState) => ({
-                                    ...prevState,
-                                    slug: formattedValue,
-                                }));
-                            }}
-                            className="w-full"
-                        />
-                    </Form.Item>
-                    </div>
+                    {/* <div className="w-1/3">
+                        <Form.Item
+                            label="Slug"
+                            name="url"
+                        >
+                            <Input
+                                id="slug"
+                                name="slug"
+                                value={formData.slug || ""}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    const formattedValue = value
+                                        .toLowerCase()
+                                        .replace(/ /g, '-')
+                                        .normalize('NFD')
+                                        .replace(/[\u0300-\u036f]/g, '');
+                                    setFormData((prevState) => ({
+                                        ...prevState,
+                                        slug: formattedValue,
+                                    }));
+                                }}
+                                className="w-full"
+                            />
+                        </Form.Item>
+                    </div> */}
                 </div>
 
                 <div className="flex w-full px-4">
@@ -250,17 +249,17 @@ const ArticleFormPage: React.FC = () => {
                             </Form.Item>
                         </div>
                         <div className="w-full flex justify-center pt-4">
-                    <Form.Item>
-                        <div className="flex space-x-4">
-                            <Button type="primary" htmlType="submit">
-                                {id ? "Cập nhật" : "Thêm mới"}
-                            </Button>
-                            <Button type="default" onClick={() => navigate(-1)}>
-                                Quay lại
-                            </Button>
+                            <Form.Item>
+                                <div className="flex space-x-4">
+                                    <Button type="primary" htmlType="submit">
+                                        {id ? "Cập nhật" : "Thêm mới"}
+                                    </Button>
+                                    <Button type="default" onClick={() => navigate(-1)}>
+                                        Quay lại
+                                    </Button>
+                                </div>
+                            </Form.Item>
                         </div>
-                    </Form.Item>
-                </div>
                     </div>
 
                     <div className="w-1/3">
@@ -321,18 +320,18 @@ const ArticleFormPage: React.FC = () => {
                                 )} */}
                                 {formData.thumb && (
                                     <div>
-                                    <img
-                                        src={formData.thumb}
-                                        alt="Thumbnail"
-                                        className="mt-2 mb-2"
-                                        style={{ width: "100%" }}
-                                    />
-                                    <Button
-                                    
-                                    onClick={() => setFormData({ ...formData, thumb: "" })}
-                                    >
-                                        Xóa ảnh
-                                    </Button>
+                                        <img
+                                            src={formData.thumb}
+                                            alt="Thumbnail"
+                                            className="mt-2 mb-2"
+                                            style={{ width: "100%" }}
+                                        />
+                                        <Button
+
+                                            onClick={() => setFormData({ ...formData, thumb: "" })}
+                                        >
+                                            Xóa ảnh
+                                        </Button>
                                     </div>
                                 )}
                                 {uploading && <Spin className="mt-10" />}
@@ -341,7 +340,7 @@ const ArticleFormPage: React.FC = () => {
                     </div>
                 </div>
 
-                
+
 
             </Form>
         </>
