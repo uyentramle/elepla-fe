@@ -247,7 +247,7 @@ const PaymentManagementPage: React.FC = () => {
                                 }}
                             >
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="month" />
+                                <XAxis dataKey="year" />
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
