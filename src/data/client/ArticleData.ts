@@ -9,6 +9,7 @@ export interface IViewListArticle {
     excerpt: string;
     status: string;
     thumb: string;
+    categories: string[] | undefined;
 
     created_at: string;
     created_by: string;
@@ -36,6 +37,7 @@ export const getViewListArticle = async (): Promise<IViewListArticle[]> => {
                 excerpt: article.excerpt,
                 status: article.status,
                 thumb: article.thumb || defaultThumb,
+                categories: article.categories || [],
                 created_at: article.createdAt,
                 created_by: article.createdBy || '',
                 updated_at: article.updatedAt || undefined,
