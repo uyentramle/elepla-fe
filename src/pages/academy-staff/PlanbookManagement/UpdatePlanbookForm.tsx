@@ -124,7 +124,13 @@ const UpdatePlanbookForm: React.FC<UpdatePlanbookProps> = ({ planbookId, isVisib
             width={850} // Điều chỉnh chiều rộng modal
             style={{ top: '5vh' }}
         >
-            <div className="container mx-auto px-4 mt-7">
+            <div className="container mx-auto px-4 mt-7"
+                style={{
+                    maxHeight: 'calc(100vh - 173px)',  // Giới hạn chiều cao của thẻ div
+                    overflowY: 'auto',   // Thêm thanh cuộn khi chiều cao vượt quá maxHeight
+                    scrollbarWidth: 'thin',
+                }}
+            >
                 {loading ? (
                     <div className="flex justify-center items-center h-full">
                         <Spin size="large" />
