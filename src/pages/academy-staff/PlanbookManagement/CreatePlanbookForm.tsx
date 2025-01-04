@@ -82,7 +82,7 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
         };
 
         fetchUserPackage();
-    }, []);
+    }, [showPackageDetail]);
 
     const updateInputWidth = () => {
         if (inputRef.current) {

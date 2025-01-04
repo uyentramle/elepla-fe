@@ -5,8 +5,11 @@ import { Modal, Button, Input, message } from 'antd';
 import { UserOutlined, MailOutlined, PhoneOutlined, KeyOutlined, TwitterOutlined, GoogleOutlined } from '@ant-design/icons';
 import { obfuscateUsername, obfuscateEmail, obfuscatePhoneNumber } from '@/utils/ObfuscateInfo';
 import { translatePasswordErrorToVietnamese } from '@/utils/TranslateError';
+import LinkGoogleAccountButton from '@/layouts/teacher/Button/LinkGoogleAccountButton';
+import { getUserId } from '@/data/apiClient';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 interface LinkedAccountProps {
     username: string;
@@ -103,7 +106,7 @@ const AccountSettingsPage: React.FC = () => {
         };
 
         fetchData();
-    }, []);
+    }, [googleEmail]);
 
     const handleClick = () => {
         message.info('Chức năng này đang được phát triển.');
@@ -208,9 +211,12 @@ const AccountSettingsPage: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <Button size="small" className="mt-1 rounded bg-gray-300 px-2 py-1 text-sm text-gray-700" onClick={handleClick}>
+                                {/* <Button size="small" className="mt-1 rounded bg-gray-300 px-2 py-1 text-sm text-gray-700" onClick={handleClick}>
                                     {googleEmail ? 'Hủy liên kết' : 'Liên Kết'}
-                                </Button>
+                                </Button> */}
+                                <GoogleOAuthProvider clientId="448683717226-p7kuea7e82t5l4g4ge8q3j1f2ok92r3q.apps.googleusercontent.com">
+                                    <LinkGoogleAccountButton currentUserId={getUserId()!} googleEmail={googleEmail} />
+                                </GoogleOAuthProvider>
                             </div>
                         </div>
                     </div>
