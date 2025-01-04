@@ -355,7 +355,7 @@ const HomePage: React.FC = () => {
                                                             <UserOutlined className="mr-1" /> Đăng bởi Admin
                                                         </li>
                                                         <li className="inline">
-                                                            <FolderOpenOutlined className="mr-1" /> Air transport
+                                                            <FolderOpenOutlined className="mr-1" /> {article.categories?.join(', ')}
                                                         </li>
                                                     </ul>
                                                     <Link href={`/articles/${article.id}`}>
@@ -386,10 +386,10 @@ const HomePage: React.FC = () => {
                                             <div className="details p-6">
                                                 <ul className="blog-meta text-sm text-gray-600 mb-2">
                                                     <li className="inline mr-4">
-                                                        <UserOutlined className="mr-1" /> Đăng bởi ADMIN
+                                                        <UserOutlined className="mr-1" /> Đăng bởi Admin
                                                     </li>
                                                     <li className="inline">
-                                                        <FolderOpenOutlined className="mr-1" /> Air transport
+                                                        <FolderOpenOutlined className="mr-1" /> {article.categories?.join(', ')}
                                                     </li>
                                                 </ul>
                                                 <Link href={`/articles/${article.id}`}>
