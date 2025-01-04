@@ -351,11 +351,11 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
                 )}
                 {currentStep === 6 && (
                     <div className="container mx-auto px-4 mt-7"
-                    // style={{
-                    //     maxHeight: '585px',  // Giới hạn chiều cao của thẻ div
-                    //     overflowY: 'auto',   // Thêm thanh cuộn khi chiều cao vượt quá maxHeight
-                    //     scrollbarWidth: 'thin',
-                    // }}
+                        style={{
+                            maxHeight: 'calc(100vh - 173px)',  // Giới hạn chiều cao của thẻ div
+                            overflowY: 'auto',   // Thêm thanh cuộn khi chiều cao vượt quá maxHeight
+                            scrollbarWidth: 'thin',
+                        }}
                     >
                         {loading ? (
                             <div className="flex justify-center items-center h-full">
