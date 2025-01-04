@@ -122,7 +122,7 @@ const QuestionBankFormPage: React.FC = () => {
         setType(undefined);
         setPlum(undefined);
         setAnswers([{ answerId: "1", answerText: "", isCorrect: false }]);
-        navigate("/teacher/question-bank/my-question");
+        navigate("/academy-staff/question-banks");
       } else {
         message.error(result.message || "Lỗi khi thêm câu hỏi.");
       }
@@ -230,7 +230,7 @@ const QuestionBankFormPage: React.FC = () => {
             <Button type="primary" htmlType="submit">
               Lưu
             </Button>
-            <Button type="default" onClick={() => navigate("/teacher/question-bank/my-question")}>
+            <Button type="default" onClick={() => navigate("/academy-staff/question-banks")}>
               Quay lại
             </Button>
           </div>

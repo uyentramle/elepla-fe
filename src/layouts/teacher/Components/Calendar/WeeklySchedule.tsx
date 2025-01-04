@@ -8,7 +8,8 @@ import { now, months, SelectedDay, dayName, monthName, capFirstLetter } from "@/
 import { fetchTeachingSchedules, IViewSchedule } from "@/data/client/ScheduleData";
 import Day from "./Day"; 
 import { deleteTeachingSchedule } from "@/data/client/ScheduleData";
-import PlanbookDetailForm from '@/pages/academy-staff/PlanbookManagement/PlanbookDetailForm';
+import PlanbookDetailCalendar from './PlanbookDetailCalendar';
+
 
 interface WeeklyScheduleProps {
     events: IViewSchedule[];
@@ -185,17 +186,25 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({ events, updateEvents })
                 </Button>
             </div>
             <div className="flex justify-evenly">
-                {days.map((day) => {
-                    const eventsForDay = events.filter((event) => {
+                    {days.map((day) => {
+                        // Lọc các sự kiện trong ngày
+                        const eventsForDay = events.filter((event) => {
                         const eventDate = dayjs(event.date, "YYYY-MM-DD");
                         return (
                             eventDate.date() === day.date() &&
                             eventDate.month() === day.month() &&
                             eventDate.year() === day.year()
                         );
-                    });
+                        });
 
-                    return (
+                        // Sắp xếp các sự kiện theo thời gian bắt đầu
+                        const sortedEvents = eventsForDay.sort((a, b) => {
+                        const startA = dayjs(a.startTime, "HH:mm");
+                        const startB = dayjs(b.startTime, "HH:mm");
+                        return startA.isBefore(startB) ? -1 : 1;
+                        });
+
+                        return (
                         <Day
                             key={day.toString()}
                             day={dayName(day.day())}
@@ -203,22 +212,22 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({ events, updateEvents })
                             month={day.month()}
                             year={day.year()}
                             today={
-                                day.date() === now.date &&
-                                day.month() === now.month &&
-                                day.year() === now.year
+                            day.date() === now.date &&
+                            day.month() === now.month &&
+                            day.year() === now.year
                             }
                             handlerSelect={selectDay}
                             selected={
-                                day.date() === selected.date &&
-                                day.month() === selected.month &&
-                                day.year() === selected.year
+                            day.date() === selected.date &&
+                            day.month() === selected.month &&
+                            day.year() === selected.year
                             }
-                            events={eventsForDay}
+                            events={sortedEvents} // Truyền danh sách sự kiện đã sắp xếp
                             onEventClick={handleEventClick}
                         />
-                    );
-                })}
-            </div>
+                        );
+                    })}
+                    </div>
         </>
     )}
             {/* Modal to display event details */}
@@ -282,14 +291,15 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({ events, updateEvents })
                             onCancel={closePlanbookModal}
                             footer={null}
                             width={800} // Đặt kích thước phù hợp
-                        >
-                            <PlanbookDetailForm
+                            maskStyle={{ backgroundColor: 'transparent' }} // Không làm tối nền
+                            >
+                            <PlanbookDetailCalendar
                                 planbookId={selectedPlanbookId}
                                 isVisible={isPlanbookModalVisible}
                                 onClose={closePlanbookModal}
                                 isLibrary={false} // Thay đổi nếu cần
                             />
-                        </Modal>
+                            </Modal>
                     )}
         </div>
     );

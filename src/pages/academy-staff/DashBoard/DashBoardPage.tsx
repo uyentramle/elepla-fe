@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Statistic, List, Typography, Avatar } from 'antd';
+import { Row, Col, Card, Statistic, List, Typography, Avatar,Spin } from 'antd';
 import { FileTextOutlined, DatabaseOutlined, BookOutlined, MessageOutlined } from '@ant-design/icons';
+
 import {
   PieChart,
   Pie,
@@ -34,6 +35,8 @@ const DashBoardStaffPage: React.FC = () => {
   const [recentFeedback, setRecentFeedback] = useState<IViewListFeedback[]>([]);
   const [questionBankStats, setQuestionBankStats] = useState<{ name: string; value: number }[]>([]);
   const [feedbackStats, setFeedbackStats] = useState<{ name: string; value: number }[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
 
   const [topRatedPlanbooks, setTopRatedPlanbooks] = useState<{
     title: string;
@@ -43,17 +46,14 @@ const DashBoardStaffPage: React.FC = () => {
     avatar: string;
   }[]>([]);
 
-  // const feedbackStats = [
-  //   { name: 'Hài lòng', value: 120 },
-  //   { name: 'Bình thường', value: 30 },
-  //   { name: 'Không hài lòng', value: 10 },
-  // ];
 
   useEffect(() => {
     // Fetch tổng hợp dữ liệu
     const fetchDashboardData = async () => {
       try {
         // Fetch số liệu
+        setLoading(true); // Bắt đầu tải
+
         const [planbookTotal, feedbackTotal, questionTotal, chapterList, feedbackList, questionData] = await Promise.all([
           countPlanbooks(),
           countPlanBookFeedback(),
@@ -114,7 +114,10 @@ const DashBoardStaffPage: React.FC = () => {
         setQuestionBankStats(formattedQuestionStats);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false); // Kết thúc tải
       }
+
     };
 
     fetchDashboardData();
@@ -140,6 +143,7 @@ const DashBoardStaffPage: React.FC = () => {
 
 
   return (
+    <Spin spinning={loading} tip="Đang tải dữ liệu...">
     <>
       <h2 className="my-4 text-2xl font-bold">Bảng điều khiển</h2>
       <Row gutter={[16, 16]} className="mb-6">
@@ -161,25 +165,47 @@ const DashBoardStaffPage: React.FC = () => {
       </Row>
 
       <Row gutter={[16, 16]} className="mb-6">
-        <Col span={12}>
+      <Col span={12}>
           <Card title="Phân bổ chương theo môn học">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={chapterStats}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, value }) => `${name}: ${value}`}
-                >
-                  {chapterStats.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {/* Biểu đồ tròn */}
+              <ResponsiveContainer width="60%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={chapterStats}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                    labelLine={false} // Loại bỏ đường dẫn nhãn
+                  >
+                    {chapterStats.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              {/* Ghi chú */}
+              <div style={{ marginLeft: '16px' }}>
+                <ul style={{ listStyle: 'none', padding: 0 }}>
+                  {chapterStats.map((item, index) => (
+                    <li key={item.name} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          width: '12px',
+                          height: '12px',
+                          backgroundColor: COLORS[index % COLORS.length],
+                          marginRight: '8px',
+                        }}
+                      ></span>
+                      <Text>{`${item.name}: ${item.value} chương`}</Text>
+                    </li>
                   ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
+                </ul>
+              </div>
+            </div>
           </Card>
         </Col>
 
@@ -280,6 +306,7 @@ const DashBoardStaffPage: React.FC = () => {
           </Col>
       </Row>
     </>
+    </Spin>
   );
 };
 

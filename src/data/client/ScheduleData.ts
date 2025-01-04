@@ -29,7 +29,7 @@ export interface IViewSchedule {
 }
 
 
-export const fetchTeachingSchedules = async (pageIndex = 0, pageSize = 10): Promise<IViewSchedule[]> => {
+export const fetchTeachingSchedules = async (pageIndex = -1, pageSize = 10): Promise<IViewSchedule[]> => {
     const userId = getUserId(); // Lấy userId từ token
     if (!userId) {
         throw new Error("User ID not found. Please log in again.");
@@ -89,6 +89,26 @@ export interface ICreateSchedule {
 
 export const createTeachingSchedule = async (schedule: ICreateSchedule): Promise<void> => {
     try {
+        // Lấy danh sách các lịch dạy hiện tại
+        const currentSchedules = await fetchTeachingSchedules();
+
+        // Kiểm tra trùng khung giờ
+        const isConflict = currentSchedules.some((event) => {
+            return (
+                event.date === schedule.date && // Cùng ngày
+                (
+                    (schedule.startTime >= event.startTime && schedule.startTime < event.endTime) || // Bắt đầu trong khoảng thời gian
+                    (schedule.endTime > event.startTime && schedule.endTime <= event.endTime) || // Kết thúc trong khoảng thời gian
+                    (schedule.startTime <= event.startTime && schedule.endTime >= event.endTime) // Bao phủ toàn bộ
+                )
+            );
+        });
+
+        if (isConflict) {
+            throw new Error("Khung giờ đã bị trùng với một sự kiện khác.");
+        }
+
+        // Gửi yêu cầu tạo sự kiện nếu không có xung đột
         const response = await apiClient.post("TeachingSchedule/AddTeachingSchedule", schedule, {
             headers: {
                 "Content-Type": "application/json",
@@ -100,7 +120,6 @@ export const createTeachingSchedule = async (schedule: ICreateSchedule): Promise
         if (!success) {
             throw new Error(message || "Failed to create teaching schedule.");
         }
-
     } catch (error) {
         console.error("Error creating teaching schedule:", error);
         throw error;
@@ -171,6 +190,27 @@ export interface IUpdateSchedule {
 
 export const updateTeachingSchedule = async (schedule: IUpdateSchedule): Promise<void> => {
     try {
+        // Lấy danh sách các lịch dạy hiện tại
+        const currentSchedules = await fetchTeachingSchedules();
+
+        // Kiểm tra trùng khung giờ
+        const isConflict = currentSchedules.some((event) => {
+            return (
+                event.date === schedule.date && // Cùng ngày
+                event.id !== schedule.scheduleId && // Không phải chính sự kiện đang cập nhật
+                (
+                    (schedule.startTime >= event.startTime && schedule.startTime < event.endTime) || // Bắt đầu trong khoảng thời gian
+                    (schedule.endTime > event.startTime && schedule.endTime <= event.endTime) || // Kết thúc trong khoảng thời gian
+                    (schedule.startTime <= event.startTime && schedule.endTime >= event.endTime) // Bao phủ toàn bộ
+                )
+            );
+        });
+
+        if (isConflict) {
+            throw new Error("Khung giờ đã bị trùng với một sự kiện khác.");
+        }
+
+        // Gửi yêu cầu cập nhật nếu không có xung đột
         const response = await apiClient.put("TeachingSchedule/UpdateTeachingSchedule", schedule, {
             headers: {
                 "Content-Type": "application/json",

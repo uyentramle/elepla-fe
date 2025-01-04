@@ -108,41 +108,55 @@ const handlePlanbookSelect = (value: string) => {
         }));
     };
 
-  const handleSubmit = async (values: any) => {
-    try {
-        if (!values.date) {
-            message.error("Vui lòng chọn ngày!");
-            return;
+    const handleSubmit = async (values: any) => {
+        try {
+            if (!values.date) {
+                message.error("Vui lòng chọn ngày!");
+                return;
+            }
+    
+            if (!values.startTime || !values.endTime) {
+                message.error("Vui lòng nhập giờ bắt đầu và giờ kết thúc!");
+                return;
+            }
+    
+            if (values.startTime.isAfter(values.endTime)) {
+                message.error("Giờ bắt đầu phải nhỏ hơn giờ kết thúc!");
+                return;
+            }
+    
+            const localDate = values.date.tz(dayjs.tz.guess()).format("YYYY-MM-DD");
+    
+            const scheduleData = {
+                scheduleId: id || "",
+                title: values.title,
+                description: formData.description,
+                date: localDate,
+                startTime: values.startTime.format("HH:mm"),
+                endTime: values.endTime.format("HH:mm"),
+                className: values.className,
+                teacherId: userId || "",
+                planbookId: formData.planbookId || "",
+            };
+    
+            if (id) {
+                await updateTeachingSchedule(scheduleData);
+                message.success("Sự kiện đã được cập nhật thành công!");
+            } else {
+                await createTeachingSchedule(scheduleData);
+                message.success("Sự kiện đã được tạo thành công!");
+            }
+            navigate(-1);
+        } catch (error: any) {
+            if (error.message === "Khung giờ đã bị trùng với một sự kiện khác.") {
+                message.error("Khung giờ đã bị trùng với một sự kiện khác.");
+            } else {
+                message.error("Vui lòng chọn kế hoạch giảng dạy");
+            }
+            console.error("Error submitting form:", error);
         }
-
-        // Sử dụng múi giờ hiện tại (múi giờ của người dùng)
-        const localDate = values.date.tz(dayjs.tz.guess()).format("YYYY-MM-DD");
-
-        const scheduleData = {
-            scheduleId: id || "",
-            title: values.title,
-            description: formData.description,
-            date: localDate, // Sử dụng ngày với múi giờ của người dùng
-            startTime: values.startTime.format("HH:mm"),
-            endTime: values.endTime.format("HH:mm"),
-            className: values.className,
-            teacherId: userId || "",
-            planbookId: formData.planbookId || "",
-        };
-
-        if (id) {
-            await updateTeachingSchedule(scheduleData);
-            message.success("Sự kiện đã được cập nhật thành công!");
-        } else {
-            await createTeachingSchedule(scheduleData);
-            message.success("Sự kiện đã được tạo thành công!");
-        }
-        navigate(-1);
-    } catch (error) {
-        console.error("Error submitting form:", error);
-        message.error("Không thể lưu thông tin sự kiện. Vui lòng thử lại.");
-    }
-};
+    };
+    
 
 
     useEffect(() => {
@@ -159,83 +173,112 @@ const handlePlanbookSelect = (value: string) => {
                     {id ? 'Chỉnh sửa sự kiện' : 'Thêm sự kiện'}
                 </Title>
                 <Form
-                    form={form}
-                    initialValues={formData}
-                    layout="vertical"
-                    onFinish={handleSubmit}
-                >
-                    <Form.Item
-                        label="Tiêu đề"
-                        name="title"
-                        rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}>
-                        <Input placeholder="Tiêu đề" />
-                    </Form.Item>
-
-                    <div className="flex" style={{ gap: '30px' }}>
+                        form={form}
+                        initialValues={formData}
+                        layout="vertical"
+                        onFinish={handleSubmit}
+                    >
                         <Form.Item
-                            label="Ngày"
-                            name="date"
-                            rules={[{ required: true, message: 'Vui lòng chọn ngày!' }]}>
-                            <DatePicker
-                                format="YYYY-MM-DD"
-                                style={{ width: '100%' }}
-                                onChange={(date) => form.setFieldsValue({ date })}
+                            label="Tiêu đề"
+                            name="title"
+                            rules={[{ required: true, message: 'Vui lòng nhập tiêu đề!' }]}
+                        >
+                            <Input placeholder="Tiêu đề" />
+                        </Form.Item>
+
+                        <div className="flex" style={{ gap: '30px' }}>
+                            <Form.Item
+                                label="Ngày"
+                                name="date"
+                                rules={[{ required: true, message: 'Vui lòng chọn ngày!' }]}
+                            >
+                                <DatePicker
+                                    format="YYYY-MM-DD"
+                                    style={{ width: '100%' }}
+                                    onChange={(date) => form.setFieldsValue({ date })}
+                                />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Giờ bắt đầu"
+                                name="startTime"
+                                rules={[
+                                    { required: true, message: 'Vui lòng nhập thời gian bắt đầu!' },
+                                    ({ getFieldValue }) => ({
+                                        validator(_, value) {
+                                            const endTime = getFieldValue('endTime');
+                                            if (!value || !endTime || value.isBefore(endTime)) {
+                                                return Promise.resolve();
+                                            }
+                                            return Promise.reject('Giờ bắt đầu phải nhỏ hơn giờ kết thúc!');
+                                        },
+                                    }),
+                                ]}
+                            >
+                                <TimePicker format="HH:mm" style={{ width: '100%' }} />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Giờ kết thúc"
+                                name="endTime"
+                                rules={[
+                                    { required: true, message: 'Vui lòng nhập thời gian kết thúc!' },
+                                    ({ getFieldValue }) => ({
+                                        validator(_, value) {
+                                            const startTime = getFieldValue('startTime');
+                                            if (!value || !startTime || startTime.isBefore(value)) {
+                                                return Promise.resolve();
+                                            }
+                                            return Promise.reject('Giờ bắt đầu phải nhỏ hơn giờ kết thúc!');
+                                        },
+                                    }),
+                                ]}
+                            >
+                                <TimePicker format="HH:mm" style={{ width: '100%' }} />
+                            </Form.Item>
+                        </div>
+
+                        <Form.Item
+                            label="Tên lớp"
+                            name="className"
+                            rules={[{ required: true, message: 'Vui lòng nhập tên lớp!' }]}
+                        >
+                            <Input placeholder="Tên lớp" />
+                        </Form.Item>
+
+                        <Form.Item label="Liên kết kế hoạch giảng dạy" name="planbookId">
+                            <Button onClick={() => setIsModalOpen(true)}>Chọn kế hoạch giảng dạy</Button>
+                            {formData.planbookId && (
+                                <div style={{ marginTop: '10px' }}>
+                                    <span><strong>Kế hoạch đã chọn: </strong>{formData.planbookTitle}</span>
+                                </div>
+                            )}
+                        </Form.Item>
+
+                        <Form.Item
+                            label="Mô tả"
+                            name="description"
+                        >
+                            <ReactQuill
+                                value={formData.description}
+                                onChange={handleContentChange}
+                                className="h-60 mb-4"
                             />
                         </Form.Item>
 
-                        <Form.Item
-                            label="Giờ bắt đầu"
-                            name="startTime"
-                            rules={[{ required: true, message: 'Vui lòng nhập thời gian bắt đầu!' }]}>
-                            <TimePicker format="HH:mm" style={{ width: '100%' }} />
+                        <Form.Item className="pt-4">
+                            <Button type="primary" htmlType="submit" className='mr-4'>
+                                Lưu
+                            </Button>
+                            <Button
+                                type="default"
+                                onClick={() => navigate(-1)}
+                            >
+                                Quay lại
+                            </Button>
                         </Form.Item>
+                    </Form>
 
-                        <Form.Item
-                            label="Giờ kết thúc"
-                            name="endTime"
-                            rules={[{ required: true, message: 'Vui lòng nhập thời gian kết thúc!' }]}>
-                            <TimePicker format="HH:mm" style={{ width: '100%' }} />
-                        </Form.Item>
-                    </div>
-
-                    <Form.Item
-                        label="Tên lớp"
-                        name="className">
-                        <Input placeholder="Tên lớp" />
-                    </Form.Item>
-
-                    <Form.Item label="Liên kết kế hoạch giảng dạy" name="planbookId">
-                        <Button onClick={() => setIsModalOpen(true)}>Chọn kế hoạch giảng dạy</Button>
-                        {/* Hiển thị kế hoạch đã chọn */}
-                        {formData.planbookId && (
-                            <div style={{ marginTop: '10px' }}>
-                                <span><strong>Kế hoạch đã chọn: </strong>{formData.planbookTitle}</span>
-                            </div>
-                        )}
-                    </Form.Item>
-
-                    <Form.Item
-                        label="Mô tả"
-                        name="description">
-                        <ReactQuill
-                            value={formData.description}
-                            onChange={handleContentChange}
-                            className="h-60 mb-4"
-                        />
-                    </Form.Item>
-
-                    <Form.Item className="pt-4">
-                        <Button type="primary" htmlType="submit" className='mr-4'>
-                            Lưu
-                        </Button>
-                        <Button
-                            type="default"
-                            onClick={() => navigate(-1)}
-                        >
-                            Quay lại
-                        </Button>
-                    </Form.Item>
-                </Form>
             </div>
 
             <Modal

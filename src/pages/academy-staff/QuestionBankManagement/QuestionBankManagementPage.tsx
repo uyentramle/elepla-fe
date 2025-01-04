@@ -159,7 +159,7 @@ const QuestionBankManagementPage: React.FC = () => {
   const questionTypeMap: Record<QuestionType, string> = {
     "multiple choice": "Câu hỏi trắc nghiệm",
     "True/False": "Câu hỏi đúng sai",
-    "Short Answer": "Câu trả lời ngắn",
+    "Short Answer": "Câu tự luận ngắn",
   };
   
   const plumLevelMap: Record<PlumLevel, string> = {
@@ -183,10 +183,6 @@ const QuestionBankManagementPage: React.FC = () => {
         >
           <Filters
             onFiltersChange={handleFiltersChange}
-            // style={{
-            //   flex: 1,
-            //   maxWidth: "70%", // Giữ kích thước Filters hợp lý
-            // }}
           />
           <Button
             type="primary"
@@ -263,21 +259,28 @@ const QuestionBankManagementPage: React.FC = () => {
               </div>
 
               <p style={{ marginTop: "20px" }}><strong>Câu trả lời:</strong></p>
-              <ol type="A" style={{ paddingLeft: "20px", marginBottom: "10px" }}>
-                {selectedQuestion.answers.map((answer, index) => (
-                  <li key={answer.answerId} style={{ marginBottom: "5px" }}>
-                    {String.fromCharCode(65 + index)}. {answer.answerText}
-                  </li>
-                ))}
-              </ol>
+                <ol
+                  type={selectedQuestion.type === "Short Answer" ? "1" : "A"}
+                  style={{ paddingLeft: "20px", marginBottom: "10px" }}
+                >
+                  {selectedQuestion.answers.map((answer, index) => (
+                    <li key={answer.answerId} style={{ marginBottom: "5px" }}>
+                      {selectedQuestion.type === "Short Answer"
+                        ? answer.answerText
+                        : `${String.fromCharCode(65 + index)}. ${answer.answerText}`}
+                    </li>
+                  ))}
+                </ol>
 
-              <p>
-                <strong>Câu trả lời đúng:</strong>{" "}
-                {selectedQuestion.answers
-                  .map((answer, index) => (answer.isCorrect ? String.fromCharCode(65 + index) : null))
-                  .filter(Boolean)
-                  .join(", ")}
-              </p>
+                {selectedQuestion.type !== "Short Answer" && (
+                    <p>
+                      <strong>Câu trả lời đúng:</strong>{" "}
+                      {selectedQuestion.answers
+                        .map((answer, index) => (answer.isCorrect ? String.fromCharCode(65 + index) : null))
+                        .filter(Boolean)
+                        .join(", ")}
+                    </p>
+                  )}
             </div>
           ) : (
             <div className="flex justify-center items-center h-32">

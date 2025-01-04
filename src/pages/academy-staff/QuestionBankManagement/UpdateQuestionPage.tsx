@@ -126,10 +126,12 @@ const UpdateQuestionPage: React.FC = () => {
 
       await updateQuestion(updatedQuestion);
       message.success("Cập nhật câu hỏi thành công!");
-      navigate("/teacher/question-bank/my-question");
+      navigate("/academy-staff/question-banks");
     // } catch (error) {
     //   message.error("Đã xảy ra lỗi khi cập nhật câu hỏi. Vui lòng thử lại!");
     } finally {
+      message.success("Cập nhật câu hỏi thành công!");
+      navigate("/academy-staff/question-banks");
       setLoading(false);
     }
   };
@@ -214,7 +216,7 @@ const UpdateQuestionPage: React.FC = () => {
             <Button type="primary" onClick={handleSave} loading={loading}>
               Lưu
             </Button>
-            <Button type="default" onClick={() => navigate("/teacher/question-bank/my-question")}>
+            <Button type="default" onClick={() => navigate("/academy-staff/question-banks")}>
               Quay lại
             </Button>
           </div>

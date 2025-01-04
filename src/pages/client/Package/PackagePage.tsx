@@ -134,9 +134,9 @@ const PackagePage: React.FC = () => {
                                 {pkg.description || ''}
                             </p>
                             <ul className="text-left mb-8" style={{ height: '200px' }}>
-                                <li>- {pkg.useTemplate ? 'Hỗ trợ sử dụng mẫu để tạo kế hoạch bài dạy.' : 'Không hỗ trợ sử dụng mẫu để tạo kế hoạch bài dạy.'}</li>
+                                <li>- {pkg.useTemplate ? 'Hỗ trợ sử dụng dữ liệu mẫu để tạo kế hoạch bài dạy.' : 'Không hỗ trợ sử dụng dữ liệu mẫu để tạo kế hoạch bài dạy.'}</li>
                                 <li>
-                                    - {pkg.useAI ? 'Tích hợp AI hỗ trợ tạo nội dung.' : 'Không tích hợp AI tạo nội dung.'}
+                                    - {pkg.useAI ? 'Hỗ trợ sử dụng AI để tạo kế hoạch.' : 'Không hỗ trợ sử dụng AI để tạo kế hoạch.'}
                                 </li>
                                 <li>
                                     - {pkg.exportWord

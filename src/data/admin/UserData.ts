@@ -156,3 +156,23 @@ export const getUserToSharedPlanbook = async (planbookId: string): Promise<ListU
         return [];
     }
 }
+
+export const linkGoogleAccount = async (currentUserId: string, googleToken: string): Promise<boolean> => {
+    try {
+        console.log("Link Google Account:", currentUserId, googleToken);
+
+        const response = await apiClient.put(`Account/LinkGoogleAccount?currentUserId=${currentUserId}`, {
+                googleToken,
+                isCredential: false
+        });
+        
+        if (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error("Link Google Account Error:", error);
+        return false;
+    }
+};

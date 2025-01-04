@@ -1,8 +1,10 @@
-import React, { useEffect, ChangeEvent } from "react";
-import { Button, Form, Input, Select, Typography, Upload } from "antd";
+import React, { useEffect, ChangeEvent, useState } from "react";
+import { Button, Form, Input, Select, Typography, Upload, message, Spin } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { storage } from "@/services/Firebase/firebase";
 import { fetchListCategory } from "@/data/admin/CategoryData";
 
 import { UploadOutlined } from "@ant-design/icons";
@@ -30,8 +32,8 @@ const ArticleFormPage: React.FC = () => {
         categories: [],
     });
     const [selectedCategories, setSelectedCategories] = React.useState<string[]>([]);
-
     const [categoriesData, setCategoriesData] = React.useState<{ id: string, name: string }[]>([]);
+    const [uploading, setUploading] = useState(false); // Trạng thái tải lên
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -84,12 +86,54 @@ const ArticleFormPage: React.FC = () => {
     };
 
     // Handle file changes
-    const handleFileChange = (info: any) => {
-        const thumb = info.fileList.length > 0 ? info.fileList[0].originFileObj : "";
-        setFormData((prevState) => ({
-            ...prevState,
-            thumb: thumb,
-        }));
+    // const handleFileChange = (info: any) => {
+    //     const thumb = info.fileList.length > 0 ? info.fileList[0].originFileObj : "";
+    //     setFormData((prevState) => ({
+    //         ...prevState,
+    //         thumb: thumb,
+    //     }));
+    // };
+
+    const handleFileChange = async (info: any) => {
+        if (info.file && info.file.originFileObj) {
+            const file = info.file.originFileObj;
+
+            // Tải ảnh lên Firebase
+            setUploading(true);
+            try {
+                const url = await handleUpload(file);
+                setFormData({ ...formData, thumb: url }); // Cập nhật URL vào formData
+                // message.success("Tải ảnh lên thành công!");
+            } catch (error) {
+                console.error("Error uploading file:", error);
+                message.error("Tải ảnh lên thất bại!");
+            } finally {
+                setUploading(false);
+            }
+        }
+    };
+
+    const handleUpload = (file: File): Promise<string> => {
+        const storageRef = ref(storage, `articles/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        return new Promise<string>((resolve, reject) => {
+            uploadTask.on(
+                "state_changed",
+                () => {
+                    // Có thể thêm logic theo dõi tiến độ tải lên
+                },
+                (error) => {
+                    console.error("Upload failed:", error);
+                    reject(error);
+                },
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        resolve(downloadURL);
+                    });
+                }
+            );
+        });
     };
 
     // Handle category changes
@@ -102,8 +146,8 @@ const ArticleFormPage: React.FC = () => {
             ...formData,
             categories: selectedCategories,
         };
-        console.log("Submitting article data:", updatedArticle); 
-        
+        console.log("Submitting article data:", updatedArticle);
+
         try {
             if (id) {
                 const success = await updateArticle({
@@ -141,7 +185,8 @@ const ArticleFormPage: React.FC = () => {
                 className="flex flex-wrap"
                 onFinish={handleSubmit}
             >
-                <div className="w-1/2 px-4">
+                <div className="w-full px-4 flex">
+                    <div className="w-2/3 mr-10">
                     <Form.Item
                         label="Tiêu đề"
                         name="title"
@@ -155,8 +200,9 @@ const ArticleFormPage: React.FC = () => {
                             className="w-full"
                         />
                     </Form.Item>
-
-                    {/* <Form.Item
+                    </div>
+                    <div className="w-1/3">
+                    <Form.Item
                         label="Slug"
                         name="url"
                     >
@@ -166,7 +212,7 @@ const ArticleFormPage: React.FC = () => {
                             value={formData.slug || ""}
                             onChange={handleChange}
                             className="w-full"
-                        /> 
+                        /> */}
                         <Input
                             id="slug"
                             name="slug"
@@ -185,7 +231,8 @@ const ArticleFormPage: React.FC = () => {
                             }}
                             className="w-full"
                         />
-                    </Form.Item> */}
+                    </Form.Item>
+                    </div>
                 </div>
 
                 <div className="flex w-full px-4">
@@ -202,6 +249,18 @@ const ArticleFormPage: React.FC = () => {
                                 />
                             </Form.Item>
                         </div>
+                        <div className="w-full flex justify-center pt-4">
+                    <Form.Item>
+                        <div className="flex space-x-4">
+                            <Button type="primary" htmlType="submit">
+                                {id ? "Cập nhật" : "Thêm mới"}
+                            </Button>
+                            <Button type="default" onClick={() => navigate(-1)}>
+                                Quay lại
+                            </Button>
+                        </div>
+                    </Form.Item>
+                </div>
                     </div>
 
                     <div className="w-1/3">
@@ -248,31 +307,41 @@ const ArticleFormPage: React.FC = () => {
                                 <Upload
                                     name="thumbnail"
                                     listType="picture"
-                                    beforeUpload={() => false}
+                                    // beforeUpload={() => false}
                                     onChange={handleFileChange}
+                                    showUploadList={false}
                                 >
-                                    <Button icon={<UploadOutlined />}>Chọn hình ảnh</Button>
+                                    {/* <Button icon={<UploadOutlined />}>Chọn hình ảnh</Button> */}
+                                    <Button icon={<UploadOutlined />} loading={uploading}>
+                                        {uploading ? "Đang tải lên..." : "Chọn hình ảnh"}
+                                    </Button>
                                 </Upload>
-                                {formData.thumb && typeof formData.thumb !== 'string' && (
+                                {/* {formData.thumb && typeof formData.thumb !== 'string' && (
                                     <img src={URL.createObjectURL(formData.thumb)} alt="Thumbnail" className="mt-2" style={{ width: '100%' }} />
+                                )} */}
+                                {formData.thumb && (
+                                    <div>
+                                    <img
+                                        src={formData.thumb}
+                                        alt="Thumbnail"
+                                        className="mt-2 mb-2"
+                                        style={{ width: "100%" }}
+                                    />
+                                    <Button
+                                    
+                                    onClick={() => setFormData({ ...formData, thumb: "" })}
+                                    >
+                                        Xóa ảnh
+                                    </Button>
+                                    </div>
                                 )}
+                                {uploading && <Spin className="mt-10" />}
                             </Form.Item>
                         </div>
                     </div>
                 </div>
 
-                <div className="w-full flex justify-center pt-4">
-                    <Form.Item>
-                        <div className="flex space-x-4">
-                            <Button type="primary" htmlType="submit">
-                                {id ? "Cập nhật" : "Thêm mới"}
-                            </Button>
-                            <Button type="default" onClick={() => navigate(-1)}>
-                                Quay lại
-                            </Button>
-                        </div>
-                    </Form.Item>
-                </div>
+                
 
             </Form>
         </>
