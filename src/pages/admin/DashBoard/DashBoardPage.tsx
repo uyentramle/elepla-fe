@@ -19,6 +19,7 @@ import { countArticles, countArticlesByCategory } from '@/data/admin/ArticleData
 import { countCategories } from '@/data/admin/CategoryData';
 import { fetchCurriculumList, IViewListCurriculum } from '@/data/admin/CurriculumFramworkData';
 import { countUsers, getUsersSortedByCreationDate, categorizeUsersByRole, getUsersLastLogin } from '@/data/admin/UserData';
+import { Link } from "react-router-dom";
 
 const { Text } = Typography;
 
@@ -49,8 +50,8 @@ const DashBoardPage: React.FC = () => {
                         fetchCurriculumList(),
                         countArticlesByCategory(),
                         categorizeUsersByRole(),
-                        getUsersSortedByCreationDate(1, 5),
-                        getUsersLastLogin(1, 5),
+                        getUsersSortedByCreationDate(),
+                        getUsersLastLogin(),
                     ]);
 
                 setArticleCount(articleCountRes);
@@ -67,6 +68,7 @@ const DashBoardPage: React.FC = () => {
                 }
 
                 if (recentUsersRes) {
+                    recentUsersRes.splice(9);
                     setRecentUsers(recentUsersRes.map(user => ({
                         ...user,
                         value: 1,
@@ -74,6 +76,7 @@ const DashBoardPage: React.FC = () => {
                 }
 
                 if (lastLoginUsersRes) {
+                    lastLoginUsersRes.splice(5);
                     setLastLoginUsers(lastLoginUsersRes.map(user => ({
                         ...user,
                         value: 1,
@@ -104,17 +107,23 @@ const DashBoardPage: React.FC = () => {
             <Row gutter={[16, 16]} className="mb-6">
                 <Col span={8}>
                     <Card>
-                        <Statistic title="Người dùng" value={userCount} prefix={<UserOutlined />} />
+                        <Link to="/admin/users">
+                            <Statistic title="Người dùng" value={userCount} prefix={<UserOutlined />} />
+                        </Link>
                     </Card>
                 </Col>
                 <Col span={8}>
                     <Card>
-                        <Statistic title="Bài viết" value={articleCount} prefix={<BookOutlined />} />
+                        <Link to="/admin/articles">
+                            <Statistic title="Bài viết" value={articleCount} prefix={<BookOutlined />} />
+                        </Link>
                     </Card>
                 </Col>
                 <Col span={8}>
                     <Card>
-                        <Statistic title="Danh mục bài viết" value={categoryCount} prefix={<TagsOutlined />} />
+                        <Link to="/admin/categories">
+                            <Statistic title="Danh mục bài viết" value={categoryCount} prefix={<TagsOutlined />} />
+                        </Link>
                     </Card>
                 </Col>
             </Row>

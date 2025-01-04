@@ -1,18 +1,22 @@
 // HomePage.tsx
 import React, { useEffect, useState } from 'react';
-import { Card, Typography, Row, Col } from 'antd';
+import { Card, Typography, Row, Col, } from 'antd';
 import { Button } from 'antd';
 import {
     RightOutlined,
     UserOutlined,
     FolderOpenOutlined,
     CheckOutlined,
+    CheckCircleOutlined,
+    RocketOutlined,
+    CrownOutlined,
 } from '@ant-design/icons';
 import Link from 'antd/es/typography/Link';
 
 import intro_data from '@/data/client/IntroData';
 import features from '@/data/client/FeatureData';
-import packages from '@/data/client/PackageData';
+// import packages from '@/data/client/PackageData';
+import { getAllServicePackages, IPackageItem } from '@/data/client/PackageData';
 import work_data from '@/data/client/WorkAreaData';
 import feedback_data from '@/data/client/FeedbackData';
 import { getViewListArticle, IViewListArticle } from '@/data/client/ArticleData';
@@ -20,10 +24,25 @@ import { getViewListArticle, IViewListArticle } from '@/data/client/ArticleData'
 const { Title, Text } = Typography;
 
 const HomePage: React.FC = () => {
+    const [packages, setPackages] = useState<IPackageItem[]>([]);
     const [articles, setArticles] = useState<IViewListArticle[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
+        const fetchPackages = async () => {
+            try {
+                setLoading(true);
+                const data = await getAllServicePackages(0, 10);
+                // console.log('Service packages:', data); // Debug dữ liệu trả về
+                setPackages(data);
+            } catch (error) {
+                console.error('Không thể tải danh sách gói đăng ký.', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPackages();
+
         const fetchArticles = async () => {
             try {
                 const data = await getViewListArticle();
@@ -198,7 +217,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Package Area  */}
-            <div className="bg-white-100 px-20 pb-10">
+            {/* <div className="bg-white-100 px-20 pb-10">
                 <section className="container mx-auto mt-10">
                     <Title level={2} className="title text-3xl text-center pb-6">
                         Các gói dịch vụ của chúng tôi
@@ -220,6 +239,76 @@ const HomePage: React.FC = () => {
                             </Col>
                         ))}
                     </Row>
+                </section>
+            </div> */}
+            <div className="bg-white-100 px-20 pb-10">
+                <section className="container mx-auto mt-10">
+                    <Title level={2} className="title text-3xl text-center pb-6">
+                        Các gói dịch vụ của chúng tôi
+                    </Title>
+                    <Row gutter={16} className="text-center">
+                        {packages.map((item, index) => (
+                            <Col key={index} xs={24} md={8}>
+                                <Card
+                                    key={item.packageId}
+                                    className="mb-4 shadow-md transition duration-300 ease-in-out hover:-translate-y-1"
+                                >
+                                    <Title level={4}>
+                                        {item.packageName}
+                                    </Title>
+                                    <div className="flex justify-center mb-4">
+                                        {item.packageName.includes('miễn phí') ? (
+                                            <CheckCircleOutlined className="text-6xl text-green-500" />
+                                        ) : item.packageName.includes('cao cấp') ? (
+                                            <RocketOutlined className="text-6xl text-red-500" />
+                                        ) : (
+                                            <CrownOutlined className="text-6xl text-blue-500" />
+                                        )}
+                                    </div>
+                                    <Title level={2}>
+                                        {item.price.toLocaleString()}đ/năm học
+                                    </Title>
+                                    <Text className="font-bold">
+                                        {item.description}
+                                    </Text>{' '}
+                                    <p className="text-lg">
+                                        {item.description || ''}
+                                    </p>
+                                    <ul className="text-left ml-8" >
+                                        <li>- {item.useTemplate
+                                            ? 'Hỗ trợ sử dụng mẫu để tạo kế hoạch bài dạy.'
+                                            : 'Không hỗ trợ sử dụng mẫu để tạo kế hoạch bài dạy.'}</li>
+                                        <li>
+                                            - {item.useAI
+                                                ? 'Tích hợp AI hỗ trợ tạo nội dung.'
+                                                : 'Không tích hợp AI tạo nội dung.'}
+                                        </li>
+                                        <li>
+                                            - {item.exportWord
+                                                ? 'Cho phép xuất sang định dạng Word.'
+                                                : 'Không hỗ trợ xuất sang Word.'}
+                                        </li>
+                                        <li>
+                                            - {item.exportPdf
+                                                ? 'Cho phép xuất sang định dạng PDF.'
+                                                : 'Không hỗ trợ xuất sang PDF.'}
+                                        </li>
+                                        <li>- Quản lý tối đa {item.maxLessonPlans} kế hoạch bài học trong năm học.</li>
+                                    </ul>
+                                </Card>
+                            </Col>
+                        ))}
+                    </Row>
+                    <div className="flex justify-center">
+                        <Button
+                            type='primary'
+                            size="middle"
+                            onClick={() => window.location.href = '/package-detail'}
+                            className="mx-auto"
+                        >
+                            Xem chi tiết
+                        </Button>
+                    </div>
                 </section>
             </div>
 

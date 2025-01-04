@@ -149,7 +149,7 @@ export interface IUpdateArticle {
 export const updateArticle = async (article: IUpdateArticle): Promise<boolean> => {
     try {
         const response = await apiClient.put('/Article/UpdateArticle', {
-            id: article.id,
+            articleId: article.id,
             title: article.title,
             slug: article.slug,
             content: article.content,
