@@ -95,8 +95,9 @@ const PackageInUsePage: React.FC = () => {
         if (pkg.paymentStatus === "Pending") {
             // return <span className="text-orange-500 font-bold">Đang chờ thanh toán</span>;
             return (
-            <a href={pkg.paymentUrl} className="text-blue-500 font-semibold underline" target="_blank" rel="noopener noreferrer">
-            Đang chờ thanh toán            </a>
+                <a href={pkg.paymentUrl} className="text-blue-500 font-semibold underline" target="_blank" rel="noopener noreferrer">
+                    Đang chờ thanh toán            
+                </a>
             );
         }
 

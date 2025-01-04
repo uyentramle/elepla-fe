@@ -194,7 +194,7 @@ const DashBoardManagerPage: React.FC = () => {
                 <Col span={24} className="mt-2">
                     <span className='mr-2'>Thống kê theo:</span>
                     <Select
-                        defaultValue="month"
+                        defaultValue="year"
                         onChange={handleTimeFrameChange}
                         style={{ width: 200 }}
                     >
@@ -238,7 +238,7 @@ const DashBoardManagerPage: React.FC = () => {
                                 }}
                             >
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="month" />
+                                <XAxis dataKey="year" />
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
