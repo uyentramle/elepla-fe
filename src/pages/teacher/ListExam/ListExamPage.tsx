@@ -187,34 +187,45 @@ const ListExamPage: React.FC = () => {
         />
       )}
 
-      <Pagination
-        current={currentPage}
-        pageSize={examsPerPage}
-        total={filteredExams.length}
-        onChange={(page) => setCurrentPage(page)}
-        className="mt-6 text-center"
-      />
-
-          <Modal
-            open={isDetailModalOpen}
-            onCancel={() => {
-              handleDetailModalClose();
-              setIsExamDetailReload(false); // Reset trạng thái sau khi đóng popup
-              console.log(isExamDetailReload)
-            }}
-            footer={null}
-            width="50%"
-            bodyStyle={{ padding: 0, background: "transparent" }}
-            style={{ background: "transparent", boxShadow: "none", top: 30 }}
-            className="custom-modal-no-padding"
-          >
-            {selectedExamId && (
-              <ExamDetailPage
-              examId={selectedExamId}
-              key={`${selectedExamId}-${Date.now()}`} // Tạo key mới mỗi khi modal mở lại
+          {filteredExams.length > examsPerPage && (
+            <Pagination
+              current={currentPage}
+              pageSize={examsPerPage}
+              total={filteredExams.length}
+              onChange={(page) => setCurrentPage(page)}
+              className="mt-6 text-center"
             />
-            )}
-          </Modal>
+          )}
+
+            <Modal
+              open={isDetailModalOpen}
+              onCancel={() => {
+                handleDetailModalClose();
+                setIsExamDetailReload(false); // Reset trạng thái sau khi đóng popup
+                console.log(isExamDetailReload);
+              }}
+              footer={null}
+              width="50%"
+              bodyStyle={{ 
+                padding: "16px", // Giảm padding bên trong
+                maxHeight: "90vh", // Chiều cao tối đa, có thể cuộn nếu nội dung vượt quá
+                overflowY: "auto", // Bật cuộn dọc nếu cần
+                background: "transparent" 
+              }}
+              style={{ 
+                background: "transparent", 
+                boxShadow: "none", 
+                top: 20 // Điều chỉnh vị trí từ trên xuống, giúp modal không quá dài
+              }}
+              className="custom-modal-no-padding"
+            >
+              {selectedExamId && (
+                <ExamDetailPage
+                  examId={selectedExamId}
+                  key={`${selectedExamId}-${Date.now()}`} // Tạo key mới mỗi khi modal mở lại
+                />
+              )}
+            </Modal>
 
       <Modal
             visible={isEditModalOpen}

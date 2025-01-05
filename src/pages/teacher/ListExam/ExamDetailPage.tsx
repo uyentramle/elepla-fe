@@ -96,32 +96,34 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
   }
 
   return (
-    <div className="p-0 bg-transparent">
-        <div className="max-w-4xl mx-auto bg-white shadow-none rounded-lg p-6 flex flex-col justify-between h-full border-none">
-        {/* Header */}
-        <h1 className="text-3xl font-bold text-center mb-6">{examDetails.title}</h1>
+    <div className="p-0 bg-transparent h-full flex flex-col">
+      <div className="max-w-4xl mx-auto bg-white flex flex-col h-full border-none relative">
   
-        {/* Thời gian làm bài */}
-        <p className="text-lg mb-6">
-          <strong>Thời gian làm bài:</strong> {examDetails.time}
-        </p>
+        {/* Nội dung cuộn */}
+        <div className="flex-grow overflow-y-auto px-4">
+          {/* Header */}
+          <h1 className="text-3xl font-bold text-center my-4">{examDetails.title}</h1>
   
-        {/* Hiển thị đáp án button */}
-        <Button
-          type="primary"
-          onClick={() => setShowAnswers(!showAnswers)}
-          className="mb-6 w-auto self-start"
-          style={{
-            fontSize: "0.875rem", // Smaller button text
-            border: "none", // Loại bỏ viền button
-            boxShadow: "none", // Loại bỏ shadow nếu có
-          }}
-        >
-          {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
-        </Button>
+          {/* Thời gian làm bài */}
+          <p className="text-lg mb-4">
+            <strong>Thời gian làm bài:</strong> {examDetails.time}
+          </p>
   
-        {/* Danh sách câu hỏi */}
-        <div className="mb-8">
+          {/* Hiển thị đáp án button */}
+          <Button
+            type="primary"
+            onClick={() => setShowAnswers(!showAnswers)}
+            className="mb-4 w-auto"
+            style={{
+              fontSize: "0.875rem",
+              border: "none",
+              boxShadow: "none",
+            }}
+          >
+            {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
+          </Button>
+  
+          {/* Danh sách câu hỏi */}
           {examDetails.questions.map((question, index) => (
             <div key={question.questionId} className="mb-6">
               <p className="font-bold text-lg mb-2">
@@ -132,38 +134,46 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
           ))}
         </div>
   
-        {/* Buttons */}
-        <div className="flex justify-center gap-2 mt-auto">
-              <Button
-                onClick={() => handleExportFile(exportExamToWord, false)}
-                className="custom-button"
-              >
-                Xuất file Word
-              </Button>
-              <Button
-                onClick={() => handleExportFile(exportExamToPdf, false)}
-                className="custom-button"
-              >
-                Xuất file PDF
-              </Button>
-              <Button
-                onClick={() => handleExportFile(exportExamWithAnswersToWord, true)}
-                className="custom-button"
-              >
-                Xuất Word (kèm đáp án)
-              </Button>
-              <Button
-                onClick={() => handleExportFile(exportExamWithAnswersToPdf, true)}
-                className="custom-button"
-              >
-                Xuất PDF (kèm đáp án)
-              </Button>
-          </div>
+        {/* Footer cố định */}
+        <div
+          className="flex justify-between gap-2 p-4 bg-white shadow-md"
+          style={{
+            position: "sticky",
+            bottom: -30, // Đẩy footer cách cạnh dưới một chút
+            left: 0,
+            right: 0,
+            zIndex: 10,
+            borderTop: "1px solid #e5e5e5",
+          }}
+        >
+          <Button
+            onClick={() => handleExportFile(exportExamToWord, false)}
+            className="w-full py-2"
+          >
+            Xuất file Word
+          </Button>
+          <Button
+            onClick={() => handleExportFile(exportExamToPdf, false)}
+            className="w-full py-2"
+          >
+            Xuất file PDF
+          </Button>
+          <Button
+            onClick={() => handleExportFile(exportExamWithAnswersToWord, true)}
+            className="w-full py-2"
+          >
+            Xuất Word (kèm đáp án)
+          </Button>
+          <Button
+            onClick={() => handleExportFile(exportExamWithAnswersToPdf, true)}
+            className="w-full py-2"
+          >
+            Xuất PDF (kèm đáp án)
+          </Button>
+        </div>
       </div>
     </div>
   );
-  
-  
 };
 
 export default ExamDetailPage;
