@@ -5,15 +5,11 @@ import Header from './Components/Header/Header';
 
 const DefaultClientLayout = ({ children }: DefaultLayoutProps) => {
     return (
-        <div>
-            <Layout className="min-h-screen flex">
-                <Layout className="bg-white flex flex-col w-full min-h-screen">
-                    <Header />
-                    <div className="">{children}</div>
-                    <Footer />
-                </Layout>
-            </Layout>
-        </div>
+        <Layout className="min-h-screen flex flex-col">
+            <Header />
+            <div className="flex-grow bg-white">{children}</div>
+            <Footer />
+        </Layout>
     );
 };
 
