@@ -86,7 +86,19 @@ export const fetchUserPackageDetail = async (userPackageId: string): Promise<IVi
     }
 };
 
-
+export const deactiveExpiredUserPackages = async (): Promise<boolean> => {
+    try {
+        const response = await apiClient.put(`UserPackage/DeactivateExpiredUserPackages`);
+        if  (response.data.success) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Failed to deactive expired user packages:', error);
+        return false;
+    }
+};
 
 
 

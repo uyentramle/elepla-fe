@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Row, Col, Card, Statistic, List, Typography, Select, message, } from 'antd';
+import { Row, Col, Card, Statistic, List, Typography, Select, message } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import {
     XAxis,
@@ -194,7 +194,7 @@ const DashBoardManagerPage: React.FC = () => {
                 <Col span={24} className="mt-2">
                     <span className='mr-2'>Thống kê theo:</span>
                     <Select
-                        defaultValue="year"
+                        defaultValue="month"
                         onChange={handleTimeFrameChange}
                         style={{ width: 200 }}
                     >
