@@ -298,48 +298,48 @@ const MyQuestionPage: React.FC = () => {
               className="mt-4"
             />
           )}
-        <Modal
-          title="Chi tiết câu hỏi"
-          visible={isDetailModalVisible}
-          onCancel={handleCloseDetailModal}
-          footer={null}
-          width={800}
-          bodyStyle={{ padding: "20px" }}
-        >
-          {selectedQuestion ? (
-            <div>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 4fr",
-                  gap: "4px",
-                  lineHeight: "1.6",
-                }}
-              >
-                <p><strong>Câu hỏi:</strong></p>
-                <p>{selectedQuestion.question}</p>
+          <Modal
+            title="Chi tiết câu hỏi"
+            visible={isDetailModalVisible}
+            onCancel={handleCloseDetailModal}
+            footer={null}
+            width={800}
+            bodyStyle={{ padding: "20px" }}
+          >
+            {selectedQuestion ? (
+              <div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 4fr",
+                    gap: "4px",
+                    lineHeight: "1.6",
+                  }}
+                >
+                  <p><strong>Câu hỏi:</strong></p>
+                  <p>{selectedQuestion.question}</p>
 
-                <p><strong>Loại câu hỏi:</strong></p>
-                <p>{questionTypeMap[selectedQuestion.type]}</p>
+                  <p><strong>Loại câu hỏi:</strong></p>
+                  <p>{questionTypeMap[selectedQuestion.type]}</p>
 
-                <p><strong>Độ khó (Plum):</strong></p>
-                <p>{plumLevelMap[selectedQuestion.plum]}</p>
+                  <p><strong>Độ khó (Plum):</strong></p>
+                  <p>{plumLevelMap[selectedQuestion.plum]}</p>
 
-                <p><strong>Chương:</strong></p>
-                <p>{selectedQuestion.chapterName}</p>
+                  <p><strong>Chương:</strong></p>
+                  <p>{selectedQuestion.chapterName}</p>
 
-                <p><strong>Bài:</strong></p>
-                <p>{selectedQuestion.lessonName || "N/A"}</p>
+                  <p><strong>Bài:</strong></p>
+                  <p>{selectedQuestion.lessonName || "N/A"}</p>
 
-                <p><strong>Ngày chỉnh sửa:</strong></p>
-                <p>
-                  {selectedQuestion.updatedAt
-                    ? new Date(selectedQuestion.updatedAt).toLocaleDateString()
-                    : "Chưa được chỉnh sửa"}
-                </p>
-              </div>
+                  <p><strong>Ngày chỉnh sửa:</strong></p>
+                  <p>
+                    {selectedQuestion.updatedAt
+                      ? new Date(selectedQuestion.updatedAt).toLocaleDateString()
+                      : "Chưa được chỉnh sửa"}
+                  </p>
+                </div>
 
-              <p style={{ marginTop: "20px" }}><strong>Câu trả lời:</strong></p>
+                <p style={{ marginTop: "20px" }}><strong>Câu trả lời:</strong></p>
                 <ol
                   type={selectedQuestion.type === "Short Answer" ? "1" : "A"}
                   style={{ paddingLeft: "20px", marginBottom: "10px" }}
@@ -354,21 +354,21 @@ const MyQuestionPage: React.FC = () => {
                 </ol>
 
                 {selectedQuestion.type !== "Short Answer" && (
-                    <p>
-                      <strong>Câu trả lời đúng:</strong>{" "}
-                      {selectedQuestion.answers
-                        .map((answer, index) => (answer.isCorrect ? String.fromCharCode(65 + index) : null))
-                        .filter(Boolean)
-                        .join(", ")}
-                    </p>
-                  )}
-            </div>
-          ) : (
-            <div className="flex justify-center items-center h-32">
-              <Spin size="large" />
-            </div>
-          )}
-        </Modal>
+                  <p>
+                    <strong>Câu trả lời đúng:</strong>{" "}
+                    {selectedQuestion.answers
+                      .map((answer, index) => (answer.isCorrect ? String.fromCharCode(65 + index) : null))
+                      .filter(Boolean)
+                      .join(", ")}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="flex justify-center items-center h-32">
+                <Spin size="large" />
+              </div>
+            )}
+          </Modal>
     </div>
   );
 }

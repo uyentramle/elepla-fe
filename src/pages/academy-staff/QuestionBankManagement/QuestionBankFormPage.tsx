@@ -52,8 +52,14 @@ const QuestionBankFormPage: React.FC = () => {
       message.error("Câu hỏi đúng/sai chỉ có thể có 2 câu trả lời.");
       return;
     }
-    setAnswers([...answers, { answerId: `${answers.length + 1}`, answerText: "", isCorrect: false }]);
-  };
+  
+    // Tìm ID lớn nhất hiện có trong danh sách câu trả lời
+    const maxId = answers.reduce((max, answer) => Math.max(max, parseInt(answer.answerId, 10)), 0);
+  
+    // Thêm câu trả lời mới với ID lớn hơn
+    const newAnswer = { answerId: `${maxId + 1}`, answerText: "", isCorrect: false };
+    setAnswers([...answers, newAnswer]);
+  };  
 
   const updateAnswer = (index: number, field: keyof typeof answers[0], value: any) => {
     const updatedAnswers = answers.map((answer, i) => {
