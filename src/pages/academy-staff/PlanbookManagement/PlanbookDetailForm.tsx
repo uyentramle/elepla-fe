@@ -208,7 +208,7 @@ const PlanbookDetailForm: React.FC<PlanbookDetailProps> = ({ planbookId, isVisib
                         }}
                     >
                         {loading ? ( // Hiển thị loading trong khi chờ dữ liệu
-                            <div className="flex justify-center items-center h-full">
+                            <div className="flex justify-center items-center h-full h-20">
                                 <Spin size="large" />
                                 <span className="ml-3">Đang tải dữ liệu...</span>
                             </div>

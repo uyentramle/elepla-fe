@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Statistic, List, Typography, Avatar,Spin } from 'antd';
+import { Row, Col, Card, Statistic, List, Typography, Avatar, Spin } from 'antd';
 import { FileTextOutlined, DatabaseOutlined, BookOutlined, MessageOutlined } from '@ant-design/icons';
 
 import {
@@ -141,9 +141,15 @@ const DashBoardStaffPage: React.FC = () => {
     fetchFeedbackData();
   }, []);
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" className="dashboard-loading" />
+      </div>
+    );
+  }
 
   return (
-    <Spin spinning={loading} tip="Đang tải dữ liệu...">
     <>
       <h2 className="my-4 text-2xl font-bold">Bảng điều khiển</h2>
       <Row gutter={[16, 16]} className="mb-6">
@@ -165,7 +171,7 @@ const DashBoardStaffPage: React.FC = () => {
       </Row>
 
       <Row gutter={[16, 16]} className="mb-6">
-      <Col span={12}>
+        <Col span={12}>
           <Card title="Phân bổ chương theo môn học">
             <div style={{ display: 'flex', alignItems: 'center' }}>
               {/* Biểu đồ tròn */}
@@ -247,66 +253,65 @@ const DashBoardStaffPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={12}>
-      <Card title="Phân tích phản hồi">
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={feedbackStats}
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              fill="#8884d8"
-              dataKey="value"
-              label={({ name, value }) => `${name}: ${value}`}
-            >
-              {feedbackStats.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-          </PieChart>
-        </ResponsiveContainer>
-      </Card>
-    </Col>
+          <Card title="Phân tích phản hồi">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={feedbackStats}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, value }) => `${name}: ${value}`}
+                >
+                  {feedbackStats.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </Card>
+        </Col>
 
         <Col span={12}>
-            <Card title="Kế hoạch được yêu thích">
-              <List
-                itemLayout="horizontal"
-                dataSource={topRatedPlanbooks}
-                renderItem={(item) => (
-                  <List.Item>
-                    <List.Item.Meta
-                      avatar={<FileTextOutlined style={{ fontSize: '20px', color: '#1890ff' }} />}
-                      title={<Text strong>{item.title}</Text>}
-                      description={
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <Avatar
-                            src={item.avatar}
-                            size={24} // Kích thước nhỏ hơn
-                            style={{ marginRight: 8 }}
-                          />
-                          <Text>{item.author}</Text>
-                        </div>
-                      }
-                    />
-                    <div>
-                      {Array.from({ length: Math.min(item.stars, 5) }, (_, i) => (
-                        <span key={i} style={{ color: '#fadb14' }}>★</span>
-                      ))}
-                      {item.stars > 5 && (
-                        <Text type="secondary" style={{ fontSize: '12px', marginLeft: 8 }}>
-                          +{item.stars - 5}
-                        </Text>
-                      )}
-                    </div>
-                  </List.Item>
-                )}
-              />
-            </Card>
-          </Col>
+          <Card title="Kế hoạch được yêu thích">
+            <List
+              itemLayout="horizontal"
+              dataSource={topRatedPlanbooks}
+              renderItem={(item) => (
+                <List.Item>
+                  <List.Item.Meta
+                    avatar={<FileTextOutlined style={{ fontSize: '20px', color: '#1890ff' }} />}
+                    title={<Text strong>{item.title}</Text>}
+                    description={
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <Avatar
+                          src={item.avatar}
+                          size={24} // Kích thước nhỏ hơn
+                          style={{ marginRight: 8 }}
+                        />
+                        <Text>{item.author}</Text>
+                      </div>
+                    }
+                  />
+                  <div>
+                    {Array.from({ length: Math.min(item.stars, 5) }, (_, i) => (
+                      <span key={i} style={{ color: '#fadb14' }}>★</span>
+                    ))}
+                    {item.stars > 5 && (
+                      <Text type="secondary" style={{ fontSize: '12px', marginLeft: 8 }}>
+                        +{item.stars - 5}
+                      </Text>
+                    )}
+                  </div>
+                </List.Item>
+              )}
+            />
+          </Card>
+        </Col>
       </Row>
     </>
-    </Spin>
   );
 };
 

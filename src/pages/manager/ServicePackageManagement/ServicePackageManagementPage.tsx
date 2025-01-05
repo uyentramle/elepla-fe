@@ -4,6 +4,7 @@ import { Button, Input, Table, Modal, message, Typography } from 'antd';
 import { Link } from "react-router-dom";
 
 import { IViewListServicePackage, fetchServicePackages, deleteServicePackage } from "@/data/manager/ServicePackageData";
+import { deactiveExpiredUserPackages } from "@/data/manager/UserPackageData";
 
 const { Title } = Typography;
 
@@ -61,6 +62,20 @@ const ServicePackageManagementPage: React.FC = () => {
         setDeleteModalVisible(false);
         setServicePackageToDelete(null);
     };
+
+    const handleDeactivateExpiredPackages = async () => {
+        try {
+            const isDeactivated = await deactiveExpiredUserPackages();
+            if (isDeactivated) {
+                message.success('Đã hủy kích hoạt các gói dịch vụ');
+            } else {
+                message.error('Chưa đến thời gian hết hạn các gói dịch vụ');
+            }
+        } catch (error) {
+            console.error('Lỗi khi hủy kích hoạt gói dịch vụ hết hạn:', error);
+            message.error('Không thể hủy kích hoạt gói dịch vụ hết hạn');
+        }
+    }
 
     const columns = [
         {
@@ -152,7 +167,13 @@ const ServicePackageManagementPage: React.FC = () => {
                         />
                     </div>
                 </div>
-                <div>
+                <div className="flex items-center">
+                    <Button
+                        className="mr-4 bg-white text-blue-500 border border-blue-500 hover:bg-blue-100 hover:text-blue-700"
+                        onClick={handleDeactivateExpiredPackages}
+                    >
+                        Hủy kích hoạt các gói
+                    </Button>
                     <Button type="primary" className="mr-4">
                         <Link
                             to="/manager/service-packages/add-new"
