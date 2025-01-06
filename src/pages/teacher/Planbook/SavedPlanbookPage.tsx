@@ -149,7 +149,7 @@ const SavedPlanbookPage: React.FC = () => {
       if (response) {
         message.success("Clone Planbook thành công!");
       } else {
-        message.error("Clone Planbook thất bại!");
+        message.error('Số lượng kế hoạch bài dạy được tạo đã đạt giới hạn cho gói dịch vụ của bạn!');      
       }
     } catch (error) {
       console.error("Lỗi khi lưu Planbook:", error);
