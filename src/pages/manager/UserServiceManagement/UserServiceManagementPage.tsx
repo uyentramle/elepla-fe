@@ -1,3 +1,4 @@
+// UserServiceManagementPage.tsx
 import React, { useEffect, useState } from "react";
 import {
     SearchOutlined,
@@ -54,12 +55,14 @@ const UserServiceManagementPage: React.FC = () => {
         const matchesSearch = `${c.fullName}`.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus =
             filterStatus === 'All' ||
-            (filterStatus === 'Active' && c.isActivated) ||
-            (filterStatus === 'Inactive' && !c.isActivated);
+            (filterStatus === 'Active' && c.isActive) ||
+            (filterStatus === 'Inactive' && !c.isActive);
 
+        // const matchesPackage =
+        //     filterPackage === 'All' ||
+        //     servicePackages.some(pkg => filterPackage === pkg.packageName && c.packageName === pkg.packageName);
         const matchesPackage =
-            filterPackage === 'All' ||
-            servicePackages.some(pkg => filterPackage === pkg.packageName && c.packageName === pkg.packageName);
+            filterPackage === 'All' || c.packageName === filterPackage;
 
         return matchesSearch && matchesStatus && matchesPackage;
     });
@@ -67,7 +70,7 @@ const UserServiceManagementPage: React.FC = () => {
     const columns = [
         {
             title: 'No.',
-            dataIndex: '1',
+            key: 'index',
             render: (_text: any, _record: any, index: number) => index + 1,
         },
         {
@@ -101,11 +104,17 @@ const UserServiceManagementPage: React.FC = () => {
             title: 'Trạng thái',
             dataIndex: 'isActivated',
             key: 'isActivated',
-            render: (isActivated: boolean, _record: any) => (
-                <span style={{ color: isActivated ? 'green' : dayjs().isAfter(dayjs(_record.endDate)) ? 'gray' : 'red' }}>
-                    {isActivated ? 'Đang sử dụng' : dayjs().isAfter(dayjs(_record.endDate)) ? 'Hết hạn' : 'Đã hủy'}
-                </span>
-            ),
+            // render: (isActivated: boolean, _record: any) => (
+            //     <span style={{ color: isActivated ? 'green' : dayjs().isAfter(dayjs(_record.endDate)) ? 'gray' : 'red' }}>
+            //         {isActivated ? 'Đang sử dụng' : dayjs().isAfter(dayjs(_record.endDate)) ? 'Hết hạn' : 'Đã hủy'}
+            //     </span>
+            // ),
+            render: (isActivated: any, record: { endDate: string | number | Date | dayjs.Dayjs | null | undefined; }) => {
+                const isExpired = dayjs().isAfter(dayjs(record.endDate));
+                const color = isActivated ? 'green' : isExpired ? 'gray' : 'red';
+                const status = isActivated ? 'Đang sử dụng' : isExpired ? 'Hết hạn' : 'Đã hủy';
+                return <span style={{ color }}>{status}</span>;
+            }
         },
     ];
 
@@ -122,7 +131,7 @@ const UserServiceManagementPage: React.FC = () => {
                     <Card className="shadow-md bg-green-100">
                         <Statistic
                             title="Dịch vụ khách hàng đang sử dụng"
-                            value={userServices.filter(service => service.isActivated).length} />
+                            value={userServices.filter(service => service.isActive).length} />
                         <div className="mt-2 flex items-center justify-between">
                             {/* <Link to={"#userlist"} ><CaretRightOutlined /> Xem chi tiết</Link> */}
                         </div>
@@ -134,7 +143,7 @@ const UserServiceManagementPage: React.FC = () => {
                             title="Người dùng mua gói trong tháng"
                             value={
                                 userPayments.filter(payment =>
-                                    dayjs(payment.paymentDate)
+                                    dayjs(payment.createdAt)
                                         .isSame(dayjs(), 'month')).length
                             } />
                         <div className="mt-2 flex items-center justify-between">
@@ -150,7 +159,7 @@ const UserServiceManagementPage: React.FC = () => {
                             value={
                                 userServices.filter(service =>
                                     dayjs(service.endDate).isSame(dayjs(), 'month')
-                                    && service.isActivated).length
+                                    && service.isActive).length
                             } />
                         <div className="mt-2 flex items-center justify-between">
                             {/* <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link> */}
@@ -208,7 +217,8 @@ const UserServiceManagementPage: React.FC = () => {
                     columns={columns}
                     dataSource={filteredUserServices}
                     rowKey={(record) => record.userId}
-                    pagination={{ pageSize: 10 }}
+                    // pagination={{ pageSize: 10 }}
+                    locale={{ emptyText: 'Không có dữ liệu' }}
                 />
             </div>
         </>

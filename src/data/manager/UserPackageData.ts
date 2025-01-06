@@ -1,3 +1,4 @@
+// UserPackageData.ts
 import apiClient from '@/data/apiClient';
 
 export interface IViewListUserPackage {
@@ -6,11 +7,17 @@ export interface IViewListUserPackage {
     fullName: string;
     packageId: string;
     packageName: string;
+    useTemplate: boolean;
+    useAI: boolean;
+    exportWord: boolean;
+    exportPDF: boolean;
     price: number;
     discount: number;
     startDate: string;
     endDate: string;
-    isActivated: boolean;
+    isActive: boolean;
+    paymentStatus: string;
+    paymentUrl: string;
 
     created_at: string;
     created_by: string;
@@ -23,10 +30,10 @@ export interface IViewListUserPackage {
 
 export const fetchUserPackageList = async (): Promise<IViewListUserPackage[]> => {
     try {
-        const response = await apiClient.get(`UserPackage/GetAllUserPackages`, {
+        const response = await apiClient.get(`/UserPackage/GetAllUserPackages`, {
             params: {
-                pageIndex: -1,
-                pageSize: 1000,
+                pageIndex: 0,
+                pageSize: 999,
             },
         });
         const userPackage = response.data.data.items.map((item: any) => ({
@@ -35,11 +42,17 @@ export const fetchUserPackageList = async (): Promise<IViewListUserPackage[]> =>
             fullName: item.fullName,
             packageId: item.packageId,
             packageName: item.packageName,
+            useTemplate: item.useTemplate,
+            useAI: item.useAI,
+            exportWord: item.exportWord,
+            exportPDF: item.exportPDF,
             price: item.price,
             discount: item.discount,
             startDate: item.startDate,
             endDate: item.endDate,
-            isActivated: item.isActive,
+            isActive: item.isActive,
+            paymentStatus: item.paymentStatus,
+            paymentUrl: item.paymentUrl,
 
             created_at: item.createdAt,
             created_by: item.createdBy || '',
@@ -58,7 +71,7 @@ export const fetchUserPackageList = async (): Promise<IViewListUserPackage[]> =>
 
 export const fetchUserPackageDetail = async (userPackageId: string): Promise<IViewListUserPackage | null> => {
     try {
-        const response = await apiClient.get(`UserPackage/GetUserPackageDetails?userPackageId=${userPackageId}`);
+        const response = await apiClient.get(`/UserPackage/GetUserPackageById?userPackageId=${userPackageId}`);
         const item = response.data.data;
         return {
             userPackageId: item.userPackageId,
@@ -66,11 +79,17 @@ export const fetchUserPackageDetail = async (userPackageId: string): Promise<IVi
             fullName: item.fullName,
             packageId: item.packageId,
             packageName: item.packageName,
+            useTemplate: item.useTemplate,
+            useAI: item.useAI,
+            exportWord: item.exportWord,
+            exportPDF: item.exportPDF,
             price: item.price,
             discount: item.discount,
             startDate: item.startDate,
             endDate: item.endDate,
-            isActivated: item.isActive,
+            isActive: item.isActive,
+            paymentStatus: item.paymentStatus,
+            paymentUrl: item.paymentUrl,
 
             created_at: item.createdAt,
             created_by: item.createdBy || '',

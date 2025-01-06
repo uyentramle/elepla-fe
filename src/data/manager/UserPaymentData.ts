@@ -1,34 +1,39 @@
+// UserPaymentData.ts
 import apiClient from '@/data/apiClient';
 
 export interface IViewListPayment {
     paymentId: string;
+    userId: string;
+    fullName: string;
+    paymentMethod: string;
+    paymentUrl: string;
     totalAmount: number;
     status: string;
-    userId: string;
-    fullName: string; // cần API BE thêm filed này
     packageId: string;
     packageName: string;
     // transactionCode: string; 
-    paymentDate: Date;
+    createdAt: Date;
 }
 
 export const fetchListPayment = async (): Promise<IViewListPayment[]> => {
     try {
         const response = await apiClient.get('Payment/GetAllPayment', {
             params: {
-                pageIndex: -1,
-                pageSize: 100,
+                pageIndex: 0,
+                pageSize: 999,
             },
         });
         const payment = response.data.data.items.map((item: any) => ({
             paymentId: item.paymentId,
-            totalAmount: item.totalAmount,
-            status: item.status,
             userId: item.userId,
             fullName: item.fullName,
+            paymentMethod: item.paymentMethod,
+            paymentUrl: item.paymentUrl,
+            totalAmount: item.totalAmount,
+            status: item.status,
             packageId: item.packageId,
             packageName: item.packageName,
-            paymentDate: item.createdAt,
+            createdAt: item.createdAt,
         }));
         return payment;
     } catch (error) {
@@ -39,14 +44,18 @@ export const fetchListPayment = async (): Promise<IViewListPayment[]> => {
 
 export interface IViewDetailPayment {
     paymentId: string;
+    paymentMethod: string;
     totalAmount: number;
     status: string;
     userId: string;
     fullName: string; // cần API BE thêm filed này
+    addressText: string;
+    createdAt: Date;
     packageId: string;
     packageName: string;
     packageDescription: string;
-    paymentDate: Date;
+    price: number;
+    discount: number;
 }
 
 export const fetchPaymentDetail = async (paymentId: string): Promise<IViewDetailPayment | null> => {
@@ -55,14 +64,18 @@ export const fetchPaymentDetail = async (paymentId: string): Promise<IViewDetail
         const item = response.data.data;
         return {
             paymentId: item.paymentId,
+            paymentMethod: item.paymentMethod,
             totalAmount: item.totalAmount,
             status: item.status,
             userId: item.teacherId,
             fullName: item.fullName,
+            addressText: item.addressText,
+            createdAt: item.createdAt,
             packageId: item.packageId,
             packageName: item.packageName,
             packageDescription: item.packageDescription,
-            paymentDate: item.createdAt,
+            price: item.price,
+            discount: item.discount,
         };
     } catch (error) {
         console.error('Failed to fetch detail payment:', error);
@@ -72,21 +85,23 @@ export const fetchPaymentDetail = async (paymentId: string): Promise<IViewDetail
 
 export const fetchUserPaymentHistory = async (userId: string): Promise<IViewListPayment[]> => {
     try {
-        const response = await apiClient.get(`Payment/GetUserPaymentHistory/history/${userId}`, {
+        const response = await apiClient.get(`/Payment/GetAllPaymentByUserId?teacherId=${userId}`, {
             params: {
                 pageIndex: 0,
-                pageSize: 20,
+                pageSize: 999,
             },
         });
         const payment = response.data.data.items.map((item: any) => ({
             paymentId: item.paymentId,
+            userId: item.userId,
+            fullName: item.fullName,
+            paymentMethod: item.paymentMethod,
+            paymentUrl: item.paymentUrl,
             totalAmount: item.totalAmount,
             status: item.status,
-            userId: item.teacherId,
-            fullName: item.fullName,
             packageId: item.packageId,
             packageName: item.packageName,
-            paymentDate: item.createdAt,
+            createdAt: item.createdAt,
         }));
         return payment;
     } catch (error) {
@@ -97,7 +112,7 @@ export const fetchUserPaymentHistory = async (userId: string): Promise<IViewList
 
 export const fetchRevenueByMonth = async (year: number): Promise<any[]> => {
     try {
-        const response = await apiClient.get(`Payment/GetRevenueByMonth/${year}`);
+        const response = await apiClient.get(`/Payment/GetRevenueByMonth?year=${year}`);
         const revenue = response.data.data;
         return revenue;
     } catch (error) {
@@ -108,7 +123,7 @@ export const fetchRevenueByMonth = async (year: number): Promise<any[]> => {
 
 export const fetchRevenueByQuarter = async (year: number): Promise<any[]> => {
     try {
-        const response = await apiClient.get(`Payment/GetRevenueByQuarter/${year}`);
+        const response = await apiClient.get(`/Payment/GetRevenueByQuarter?year=${year}`);
         const revenue = response.data.data;
         return revenue;
     } catch (error) {
@@ -119,7 +134,7 @@ export const fetchRevenueByQuarter = async (year: number): Promise<any[]> => {
 
 export const fetchRevenueByYear = async (): Promise<any[]> => {
     try {
-        const response = await apiClient.get('Payment/GetRevenueByYear');
+        const response = await apiClient.get('/Payment/GetRevenueByYear');
         const revenue = response.data.data;
         return revenue;
     } catch (error) {
