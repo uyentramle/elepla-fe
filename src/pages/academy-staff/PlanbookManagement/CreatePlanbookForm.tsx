@@ -183,7 +183,7 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
                 form.resetFields();
                 onCreate();
             } else {
-                message.error('Thêm bài dạy thất bại!');
+                message.error('Số lượng kế hoạch bài dạy được tạo đã đạt giới hạn cho gói dịch vụ của bạn!');
             }
         });
     }
@@ -360,7 +360,7 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
                         {loading ? (
                             <div className="flex justify-center items-center h-full">
                                 <Spin size="large" />
-                                <span className="ml-3">Đang tải dữ liệu...</span>
+                                <span className="ml-3 p-6">Đang tạo dữ liệu...</span>
                             </div>
                         ) : (
                             <Spin

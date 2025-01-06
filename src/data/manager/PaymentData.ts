@@ -19,8 +19,10 @@ export interface Payment {
     userId: string;
     fullName: string;
     paymentMethod: string;
+    paymentUrl: string;
     totalAmount: number;
     status: string;
+    packageId: string;
     packageName: string;
     createdAt: string;
 }
@@ -116,5 +118,23 @@ export const getPaymentById = async (paymentId: string): Promise<PaymentDetail> 
     } catch (error) {
         console.error('Error getting payment by id:', error);
         throw error;
+    }
+}
+
+export const getAllPayment = async (): Promise<Payment[]> => {
+    try {
+        const response = await apiClient.get('Payment/GetAllPayment', {
+            params: {
+                pageIndex: -1,
+            }
+        });
+        if (response.data.success) {
+            return response.data.data.items;
+        } else {
+            return [];
+        }
+    } catch (error) {
+        console.error('Error getting all payment:', error);
+        return [];
     }
 }

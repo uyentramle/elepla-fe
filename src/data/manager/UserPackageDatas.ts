@@ -90,3 +90,21 @@ export const getUserPackagesByUserId = async (userId: string): Promise<ApiRespon
         throw error;
     }
 };
+
+export const getAllUserPackages = async (): Promise<UserPackage[]> => {
+    try {
+        const response = await apiClient('UserPackage/GetAllUserPackages', {
+            params: {
+                pageIndex: -1,
+            }
+        });
+        if (response.data.success) {
+            return response.data.data.items;
+        } else {
+            return [];
+        }
+    } catch (error) {
+        console.error('Error getting user packages:', error);
+        return [];
+    }
+}
