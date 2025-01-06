@@ -1,9 +1,14 @@
+// ServicePackageData.ts
 import apiClient from '@/data/apiClient';
 
 export interface IViewListServicePackage {
     packageId: string;
     packageName: string;
     description: string;
+    useTemplate: boolean;
+    useAI: boolean;
+    exportWord: boolean;
+    exportPdf: boolean;
     price: number;
     discount: number;
     startDate: string;
@@ -24,7 +29,7 @@ export const fetchServicePackages = async (): Promise<IViewListServicePackage[]>
         const response = await apiClient.get('ServicePackage/GetAllServicePackages', {
             params: {
                 pageIndex: 0,
-                pageSize: 10,
+                pageSize: 999,
             },
         });
 
@@ -32,6 +37,10 @@ export const fetchServicePackages = async (): Promise<IViewListServicePackage[]>
             packageId: item.packageId,
             packageName: item.packageName,
             description: item.description,
+            useTemplate: item.useTemplate,
+            useAI: item.useAI,
+            exportWord: item.exportWord,
+            exportPdf: item.exportPdf,
             price: item.price,
             discount: item.discount,
             startDate: item.startDate,
@@ -61,6 +70,10 @@ export const fetchServicePackage = async (packageId: string): Promise<IViewListS
             packageId: item.packageId,
             packageName: item.packageName,
             description: item.description,
+            useTemplate: item.useTemplate,
+            useAI: item.useAI,
+            exportWord: item.exportWord,
+            exportPdf: item.exportPdf,
             price: item.price,
             discount: item.discount,
             startDate: item.startDate,
@@ -94,6 +107,10 @@ export interface IServicePackageForm {
     packageId: string | undefined;
     packageName: string;
     description: string;
+    useTemplate: boolean;
+    useAI: boolean;
+    exportWord: boolean;
+    exportPdf: boolean;
     price: number;
     discount: number;
     startDate: string;

@@ -111,8 +111,8 @@ const PaymentManagementPage: React.FC = () => {
                 (timeFrame === "year" && dayjs(service.startDate).isAfter(dayjs().subtract(6, "month"))))
         );
         return [
-            { name: "Đang sử dụng", value: activeServices.filter((service) => service.isActivated).length },
-            { name: "Đã hết hạn", value: activeServices.filter((service) => !service.isActivated && dayjs(service.endDate).isBefore(dayjs())).length },
+            { name: "Đang sử dụng", value: activeServices.filter((service) => service.isActive).length },
+            { name: "Đã hết hạn", value: activeServices.filter((service) => !service.isActive && dayjs(service.endDate).isBefore(dayjs())).length },
             // { name: "Đã hủy", value: 0 },
         ];
     }, [userServices, timeFrame]);
@@ -150,10 +150,10 @@ const PaymentManagementPage: React.FC = () => {
         },
         {
             title: 'Ngày thanh toán',
-            dataIndex: 'paymentDate',
-            key: 'paymentDate',
-            render: (paymentDate: Date) => (
-                <span>{new Date(paymentDate).toLocaleDateString()}</span>
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            render: (createdAt: Date) => (
+                <span>{new Date(createdAt).toLocaleDateString()}</span>
             ),
         },
         {

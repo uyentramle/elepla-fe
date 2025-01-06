@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect } from "react";
-import { Button, Form, Input, message, Typography } from "antd";
+import { Button, Form, Input, message, Switch, Typography } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
 
@@ -14,6 +14,10 @@ const ServicePackageFormPage: React.FC = () => {
         packageId: "",
         packageName: "",
         description: "",
+        useTemplate: false,
+        useAI: false,
+        exportWord: false,
+        exportPdf: false,
         price: 0,
         discount: 0,
         startDate: "",
@@ -107,19 +111,21 @@ const ServicePackageFormPage: React.FC = () => {
                     </div>
 
                     <div className="flex w-full">
-                        <div className="mb-4 pb-4 w-2/3 mr-4">
-                            <Form.Item
-                                label="Mô tả"
-                                name="description"
-                            >
-                                <ReactQuill
-                                    value={formData.description}
-                                    onChange={handleContentChange}
-                                    className="h-80 mb-4"
-                                />
-                            </Form.Item>
+                        <div className="mb-4 pb-4 w-3/5 mr-4">
+                            <div className="pb-4">
+                                <Form.Item
+                                    label="Mô tả"
+                                    name="description"
+                                >
+                                    <ReactQuill
+                                        value={formData.description}
+                                        onChange={handleContentChange}
+                                        className="h-80 mb-4"
+                                    />
+                                </Form.Item>
+                            </div>
                         </div>
-                        <div className="w-1/3 flex flex-col px-4">
+                        <div className="w-2/5 flex flex-col px-4">
                             <div className="">
                                 <Form.Item
                                     label="Giá (VND)"
@@ -194,6 +200,57 @@ const ServicePackageFormPage: React.FC = () => {
                                         onChange={handleChange}
                                     />
                                 </Form.Item>
+                            </div>
+
+                            <div className="flex space-x-4">
+                                <div>
+                                    <Form.Item
+                                        label="Sử dụng thư viện mẫu"
+                                        name="useTemplate"
+                                    >
+                                        <Switch
+                                            id="useTemplate"
+                                            checked={formData.useAI}
+                                            onChange={(checked) => setFormData((prevState) => ({ ...prevState, useAI: checked }))}
+                                        />
+                                    </Form.Item>
+                                </div>
+                                <div>
+                                    <Form.Item
+                                        label="Sử dụng AI"
+                                        name="useAI"
+                                    >
+                                        <Switch
+                                            id="useAI"
+                                            checked={formData.useTemplate}
+                                            onChange={(checked) => setFormData((prevState) => ({ ...prevState, useTemplate: checked }))}
+                                        />
+                                    </Form.Item>
+                                </div>
+                                <div>
+                                    <Form.Item
+                                        label="Xuất file Word"
+                                        name="exportWord"
+                                    >
+                                        <Switch
+                                            id="exportWord"
+                                            checked={formData.exportWord}
+                                            onChange={(checked) => setFormData((prevState) => ({ ...prevState, exportWord: checked }))}
+                                        />
+                                    </Form.Item>
+                                </div>
+                                <div>
+                                    <Form.Item
+                                        label="Xuất file PDF"
+                                        name="exportPdf"
+                                    >
+                                        <Switch
+                                            id="exportPdf"
+                                            checked={formData.exportPdf}
+                                            onChange={(checked) => setFormData((prevState) => ({ ...prevState, exportPdf: checked }))}
+                                        />
+                                    </Form.Item>
+                                </div>
                             </div>
                         </div>
                     </div>

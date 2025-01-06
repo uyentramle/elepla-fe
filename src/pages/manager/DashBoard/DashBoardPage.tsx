@@ -15,7 +15,7 @@ import {
     Bar,
 } from 'recharts';
 import dayjs from 'dayjs';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { IViewListPayment, fetchListPayment, fetchRevenueByMonth, fetchRevenueByQuarter, fetchRevenueByYear } from "@/data/manager/UserPaymentData";
 import { IViewListUserPackage, fetchUserPackageList } from "@/data/manager/UserPackageData";
 
@@ -53,6 +53,8 @@ const DashBoardManagerPage: React.FC = () => {
                 setRevenueData(revenueResponse || []);
             } catch (error) {
                 message.error('Lỗi khi tải dữ liệu từ server.');
+                console.error('Error fetching revenue data:', error);
+                setRevenueData([]);
             }
         };
 
@@ -117,8 +119,8 @@ const DashBoardManagerPage: React.FC = () => {
                 (timeFrame === "year" && dayjs(service.startDate).isAfter(dayjs().subtract(6, "month"))))
         );
         return [
-            { name: "Đang sử dụng", value: activeServices.filter((service) => service.isActivated).length },
-            { name: "Đã hết hạn", value: activeServices.filter((service) => !service.isActivated && dayjs(service.endDate).isBefore(dayjs())).length },
+            { name: "Đang sử dụng", value: activeServices.filter((service) => service.isActive).length },
+            { name: "Đã hết hạn", value: activeServices.filter((service) => !service.isActive && dayjs(service.endDate).isBefore(dayjs())).length },
             // { name: "Đã hủy", value: 0 },
         ];
     }, [userServices, timeFrame]);
@@ -153,10 +155,10 @@ const DashBoardManagerPage: React.FC = () => {
                             title="Dịch vụ khách hàng đang sử dụng"
                             value={
                                 userServices.filter(service =>
-                                    service.isActivated).length
+                                    service.isActive).length
                             } />
                         <div className="mt-2 flex items-center justify-between">
-                            <Link to={"/manager/user-services"} ><CaretRightOutlined /> Xem chi tiết</Link>
+                            {/* <Link to={"/manager/user-services"} ><CaretRightOutlined /> Xem chi tiết</Link> */}
                         </div>
                     </Card>
                 </Col>
@@ -166,12 +168,12 @@ const DashBoardManagerPage: React.FC = () => {
                             title="Người dùng mua gói trong tháng"
                             value={
                                 userPayments.filter(payment =>
-                                    dayjs(payment.paymentDate)
+                                    dayjs(payment.createdAt)
                                         .isSame(dayjs(), 'month')).length
                             } />
                         <div className="mt-2 flex items-center justify-between">
                             {/* <span className="text-green-500">Tăng 1.3% so với tuần trước</span> */}
-                            <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link>
+                            {/* <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link> */}
                         </div>
                     </Card>
                 </Col>
@@ -182,10 +184,10 @@ const DashBoardManagerPage: React.FC = () => {
                             value={
                                 userServices.filter(service =>
                                     dayjs(service.endDate).isSame(dayjs(), 'month')
-                                    && service.isActivated).length
+                                    && service.isActive).length
                             } />
                         <div className="mt-2 flex items-center justify-between">
-                            <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link>
+                            {/* <Link to={"#"} ><CaretRightOutlined /> Xem chi tiết</Link> */}
                         </div>
                     </Card>
                 </Col>

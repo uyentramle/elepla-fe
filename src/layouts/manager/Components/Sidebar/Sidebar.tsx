@@ -42,7 +42,8 @@ export default function MySider({
             getItem('Bảng thống kê', '1', <BarChartOutlined />),
             getItem('Quản lý gói dịch vụ', '2', <ProductOutlined />, [
                 getItem('Danh sách gói dịch vụ', '2-1', <CaretRightOutlined />),
-                getItem('Dịch vụ khách sử dụng', '2-2', <CaretRightOutlined />),
+                // getItem('Dịch vụ khách sử dụng', '2-2', <CaretRightOutlined />),
+                getItem('Thêm gói dịch vụ', '2-3', <CaretRightOutlined />),
             ]),
             getItem('Quản lý thanh toán', '3', <DollarOutlined />),
         ];
@@ -52,7 +53,8 @@ export default function MySider({
         .set('1', '/manager')
         .set('2', '/manager/service-packages')
         .set('2-1', '/manager/service-packages')
-        .set('2-2', '/manager/user-services')
+        // .set('2-2', '/manager/user-services')
+        .set('2-3', '/manager/service-packages/add-new')
         .set('3', '/manager/payments');
 
     return (
