@@ -18,6 +18,7 @@ import dayjs from 'dayjs';
 // import { Link } from 'react-router-dom';
 import { IViewListPayment, fetchListPayment, fetchRevenueByMonth, fetchRevenueByQuarter, fetchRevenueByYear } from "@/data/manager/UserPaymentData";
 import { IViewListUserPackage, fetchUserPackageList } from "@/data/manager/UserPackageData";
+import { getAllUserPackages, UserPackage } from '@/data/manager/UserPackageDatas';
 
 const { Title, Text } = Typography;
 const COLORS = ['#FFBB28', '#55bfc7', '#e8744c', '#00C49F', '#9e5493', '#FF6666'];
@@ -28,6 +29,7 @@ const DashBoardManagerPage: React.FC = () => {
     const [userServices, setUserServices] = useState<IViewListUserPackage[]>([]);
     const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([]);
     const [timeFrame, setTimeFrame] = useState("month");
+    const [userPackages, setUserPackages] = useState<UserPackage[]>([]);
 
     const handleTimeFrameChange = (value: string) => {
         setTimeFrame(value);
@@ -38,8 +40,10 @@ const DashBoardManagerPage: React.FC = () => {
             try {
                 const payments = await fetchListPayment();
                 const services = await fetchUserPackageList();
+                const packages = await getAllUserPackages();
                 setUserPayments(payments);
                 setUserServices(services);
+                setUserPackages(packages);
 
                 let revenueResponse;
                 const year = dayjs().year();
@@ -118,31 +122,81 @@ const DashBoardManagerPage: React.FC = () => {
                 (timeFrame === "quarter" && dayjs(service.startDate).isAfter(dayjs().subtract(3, "month"))) ||
                 (timeFrame === "year" && dayjs(service.startDate).isAfter(dayjs().subtract(6, "month"))))
         );
+
         return [
             { name: "Đang sử dụng", value: activeServices.filter((service) => service.isActive).length },
             { name: "Đã hết hạn", value: activeServices.filter((service) => !service.isActive && dayjs(service.endDate).isBefore(dayjs())).length },
             // { name: "Đã hủy", value: 0 },
         ];
+
+        // const filterByTimeFrame = (service: IViewListUserPackage) => {
+        //     const now = dayjs();
+
+        //     if (timeFrame === "month") {
+        //         return (
+        //             dayjs(service.startDate).isBefore(now.endOf("month")) &&
+        //             dayjs(service.endDate).isAfter(now.startOf("month"))
+        //         );
+        //     }
+
+        //     if (timeFrame === "quarter") {
+        //         const startOfQuarter = now.startOf("month").subtract(2, "month");
+        //         return (
+        //             dayjs(service.startDate).isBefore(now.endOf("month")) &&
+        //             dayjs(service.endDate).isAfter(startOfQuarter)
+        //         );
+        //     }
+
+        //     if (timeFrame === "year") {
+        //         const startOfYear = now.startOf("month").subtract(11, "month");
+        //         return (
+        //             dayjs(service.startDate).isBefore(now.endOf("month")) &&
+        //             dayjs(service.endDate).isAfter(startOfYear)
+        //         );
+        //     }
+
+        //     return false; // Không có timeFrame phù hợp
+        // };
+
+        // const activeServices = userServices.filter((service) =>
+        //     filterByTimeFrame(service) &&
+        //     service.isActive &&
+        //     (service.paymentStatus === "Paid" || service.paymentStatus === null)
+        // );
+
+        // const expiredServices = userServices.filter((service) =>
+        //     filterByTimeFrame(service) &&
+        //     !service.isActive &&
+        //     dayjs(service.endDate).isBefore(dayjs())
+        // );
+
+        // return [
+        //     { name: "Đang sử dụng", value: activeServices.length },
+        //     { name: "Đã hết hạn", value: expiredServices.length },
+        // ];
     }, [userServices, timeFrame]);
 
     const packageStatistics = useMemo(() => {
         const packageCount: { [key: string]: { name: string; count: number; price: number } } = {};
 
-        userServices.forEach((service) => {
-            if (!packageCount[service.packageId]) {
-                const packageInfo = userPayments.find(p => p.packageId === service.packageId);
-                packageCount[service.packageId] = {
-                    name: service.packageName,
-                    count: 1,
-                    price: packageInfo?.totalAmount || 0,
-                };
-            } else {
-                packageCount[service.packageId].count++;
-            }
-        });
+        // userServices
+        userPackages
+            .filter((userPackage) => userPackage.paymentStatus === 'Paid' || userPackage.paymentStatus === null)
+            .forEach((service) => {
+                if (!packageCount[service.packageId]) {
+                    const packageInfo = userPayments.find(p => p.packageId === service.packageId);
+                    packageCount[service.packageId] = {
+                        name: service.packageName,
+                        count: 1,
+                        price: packageInfo?.totalAmount || 0,
+                    };
+                } else {
+                    packageCount[service.packageId].count++;
+                }
+            });
 
         return Object.values(packageCount).sort((a, b) => b.count - a.count);
-    }, [userServices, userPayments]);
+    }, [/*userServices*/ userPackages, userPayments]);
 
     return (
         <>
@@ -154,7 +208,8 @@ const DashBoardManagerPage: React.FC = () => {
                         <Statistic
                             title="Dịch vụ khách hàng đang sử dụng"
                             value={
-                                userServices.filter(service =>
+                                // userServices.filter(service =>
+                                userPackages.filter(service =>
                                     service.isActive).length
                             } />
                         <div className="mt-2 flex items-center justify-between">
@@ -167,7 +222,11 @@ const DashBoardManagerPage: React.FC = () => {
                         <Statistic
                             title="Người dùng mua gói trong tháng"
                             value={
-                                userPayments.filter(payment =>
+                                // userPayments.filter(payment =>
+                                //     dayjs(payment.createdAt)
+                                //         .isSame(dayjs(), 'month')).length
+                                userPackages.filter(payment =>
+                                    payment.paymentStatus === 'Paid' &&
                                     dayjs(payment.createdAt)
                                         .isSame(dayjs(), 'month')).length
                             } />
@@ -182,7 +241,8 @@ const DashBoardManagerPage: React.FC = () => {
                         <Statistic
                             title="Gói sắp hết hạn trong tháng"
                             value={
-                                userServices.filter(service =>
+                                // userServices.filter(service =>
+                                userPackages.filter(service =>
                                     dayjs(service.endDate).isSame(dayjs(), 'month')
                                     && service.isActive).length
                             } />
