@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Spin, Checkbox, Pagination, message } from "antd";
+import { Button, Spin, Checkbox, Pagination } from "antd";
 import {
   fetchAllQuestions,
   fetchQuestionsByUserId,
@@ -110,17 +110,13 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions, existin
 
   const handleCheckboxChange = (question: IQuestion, isChecked: boolean) => {
     if (existingQuestionIds.includes(question.questionId)) {
-      message.warning(`Câu hỏi "${question.question}" đã có trong bài kiểm tra.`);
+      // Không cần xử lý khi đã có trong danh sách
+      return;
     }
   
     if (isChecked) {
-      // Thêm câu hỏi vào danh sách được chọn nếu chưa có trong đó
-      setSelectedQuestions((prev) => {
-        const alreadySelected = prev.some(
-          (q) => q.questionId === question.questionId
-        );
-        return alreadySelected ? prev : [...prev, question];
-      });
+      // Thêm câu hỏi vào danh sách được chọn
+      setSelectedQuestions((prev) => [...prev, question]);
     } else {
       // Loại bỏ câu hỏi khỏi danh sách được chọn
       setSelectedQuestions((prev) =>
@@ -196,27 +192,42 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions, existin
     <p className="text-red-500 text-center">{error}</p>
   ) : filteredQuestions.length > 0 ? (
     <div>
-      <div className="question-list space-y-4">
-      {paginatedQuestions.map((question, index) => (
-          <div
-            key={question.questionId}
-            className="p-4 border border-gray-300 rounded-lg flex items-start space-x-4"
-          >
-            <Checkbox
-              checked={selectedQuestions.some(
-                (q) => q.questionId === question.questionId
-              )}
-              onChange={(e) => handleCheckboxChange(question, e.target.checked)}
-            />
-            <div>
-              <h5 className="font-semibold mb-2">
-                Câu {startIndex + index + 1}: {question.question}
-              </h5>
-              {renderAnswers(question.answers)}
-            </div>
-          </div>
-        ))}
+<div className="question-list space-y-4">
+  {paginatedQuestions.map((question, index) => {
+    const isExisting = existingQuestionIds.includes(question.questionId);
+
+    return (
+      <div
+        key={question.questionId}
+        className={`p-4 border ${
+          isExisting ? "border-red-500" : "border-gray-300"
+        } rounded-lg flex items-start space-x-4`}
+      >
+        <Checkbox
+          disabled={isExisting} // Không cho phép tích checkbox nếu đã tồn tại
+          checked={selectedQuestions.some(
+            (q) => q.questionId === question.questionId
+          )}
+          onChange={(e) =>
+            handleCheckboxChange(question, e.target.checked)
+          }
+        />
+        <div>
+          <h5 className="font-semibold mb-2">
+            Câu {startIndex + index + 1}: {question.question}
+          </h5>
+          {isExisting && (
+            <p className="text-red-500 text-sm">
+              Câu hỏi này đã tồn tại trong bài kiểm tra.
+            </p>
+          )}
+          {renderAnswers(question.answers)}
+        </div>
       </div>
+    );
+  })}
+</div>
+
 
       <Pagination
         current={currentPage}
