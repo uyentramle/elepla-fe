@@ -227,26 +227,35 @@ const ListExamPage: React.FC = () => {
               )}
             </Modal>
 
-      <Modal
-            visible={isEditModalOpen}
-            onCancel={handleEditModalClose}
-            footer={null}
-            width="50%"
-            bodyStyle={{ padding: 0, background: "transparent" }}
-            style={{ background: "transparent", boxShadow: "none", top: 30}}
-            className="custom-modal-no-padding"
-          >
-            {selectedExamId && (
-              <UpdateExamPage
-                examId={selectedExamId}
-                onExamUpdated={() => {
-                  handleEditModalClose();
-                  setIsExamDetailReload(true); // Đặt trạng thái để reload ExamDetailPage
-                  fetchExams();
+            <Modal
+                visible={isEditModalOpen}
+                onCancel={handleEditModalClose}
+                footer={null}
+                width="50%"
+                bodyStyle={{
+                  padding: 0,
+                  background: "transparent",
+                  maxHeight: "90vh", // Giới hạn chiều cao
+                  overflowY: "auto", // Thêm thanh cuộn
                 }}
-              />
-            )}
-          </Modal>
+                style={{
+                  background: "transparent",
+                  boxShadow: "none",
+                  top: 30,
+                }}
+                className="custom-modal-no-padding"
+              >
+                {selectedExamId && (
+                  <UpdateExamPage
+                    examId={selectedExamId}
+                    onExamUpdated={() => {
+                      handleEditModalClose();
+                      setIsExamDetailReload(true); // Đặt trạng thái để reload ExamDetailPage
+                      fetchExams();
+                    }}
+                  />
+                )}
+              </Modal>
     </div>
   );
 };
