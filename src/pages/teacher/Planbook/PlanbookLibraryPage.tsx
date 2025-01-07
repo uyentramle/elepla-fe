@@ -18,7 +18,7 @@ const PlanbooksLibraryPage: React.FC = () => {
   const [isDetailVisible, setIsDetailVisible] = useState<boolean>(false);
   const [isSaveModalVisible, setIsSaveModalVisible] = useState(false); // Hiển thị modal
   const [collections, setCollections] = useState<Collection[]>([]); // Danh sách collections
-  const [loadingCollections, setLoadingCollections] = useState(false);
+  const [loadingCollections, setLoadingCollections] = useState<boolean>(false);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [isCreatingNewCollection, setIsCreatingNewCollection] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
@@ -152,8 +152,9 @@ const PlanbooksLibraryPage: React.FC = () => {
       message.error("Vui lòng chọn bộ sưu tập để lưu Planbook!");
       return;
     }
-
+    
     try {
+      setLoadingCollections(true); // Hiển thị trạng thái loading
       // Gọi API lưu Planbook vào Collection
       const response = await savePlanbook(collectionId, selectedPlanbook);
 
@@ -165,6 +166,7 @@ const PlanbooksLibraryPage: React.FC = () => {
     } catch (error) {
       console.error("Lỗi khi lưu Planbook:", error);
     } finally {
+      setLoadingCollections(false); // Tắt trạng thái loading
       setIsSaveModalVisible(false); // Ẩn modal
     }
   };
@@ -428,14 +430,14 @@ const PlanbooksLibraryPage: React.FC = () => {
         className="text-center"
         title={<span style={{ fontSize: 18, fontWeight: "600" }}>Bộ sưu tập</span>}
         visible={isSaveModalVisible}
-        onCancel={() => setIsSaveModalVisible(false)}
+        onCancel={ loadingCollections ? () => {} :  () => setIsSaveModalVisible(false)}
         footer={[
           isCreatingNewCollection ? (
             <Button key="create" type="primary" onClick={handleSaveNewCollection} loading={loadingCollections}>
               Tạo bộ sưu tập
             </Button>
           ) : (
-            <Button key="done" type="primary" onClick={handleDone}>
+            <Button key="done" type="primary" onClick={handleDone} loading={loadingCollections}>
               Lưu
             </Button>
           ),

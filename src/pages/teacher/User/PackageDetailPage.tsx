@@ -61,13 +61,14 @@ const getAllServicePackages = async (pageIndex: number, pageSize: number): Promi
 
 const PackageDetailPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingPayment, setLoadingPayment] = useState<boolean>(false);
   const [servicePackages, setServicePackages] = useState<ServicePackages[]>([]);
   const [activePackage, setActivePackage] = useState<ServicePackage | null>(null);
 
   useEffect(() => {
     const fetchPackages = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
         const data = await getAllServicePackages(0, 10);
         // console.log('Service packages:', data); // Debug dữ liệu trả về
         setServicePackages(data.data.items);
@@ -83,11 +84,14 @@ const PackageDetailPage: React.FC = () => {
 
   useEffect(() => {
     const fetchActivePackage = async () => {
+      setLoading(true);
       try {
         const activePackageData = await getActiveUserPackageByUserId(getUserId() || '');
         setActivePackage(activePackageData); // Cập nhật state
       } catch (error) {
         console.error('Error fetching active package:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -96,11 +100,14 @@ const PackageDetailPage: React.FC = () => {
 
   const handleUpgradePackage = async (packageId: string) => {
     try {
+      setLoadingPayment(true);
       const createPayment = await createPaymentLink(getUserId() || '', packageId);
       window.open(createPayment.paymentUrl, '_blank');
     } catch (error) {
       // console.error('Error upgrading package:', error);
       message.error('Bạn đang có thanh toán đang chờ xử lý, vui lòng thanh toán hoặc hủy thanh toán trước khi thực hiện thao tác này.');
+    } finally {
+      setLoadingPayment(false);
     }
   };
 
@@ -170,6 +177,7 @@ const PackageDetailPage: React.FC = () => {
                   activePackage?.packageId === pkg.packageId // Vô hiệu hóa nếu là gói hiện tại
                 }
                 onClick={() => handleUpgradePackage(pkg.packageId)}
+                loading={loadingPayment || loading}
               >
                 {activePackage?.packageId === pkg.packageId
                   ? 'Gói hiện tại'

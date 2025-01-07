@@ -172,7 +172,7 @@ const QuestionBankManagementPage: React.FC = () => {
   return (
     <div>
       <Title level={2} className="my-4">
-        Quản lý Ngân hàng Câu hỏi
+        Quản lý ngân hàng câu hỏi
       </Title>
       <div
           className="mb-4 flex justify-between items-center"
