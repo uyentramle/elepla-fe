@@ -226,7 +226,10 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId, onExamUpdated }
         width={1150}
         style={{ top: 45 }} // Adjust the 'top' value to move the modal higher
       >
-        <AddNewQuestion onAddQuestions={handleAddQuestions} />
+        <AddNewQuestion
+          onAddQuestions={handleAddQuestions}
+          existingQuestionIds={examDetails.questions.map((q) => q.questionId)}
+        />
       </Modal>
     </div>
   );

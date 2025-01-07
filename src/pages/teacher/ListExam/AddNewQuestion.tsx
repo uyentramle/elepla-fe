@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Spin, Checkbox, Pagination } from "antd";
+import { Button, Spin, Checkbox, Pagination, message } from "antd";
 import {
   fetchAllQuestions,
   fetchQuestionsByUserId,
@@ -10,10 +10,10 @@ import Filters from "../Exam/Filters";
 
 interface AddNewQuestionProps {
   onAddQuestions: (selectedQuestions: IQuestion[]) => void;
+  existingQuestionIds: string[]; // Thêm prop này
 }
-
-const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions }) => {
-  const [questions, setQuestions] = useState<IQuestion[]>([]);
+const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions, existingQuestionIds }) => {
+    const [questions, setQuestions] = useState<IQuestion[]>([]);
   const [filteredQuestions, setFilteredQuestions] = useState<IQuestion[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -109,14 +109,25 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions }) => {
   
 
   const handleCheckboxChange = (question: IQuestion, isChecked: boolean) => {
+    if (existingQuestionIds.includes(question.questionId)) {
+      message.warning(`Câu hỏi "${question.question}" đã có trong bài kiểm tra.`);
+    }
+  
     if (isChecked) {
-      setSelectedQuestions((prev) => [...prev, question]);
+      // Thêm câu hỏi vào danh sách được chọn nếu chưa có trong đó
+      setSelectedQuestions((prev) => {
+        const alreadySelected = prev.some(
+          (q) => q.questionId === question.questionId
+        );
+        return alreadySelected ? prev : [...prev, question];
+      });
     } else {
+      // Loại bỏ câu hỏi khỏi danh sách được chọn
       setSelectedQuestions((prev) =>
         prev.filter((q) => q.questionId !== question.questionId)
       );
     }
-  };  
+  };
   
   const renderAnswers = (answers: IQuestion["answers"]) => (
     <ul className="pl-6 list-disc">
@@ -186,7 +197,7 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions }) => {
   ) : filteredQuestions.length > 0 ? (
     <div>
       <div className="question-list space-y-4">
-        {paginatedQuestions.map((question, index) => (
+      {paginatedQuestions.map((question, index) => (
           <div
             key={question.questionId}
             className="p-4 border border-gray-300 rounded-lg flex items-start space-x-4"
