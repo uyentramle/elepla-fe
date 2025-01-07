@@ -155,6 +155,14 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId, onExamUpdated }
 
   return (
     <div className="p-0 bg-transparent">
+                  <div className="container mx-auto px-4 mt-7"
+                style={{
+                  maxHeight: 'calc(110vh - 173px)',  // Giới hạn chiều cao của thẻ div
+                  overflowY: 'auto',   // Thêm thanh cuộn khi chiều cao vượt quá maxHeight
+                    scrollbarWidth: 'thin',
+                }}
+            >
+
       <div className="max-w-4xl mx-auto bg-white shadow-none rounded-lg p-6 flex flex-col justify-between h-full border-none">
         <Form layout="vertical">
           <Form.Item label="Tiêu đề bài kiểm tra">
@@ -223,14 +231,15 @@ const UpdateExamPage: React.FC<UpdateExamPageProps> = ({ examId, onExamUpdated }
         title="Thêm câu hỏi mới"
         onCancel={() => setShowAddQuestionModal(false)}
         footer={null}
-        width={1150}
-        style={{ top: 45 }} // Adjust the 'top' value to move the modal higher
+        width={1180}
+        style={{ top: 20 }} // Adjust the 'top' value to move the modal higher
       >
         <AddNewQuestion
           onAddQuestions={handleAddQuestions}
           existingQuestionIds={examDetails.questions.map((q) => q.questionId)}
         />
       </Modal>
+      </div>
     </div>
   );
 };

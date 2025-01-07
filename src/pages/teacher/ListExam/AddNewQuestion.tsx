@@ -142,6 +142,13 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions, existin
 
   return (
 <div className="max-w-7xl mx-auto p-4">
+<div className="container mx-auto px-4 mt-7"
+                style={{
+                  maxHeight: 'calc(110vh - 173px)',  // Giới hạn chiều cao của thẻ div
+                  overflowY: 'auto',   // Thêm thanh cuộn khi chiều cao vượt quá maxHeight
+                    scrollbarWidth: 'thin',
+                }}
+            >
   <h1 className="text-2xl font-semibold mb-6 text-center">Ngân hàng câu hỏi</h1>
   <div className="flex justify-between items-center mb-6">
     <div className="flex space-x-2 items-center w-2/3">
@@ -157,6 +164,8 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions, existin
         type="primary"
         onClick={() => setShowAnswers(!showAnswers)}
         className="h-10 px-4"
+        style={{ width: 140 }} // Cố định chiều rộng
+
       >
         {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
       </Button>
@@ -166,6 +175,8 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions, existin
           setUseMyQuestions((prev) => !prev);
         }}
         className="h-10 px-4"
+        style={{ width: 160 }} // Cố định chiều rộng
+
       >
         {useMyQuestions ? "Ngân hàng câu hỏi" : "Câu hỏi của tôi"}
       </Button>
@@ -240,6 +251,7 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions, existin
   ) : (
     <p className="text-gray-500 text-center">Ngân hàng chưa có câu hỏi.</p>
   )}
+  </div>
 </div>
   );
   

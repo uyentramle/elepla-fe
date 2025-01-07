@@ -174,30 +174,36 @@ const ExamPage: React.FC = () => {
         <div>
           {/* Toggle Source Button */}
           <div className="flex justify-between items-center mb-4">
-            <Button
-              type="primary"
-              onClick={() => setShowAnswers(!showAnswers)}
-              className="h-10"
-            >
-              {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
-            </Button>
-  
-            <Button
-              type="default"
-              onClick={() => setUseMyQuestions((prev) => !prev)}
-              className="h-10"
-            >
-              {useMyQuestions ? "Ngân hàng câu hỏi" : "Câu hỏi của tôi"}
-            </Button>
-                  <Button
-                    type="primary"
-                    onClick={showModal}
-                    className="h-9 px-6 flex items-center -mt-5"
-                  >
-                    <PlusOutlined className="mr-2" />
-                    Thêm bài kiểm tra
-                  </Button>
+          <div className="flex space-x-2">
+              <Button
+                type="primary"
+                onClick={() => setShowAnswers(!showAnswers)}
+                className="h-10 px-4"
+                style={{ width: 140 }} // Cố định chiều rộng
+              >
+                {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
+              </Button>
+
+              <Button
+                type="default"
+                onClick={() => setUseMyQuestions((prev) => !prev)}
+                className="h-10 px-4"
+                style={{ width: 160 }} // Cố định chiều rộng
+              >
+                {useMyQuestions ? "Ngân hàng câu hỏi" : "Câu hỏi của tôi"}
+              </Button>
               </div>
+
+              <Button
+                type="primary"
+                onClick={showModal}
+                className="h-9 px-6 flex items-center -mt-5"
+              >
+                <PlusOutlined className="mr-2" />
+                Thêm bài kiểm tra
+              </Button>
+            </div>
+
   
           {filteredQuestions.length > 0 ? (
             <div>

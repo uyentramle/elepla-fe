@@ -206,16 +206,16 @@ const ListExamPage: React.FC = () => {
               }}
               footer={null}
               width="50%"
-              bodyStyle={{ 
-                padding: "16px", // Giảm padding bên trong
-                maxHeight: "90vh", // Chiều cao tối đa, có thể cuộn nếu nội dung vượt quá
-                overflowY: "auto", // Bật cuộn dọc nếu cần
-                background: "transparent" 
+              bodyStyle={{
+                padding: 0,
+                background: "transparent",
+                // maxHeight: "90vh", // Giới hạn chiều cao
+                overflowY: "hidden", // Thêm thanh cuộn
               }}
               style={{ 
                 background: "transparent", 
                 boxShadow: "none", 
-                top: 20 // Điều chỉnh vị trí từ trên xuống, giúp modal không quá dài
+                top: 30, // Điều chỉnh vị trí từ trên xuống, giúp modal không quá dài
               }}
               className="custom-modal-no-padding"
             >
@@ -235,8 +235,8 @@ const ListExamPage: React.FC = () => {
                 bodyStyle={{
                   padding: 0,
                   background: "transparent",
-                  maxHeight: "90vh", // Giới hạn chiều cao
-                  overflowY: "auto", // Thêm thanh cuộn
+                  // maxHeight: "90vh", // Giới hạn chiều cao
+                  overflowY: "hidden", // Thêm thanh cuộn
                 }}
                 style={{
                   background: "transparent",
