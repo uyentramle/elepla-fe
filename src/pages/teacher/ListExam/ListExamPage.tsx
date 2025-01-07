@@ -209,7 +209,7 @@ const ListExamPage: React.FC = () => {
               bodyStyle={{
                 padding: 0,
                 background: "transparent",
-                maxHeight: "90vh", // Giới hạn chiều cao
+                // maxHeight: "90vh", // Giới hạn chiều cao
                 overflowY: "hidden", // Thêm thanh cuộn
               }}
               style={{ 
@@ -235,7 +235,7 @@ const ListExamPage: React.FC = () => {
                 bodyStyle={{
                   padding: 0,
                   background: "transparent",
-                  maxHeight: "90vh", // Giới hạn chiều cao
+                  // maxHeight: "90vh", // Giới hạn chiều cao
                   overflowY: "hidden", // Thêm thanh cuộn
                 }}
                 style={{
