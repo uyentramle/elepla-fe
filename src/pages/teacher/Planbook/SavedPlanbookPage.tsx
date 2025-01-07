@@ -143,6 +143,7 @@ const SavedPlanbookPage: React.FC = () => {
     }
 
     try {
+      setLoadingCollections(true); // Hiển thị trạng thái loading
       // Gọi API lưu Planbook vào Collection
       const response = await clonePlanbook(selectedPlanbook, collectionId);
 
@@ -154,6 +155,7 @@ const SavedPlanbookPage: React.FC = () => {
     } catch (error) {
       console.error("Lỗi khi lưu Planbook:", error);
     } finally {
+      setLoadingCollections(false); // Ẩn trạng thái loading
       setIsCloneModalVisible(false); // Ẩn modal
     }
   };
@@ -381,14 +383,14 @@ const SavedPlanbookPage: React.FC = () => {
               className="text-center"
               title={<span style={{ fontSize: 18, fontWeight: "600" }}>Bộ sưu tập</span>}
               visible={isCloneModalVisible}
-              onCancel={() => setIsCloneModalVisible(false)}
+              onCancel={loadingCollections ? () => {} : () => setIsCloneModalVisible(false)}
               footer={[
                 isCreatingNewCollection ? (
                   <Button key="create" type="primary" onClick={handleSaveNewCollection} loading={loadingCollections}>
                     Tạo bộ sưu tập
                   </Button>
                 ) : (
-                  <Button key="done" type="primary" onClick={handleDone}>
+                  <Button key="done" type="primary" onClick={handleDone} loading={loadingCollections}>
                     Tạo bản sao
                   </Button>
                 ),

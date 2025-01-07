@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Row, Col, Card, Statistic, List, Typography, Select, message } from 'antd';
+import { Row, Col, Card, Statistic, List, Typography, Select, message, Spin } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import {
     XAxis,
@@ -25,9 +25,11 @@ const COLORS = ['#FFBB28', '#55bfc7', '#e8744c', '#00C49F', '#9e5493', '#FF6666'
 const { Option } = Select;
 
 const DashBoardManagerPage: React.FC = () => {
+    const [loading, setLoading] = useState(true);
     const [userPayments, setUserPayments] = useState<IViewListPayment[]>([]);
     const [userServices, setUserServices] = useState<IViewListUserPackage[]>([]);
     const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([]);
+    const [loadingRevenue, setLoadingRevenue] = useState(false);
     const [timeFrame, setTimeFrame] = useState("month");
     const [userPackages, setUserPackages] = useState<UserPackage[]>([]);
 
@@ -37,6 +39,7 @@ const DashBoardManagerPage: React.FC = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            setLoadingRevenue(true);
             try {
                 const payments = await fetchListPayment();
                 const services = await fetchUserPackageList();
@@ -59,6 +62,9 @@ const DashBoardManagerPage: React.FC = () => {
                 message.error('Lỗi khi tải dữ liệu từ server.');
                 console.error('Error fetching revenue data:', error);
                 setRevenueData([]);
+            } finally {
+                setLoading(false);
+                setLoadingRevenue(false);
             }
         };
 
@@ -198,6 +204,15 @@ const DashBoardManagerPage: React.FC = () => {
         return Object.values(packageCount).sort((a, b) => b.count - a.count);
     }, [/*userServices*/ userPackages, userPayments]);
 
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <Spin size="large" className="dashboard-loading" />
+                <span className="ml-2">Đang tải dữ liệu...</span>
+            </div>
+        );
+    }
+
     return (
         <>
             <Title level={2} className="my-4">Bảng điều khiển</Title>
@@ -293,19 +308,30 @@ const DashBoardManagerPage: React.FC = () => {
                 <Col span={8}>
                     <Card title="Thống kê doanh thu">
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart
-                                data={revenueData}
-                                margin={{
-                                    top: 5, right: 5, left: 0, bottom: 0
-                                }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="year" />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Bar dataKey="revenue" fill="#82ca9d" />
-                            </BarChart>
+                            {loadingRevenue ? (
+            // Hiển thị spinner khi loading
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <Spin size="large" className="dashboard-loading" />
+            </div>
+        ) : revenueData && revenueData.length > 0 ? (
+                                <BarChart
+                                    data={revenueData}
+                                    margin={{
+                                        top: 5, right: 5, left: 0, bottom: 0
+                                    }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="year" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Bar dataKey="revenue" fill="#82ca9d" />
+                                </BarChart>
+                            ) : (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#888' }}>
+                                    Chưa có doanh thu
+                                </div>
+                            )}
                         </ResponsiveContainer>
                     </Card>
                 </Col>

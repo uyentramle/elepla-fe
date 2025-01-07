@@ -9,6 +9,7 @@ import { updatePaymentStatus } from "@/data/manager/PaymentData";
 
 const PackageInUsePage: React.FC = () => {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [userPackages, setUserPackages] = useState<UserPackage[]>([]);
     const [activePackage, setActivePackage] = useState<UserPackage | undefined>();
     const [isModalVisible, setIsModalVisible] = useState(false); // State to control the popup
@@ -42,7 +43,7 @@ const PackageInUsePage: React.FC = () => {
         };
 
         fetchUserPackage();
-    }, [location, isModalVisible]);
+    }, [location, isModalVisible, loading]);
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -60,6 +61,7 @@ const PackageInUsePage: React.FC = () => {
                     .then((success) => {
                         if (success) {
                             console.log('Payment status updated successfully');
+                            setLoading((prev) => !prev);
                         } else {
                             console.error('Failed to update payment status');
                         }
@@ -74,6 +76,7 @@ const PackageInUsePage: React.FC = () => {
             // Reset URL bằng cách sử dụng window.history.replaceState
             window.history.replaceState(null, '', window.location.pathname);
         }
+
     }, [location]);
 
     const handleOk = () => {
@@ -283,7 +286,7 @@ const PackageInUsePage: React.FC = () => {
                 onOk={handleOk}
                 onCancel={handleCancel}
                 footer={null}
-                width={800}
+                width={850}
                 style={{ top: '10vh' }}
             >
                 <PackageDetailPage />
