@@ -96,6 +96,7 @@ const DashBoardPage: React.FC = () => {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
                 <Spin size="large" className="dashboard-loading" />
+                <span className="ml-2">Đang tải dữ liệu...</span>
             </div>
         );
     }

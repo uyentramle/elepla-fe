@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { SearchOutlined, PlusOutlined, EditOutlined, EllipsisOutlined, BlockOutlined, UnlockOutlined } from '@ant-design/icons';
-import { Input, Select, Button, Table, Tag, Space, Avatar, Dropdown, Menu, /*Pagination,*/ message } from 'antd';
+import { Input, Select, Button, Table, Tag, Space, Avatar, Dropdown, Menu, /*Pagination,*/ message, Spin } from 'antd';
 import UserDetailsForm from './UserDetailsForm'; // Đường dẫn đến component UserDetailsForm
 import AddUserForm from './AddUserForm';
 // import { renderMatches } from "react-router-dom";
@@ -114,6 +114,7 @@ const blockOrUnblockUser = async (userId: string, status: boolean): Promise<void
 };
 
 const UserManagementPage: React.FC = () => {
+  const [loading, setLoading] = useState(true);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'Active' | 'Blocked' | 'All'>('All');
@@ -160,6 +161,8 @@ const UserManagementPage: React.FC = () => {
         // setTotalPagesCount(data.data.totalPagesCount);
       } catch (error) {
         console.error('Error fetching accounts:', error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -329,6 +332,15 @@ const UserManagementPage: React.FC = () => {
       ),
     },
   ];
+
+  if (loading) {
+    return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <Spin size="large" className="dashboard-loading" /> 
+            <span className="ml-2">Đang tải dữ liệu...</span>
+        </div>
+    );
+}
 
   return (
     <div className="container mx-auto px-4 py-8">

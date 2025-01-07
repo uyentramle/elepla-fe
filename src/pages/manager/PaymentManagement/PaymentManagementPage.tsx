@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { SearchOutlined, } from '@ant-design/icons';
-import { Input, Table, Select, Typography, Row, Col, Card, message, } from 'antd';
+import { Input, Table, Select, Typography, Row, Col, Card, message, Spin } from 'antd';
 import {
     Bar,
     BarChart,
@@ -25,11 +25,13 @@ const { Title } = Typography;
 const COLORS = ['#FFBB28', '#55bfc7', '#e8744c', '#00C49F', '#9e5493', '#FF6666'];
 
 const PaymentManagementPage: React.FC = () => {
+    const [loading, setLoading] = useState(true);
     const [userPayments, setUserPayments] = useState<IViewListPayment[]>([]);
     const [userServices, setUserServices] = useState<IViewListUserPackage[]>([]);
     const [servicePackages, setServicePackages] = useState<IViewListServicePackage[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([]);
+    const [loadingRevenue, setLoadingRevenue] = useState(false);
     // const [filterStatus, setFilterStatus] = useState<'Active' | 'Inactive' | 'All'>('All');
     const [filterPackage, setFilterPackage] = useState('All');
     const [timeFrame, setTimeFrame] = useState("month");
@@ -39,6 +41,7 @@ const PaymentManagementPage: React.FC = () => {
     };
 
     useEffect(() => {
+        setLoadingRevenue(true);
         const fetchData = async () => {
             try {
                 const payments = await fetchListPayment();
@@ -60,6 +63,9 @@ const PaymentManagementPage: React.FC = () => {
                 setRevenueData(revenueResponse || []);
             } catch (error) {
                 message.error('Lỗi khi tải dữ liệu từ server.');
+            } finally {
+                setLoading(false);
+                setLoadingRevenue(false);
             }
         };
 
@@ -195,6 +201,15 @@ const PaymentManagementPage: React.FC = () => {
         },
     ];
 
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <Spin size="large" className="dashboard-loading" />
+                <span className="ml-2">Đang tải dữ liệu...</span>
+            </div>
+        );
+    }
+
     return (
         <>
             <Title level={2} className="my-4">Thống kê thanh toán</Title>
@@ -223,7 +238,7 @@ const PaymentManagementPage: React.FC = () => {
                                     outerRadius={80}
                                     dataKey="value"
                                     label={({ value }) => `${value.toFixed(2)}%`} // Định dạng số thập phân 2 chữ số
-                                    >
+                                >
                                     {packageDistribution.map((_, index) => (
                                         <Cell
                                             key={`cell-${index}`}
@@ -240,19 +255,30 @@ const PaymentManagementPage: React.FC = () => {
                 <Col span={8}>
                     <Card title="Thống kê doanh thu">
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart
-                                data={revenueData}
-                                margin={{
-                                    top: 5, right: 5, left: 0, bottom: 0
-                                }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="year" />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Bar dataKey="revenue" fill="#82ca9d" />
-                            </BarChart>
+                            {loadingRevenue ? (
+                                // Hiển thị spinner khi loading
+                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                    <Spin size="large" className="dashboard-loading" />
+                                </div>
+                            ) : revenueData && revenueData.length > 0 ? (
+                                <BarChart
+                                    data={revenueData}
+                                    margin={{
+                                        top: 5, right: 5, left: 0, bottom: 0
+                                    }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="year" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Bar dataKey="revenue" fill="#82ca9d" />
+                                </BarChart>
+                            ) : (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#888' }}>
+                                    Chưa có doanh thu
+                                </div>
+                            )}
                         </ResponsiveContainer>
                     </Card>
                 </Col>

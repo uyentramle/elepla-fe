@@ -11,11 +11,13 @@ export interface IAccount {
     googleEmail: string;
     facebookEmail: string;
     gender: 'Male' | 'Female' | 'Unknown';
+    teach: string;
     status: boolean;
     lastLogin: string;
     avatar: string;
     role: string;
     address: string;
+    schoolName: string;
     createdAt: Date;
     createdBy: string;
     updatedAt: Date;
@@ -176,3 +178,22 @@ export const linkGoogleAccount = async (currentUserId: string, googleToken: stri
         return false;
     }
 };
+
+export const getUserProfile = async (userId: string): Promise<IAccount | null> => {
+    try {
+        const response = await apiClient.get(`Account/GetUserProfile`, {
+            params: {
+                userId
+            }
+        });
+
+        if (response.data.success) {
+            return response.data.data;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        return null;
+    }
+}

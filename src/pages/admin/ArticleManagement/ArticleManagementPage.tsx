@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Button, Input, Table, Select, Modal, message, Typography } from 'antd';
+import { Button, Input, Table, Select, Modal, message, Typography, Spin } from 'antd';
 // import article_data, { IArticle } from '@/data/admin/ArticleData';
 import { IViewListArticle, getViewListArticle, deleteArticle } from '@/data/admin/ArticleData';
 
@@ -11,7 +11,7 @@ const { Title } = Typography;
 const ArticleManagementPage: React.FC = () => {
     // const [articles, setArticles] = useState(article_data);
     const [articles, setArticles] = useState<IViewListArticle[]>([]);
-    const [, setLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(true);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<'Draft' | 'Public' | 'Private' | 'Trash' | 'All'>('All');
@@ -136,6 +136,15 @@ const ArticleManagementPage: React.FC = () => {
             ),
         },
     ];
+
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <Spin size="large" className="dashboard-loading" />
+                <span className="ml-2">Đang tải dữ liệu...</span>
+            </div>
+        );
+    }
 
     return (
         <>

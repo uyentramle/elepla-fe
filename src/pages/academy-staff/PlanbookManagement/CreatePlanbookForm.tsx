@@ -38,6 +38,8 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
     const [loadingAI, setLoadingAI] = useState(false); // State to manage loading
     const [service, setService] = useState<ServicePackage>();
     const [showPackageDetail, setShowPackageDetail] = useState(false);
+    // const [userProfile, setUserProfile] = useState<IAccount | null>(null);
+    // const [schoolOptions, setSchoolOptions] = useState<{ value: string }[]>([]);
 
     useEffect(() => {
         if (isVisible) {
@@ -83,6 +85,19 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
 
         fetchUserPackage();
     }, [showPackageDetail]);
+
+    // useEffect(() => {
+    //     const fetchUserProfile = async () => {
+    //         const user = await getUserProfile(getUserId()!);
+    //         setUserProfile(user);
+
+    //         if (userProfile?.schoolName) {
+    //             setSchoolOptions([{ value: userProfile.schoolName }]);
+    //           }
+    //     };
+
+    //     fetchUserProfile();
+    // }, [isVisible]);
 
     const updateInputWidth = () => {
         if (inputRef.current) {
@@ -397,6 +412,7 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
                                                     style={{ marginBottom: 0 }} // Loại bỏ margin dưới Form.Item
                                                 >
                                                     <Input
+                                                        // options={schoolOptions} // Danh sách gợi ý chỉ chứa schoolName từ API
                                                         placeholder="Nhập tên trường"
                                                         style={{
                                                             fontSize: "14px",
@@ -756,7 +772,7 @@ const CreatePlanbookForm: React.FC<CreatePlanbookProps> = ({ collectionId, isVis
                             onOk={handleOk}
                             onCancel={handleCancel}
                             footer={null}
-                            width={800}
+                            width={850}
                             style={{ top: '10vh' }}
                         >
                             <PackageDetailPage />

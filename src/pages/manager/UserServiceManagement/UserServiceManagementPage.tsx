@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import {
     SearchOutlined,
-    // CaretRightOutlined, 
+    // CaretRightOutlined,
 } from '@ant-design/icons';
 import { Input, Table, Select, Typography, Row, Col, Card, Statistic, Spin } from 'antd';
 // import { Link } from "react-router-dom";
