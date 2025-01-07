@@ -97,11 +97,15 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
 
   return (
     <div className="p-0 bg-transparent h-full flex flex-col">
+                  <div className="container mx-auto px-4 mt-7"
+                style={{
+                    maxHeight: 'calc(110vh - 173px)',  // Giới hạn chiều cao của thẻ div
+                    overflowY: 'auto',   // Thêm thanh cuộn khi chiều cao vượt quá maxHeight
+                    scrollbarWidth: 'thin',
+                }}
+            >
       <div className="max-w-4xl mx-auto bg-white flex flex-col h-full border-none relative">
-  
-        {/* Nội dung cuộn */}
-        <div className="flex-grow overflow-y-auto px-4">
-          {/* Header */}
+            {/* Header */}
           <h1 className="text-3xl font-bold text-center my-4">{examDetails.title}</h1>
   
           {/* Thời gian làm bài */}
@@ -109,15 +113,18 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
             <strong>Thời gian làm bài:</strong> {examDetails.time}
           </p>
   
-          {/* Hiển thị đáp án button */}
           <Button
             type="primary"
             onClick={() => setShowAnswers(!showAnswers)}
-            className="mb-4 w-auto"
+            className="mb-4"
             style={{
               fontSize: "0.875rem",
+              width: "fit-content", 
+              padding: "0.5rem 1rem", 
+              textAlign: "center", 
               border: "none",
               boxShadow: "none",
+              marginLeft: "0", 
             }}
           >
             {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
@@ -132,14 +139,13 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
               {renderAnswers(question.answers)}
             </div>
           ))}
-        </div>
   
         {/* Footer cố định */}
         <div
           className="flex justify-between gap-2 p-4 bg-white shadow-md"
           style={{
             position: "sticky",
-            bottom: -30, // Đẩy footer cách cạnh dưới một chút
+            bottom: -10, // Đẩy footer cách cạnh dưới một chút
             left: 0,
             right: 0,
             zIndex: 10,
@@ -171,6 +177,7 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId }) => {
             Xuất PDF (kèm đáp án)
           </Button>
         </div>
+      </div>
       </div>
     </div>
   );

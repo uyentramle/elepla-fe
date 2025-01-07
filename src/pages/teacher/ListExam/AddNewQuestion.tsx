@@ -157,6 +157,8 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions, existin
         type="primary"
         onClick={() => setShowAnswers(!showAnswers)}
         className="h-10 px-4"
+        style={{ width: 140 }} // Cố định chiều rộng
+
       >
         {showAnswers ? "Ẩn đáp án" : "Hiển thị đáp án"}
       </Button>
@@ -166,6 +168,8 @@ const AddNewQuestion: React.FC<AddNewQuestionProps> = ({ onAddQuestions, existin
           setUseMyQuestions((prev) => !prev);
         }}
         className="h-10 px-4"
+        style={{ width: 160 }} // Cố định chiều rộng
+
       >
         {useMyQuestions ? "Ngân hàng câu hỏi" : "Câu hỏi của tôi"}
       </Button>
