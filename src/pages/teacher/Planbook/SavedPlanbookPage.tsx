@@ -53,7 +53,7 @@ const SavedPlanbookPage: React.FC = () => {
       }
     };
     fetchData();
-  }, [collectionId, isDeleteModalVisible]);
+  }, [collectionId, isDeleteModalVisible, isDetailVisible]);
 
   const filteredPlanbooks = planbooks
     .filter((planbook) =>
