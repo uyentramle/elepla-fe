@@ -51,7 +51,7 @@ const PlanbookPage: React.FC = () => {
       }
     };
     fetchData();
-  }, [collectionId, isEditModalVisible, isCreateModalVisible, isDeleteModalVisible]);
+  }, [collectionId, isEditModalVisible, isCreateModalVisible, isDeleteModalVisible, isDetailVisible]);
 
 
   const filteredPlanbooks = planbooks.filter((planbook) => {
