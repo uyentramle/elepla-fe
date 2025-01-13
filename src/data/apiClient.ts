@@ -3,7 +3,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 const apiClient = axios.create({
-    baseURL: "https://elepla-be-production.up.railway.app/api/",
+    baseURL: "https://elepla-production.up.railway.app/api/",
     // baseURL: "https://localhost:44314/api/",
 });
 
